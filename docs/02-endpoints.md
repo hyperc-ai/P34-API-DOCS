@@ -1,0 +1,93 @@
+# 2. Endpoints, auth, and model versions
+
+Base URL: **`https://api.hyperc.com/v1`**
+
+## Authentication
+
+Get an API key from the [management console](https://api.hyperc.com/app/)
+(register → API keys). Send it on every request:
+
+```
+Authorization: Bearer <key>
+```
+
+Keys come in `test-…` and `profit-…` flavours tied to your plan; usage is
+metered against your plan's compute budget (the console shows utilization in
+real time). `GET /` and `GET /health` are open liveness endpoints.
+
+## Endpoints
+
+| Method & path | Purpose |
+| --- | --- |
+| `GET /` | Service info: protocol, available model versions, endpoint list. |
+| `GET /health` | Liveness probe. |
+| `POST /fit` | Submit Menus + Sales + market_type. Validates, grounds the history, enqueues the calculation. Returns `session_id` immediately. |
+| `GET /result/{session_id}` | Poll the calculation: `queued` → `processing` → `done` / `failed`. `done` carries the predicted T=0 menu. |
+| `POST /predict` | Instant selection from a small in-process reference model — a payload sanity-checker while the real calculation runs. **Not** P34's answer; `/result` is. |
+| `DELETE /session/{id}` | Discard a session you no longer need. |
+| `GET /queue` | Intake spool state (admin accounts). |
+
+## Result statuses
+
+| status | meaning |
+| --- | --- |
+| `queued` | waiting for the compute queue. |
+| `processing` | fitting/predicting on the cluster (a `runner` field carries progress detail). |
+| `done` | predictions ready — see below. |
+| `failed` | something broke; `error` carries the reason. |
+| 404 | unknown session id (wrong server, or the session was removed). |
+
+A `done` response contains **only the T=0 menu, with profit predictions**:
+
+```json
+{
+  "status": "done",
+  "menu": [
+    {"key": "A001", "menu": 0, "T": 0, "qty": 3.0, "profit": 42.7},
+    {"key": "A002", "menu": 0, "T": 0, "qty": 0.0, "profit": -1.2}
+  ],
+  "n_selected": 1,
+  "predicted_profit_sum": 42.7,
+  "summary": { "...": "per-bag prediction summary" }
+}
+```
+
+One row per key of your task menu: `qty` is the model-selected size (`0` = do
+not trade) and `profit` the predicted total profit at that size. Keys are your
+original ids. Take the `qty > 0` rows together as the recommended portfolio.
+
+## Model versions
+
+Every `/fit` runs against a released **model version**. Select one with the
+optional top-level `model` field (or a `"model"` key inside `market_type`; the
+top-level field wins):
+
+```json
+{ "menus": [...], "sales": [...], "market_type": {...}, "model": "r001" }
+```
+
+| version | meaning |
+| --- | --- |
+| `default` | the current live model revision (used when `model` is omitted) |
+| `r000` | released tag with a dedicated universe-selector model |
+| `r001` | the first released tag |
+| `r003-alpha` | released tag with a pooled small-markets universe selector |
+| `r003-alpha-ray` | same as `r003-alpha` with a distributed fitting backend (faster on large menus) |
+
+`GET /` lists the versions the server currently offers; an unknown version is
+rejected with 422. The chosen version is echoed in the `/fit` response and in
+`/result`'s `runner` detail; the whole calculation — fit **and** predict —
+executes from that version.
+
+## Wire formats
+
+Tables travel either as **JSON lists of records** (easy from CSV) or as
+**base64-encoded Parquet** (dtype-exact). The sample client's
+[`wire.py`](../examples/client/wire.py) has both helpers. Responses that carry
+tables (e.g. `/predict`'s `selection`) use the same encoding.
+
+## Request limits
+
+Free/unpaid accounts have a request-size cap (currently 300 MB per request).
+Paid plans raise compute budgets — see the plans page in the
+[management console](https://api.hyperc.com/app/).

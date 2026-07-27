@@ -1,0 +1,10 @@
+{
+  "market_type": "synthetic_inventory",
+  "parameters": {
+    "qty_ordered_range": 4,
+    "inventory_holding_weeks_before_writeoff": 8,
+    "holding_cost_per_unit": 0.1,
+    "leftover_writeoff_fraction": 1.0,
+    "grounding_labelling_mode": "synthetic_full"
+  }
+}
