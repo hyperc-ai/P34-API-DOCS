@@ -15,7 +15,8 @@ industry-standard boosting regressor baseline.
 
 `GET https://api.hyperc.com/v1/` is open (liveness + capability listing); all
 other API calls require an API key from the management console, sent as
-`Authorization: Bearer <key>`.
+`Authorization: Bearer <key>`, on an account with an **active subscription**
+(subscribe on the console's plans page — there is no free usage tier).
 
 ## Where to start
 

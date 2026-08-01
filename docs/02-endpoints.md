@@ -13,7 +13,11 @@ Authorization: Bearer <key>
 
 Keys come in `test-…` and `profit-…` flavours tied to your plan; usage is
 metered against your plan's compute budget (the console shows utilization in
-real time). `GET /` and `GET /health` are open liveness endpoints.
+real time). Registration is free, but calling the API requires an **active
+subscription** — requests on an account without one return `429` with
+`"no active subscription — subscribe to a plan to use the API"`. Subscribe
+from the console's plans page. `GET /` and `GET /health` are open liveness
+endpoints.
 
 ## Endpoints
 
@@ -110,6 +114,8 @@ tables (e.g. `/predict`'s `selection`) use the same encoding.
 
 ## Request limits
 
-Free/unpaid accounts have a request-size cap (currently 300 MB per request).
-Paid plans raise compute budgets — see the plans page in the
-[management console](https://api.hyperc.com/app/).
+An active subscription is required to call the API (see Authentication
+above). Compute budgets scale with the plan — see the plans page in the
+[management console](https://api.hyperc.com/app/). Accounts without an
+active plan also have a request-size cap (currently 300 MB per request),
+though their requests are refused with `429` regardless.
