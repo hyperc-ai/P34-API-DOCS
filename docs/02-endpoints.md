@@ -73,11 +73,33 @@ top-level field wins):
 | `r001` | the first released tag |
 | `r003-alpha` | released tag with a pooled small-markets universe selector |
 | `r003-alpha-ray` | same as `r003-alpha` with a distributed fitting backend (faster on large menus) |
+| `r005` | released tag with a retrained universe selector and distributed fitting; supports `confidence_level` with a service default of 0.6 |
 
 `GET /` lists the versions the server currently offers; an unknown version is
 rejected with 422. The chosen version is echoed in the `/fit` response and in
 `/result`'s `runner` detail; the whole calculation — fit **and** predict —
 executes from that version.
+
+## Confidence level
+
+`/fit` accepts an optional `confidence_level` (number in `[0, 1]`; also
+accepted as a `"confidence_level"` key inside `market_type`, the top-level
+field wins):
+
+```json
+{ "menus": [...], "sales": [...], "market_type": {...},
+  "model": "r005", "confidence_level": 0.55 }
+```
+
+It is the minimum score the model's universe selector must assign a candidate
+market scenario for it to contribute to the prediction — **higher values mean
+fewer, higher-confidence selections; lower values admit more scenarios at the
+cost of confidence**. Out-of-range or non-numeric values are rejected with 422.
+
+When omitted, the service default for the chosen model version applies
+(`r005`: **0.6**; earlier versions: the model default of 0.7). The applied
+value is fixed at fit time for the whole session — to compare confidence
+levels, run one `/fit` per level.
 
 ## Wire formats
 
