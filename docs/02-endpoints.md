@@ -52,13 +52,32 @@ A `done` response contains **only the T=0 menu, with profit predictions**:
   ],
   "n_selected": 1,
   "predicted_profit_sum": 42.7,
-  "summary": { "...": "per-bag prediction summary" }
+  "summary": { "...": "per-bag prediction summary" },
+  "confidence_thresh_calibrated": 0.48,
+  "confidence_correction": -0.1,
+  "confidence_thresh_effective": 0.38,
+  "confidence_sweep": [
+    {"correction": -0.1, "threshold": 0.38, "n_multiverses": 12,
+     "applied": true, "multiverse_index": 7, "n_selected_keys": 66,
+     "total_predicted_profit": 205.7},
+    {"correction": 0.0, "threshold": 0.48, "...": "one entry per correction"}
+  ]
 }
 ```
 
 One row per key of your task menu: `qty` is the model-selected size (`0` = do
 not trade) and `profit` the predicted total profit at that size. Keys are your
 original ids. Take the `qty > 0` rows together as the recommended portfolio.
+
+On `r006`+ fits the response also carries the **confidence sweep** (see
+[Confidence correction](#confidence-correction)): for every candidate
+correction on a grid (`-0.3 … +0.3`, step `0.05`, the applied value included
+and flagged `"applied": true`), the threshold it produces and what would have
+been selected — number of market scenarios passing, the winning scenario, its
+selected-key count and total predicted profit. Use it to judge how sensitive
+the portfolio is to the confidence setting and to pick a correction for the
+next `/fit` without paying for exploratory runs. Absent on pre-`r006` model
+versions.
 
 ## Model versions
 
