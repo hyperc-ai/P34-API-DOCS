@@ -77,33 +77,40 @@ top-level field wins):
 | `r001` | the first released tag |
 | `r003-alpha` | released tag with a pooled small-markets universe selector |
 | `r003-alpha-ray` | same as `r003-alpha` with a distributed fitting backend (faster on large menus) |
-| `r005` | released tag with a retrained universe selector and distributed fitting; supports `confidence_level` with a service default of 0.6 |
+| `r005` | released tag with a retrained universe selector and distributed fitting |
+| `r006` | released tag with a **meta-calibrated** universe selector: the confidence threshold is chosen per prediction by a calibrator model and adjusted by `confidence_correction` |
 
 `GET /` lists the versions the server currently offers; an unknown version is
 rejected with 422. The chosen version is echoed in the `/fit` response and in
 `/result`'s `runner` detail; the whole calculation — fit **and** predict —
 executes from that version.
 
-## Confidence level
+## Confidence correction
 
-`/fit` accepts an optional `confidence_level` (number in `[0, 1]`; also
-accepted as a `"confidence_level"` key inside `market_type`, the top-level
-field wins):
+`/fit` accepts an optional `confidence_correction` (number in `[-1, 1]`; also
+accepted as a `"confidence_correction"` key inside `market_type`, the
+top-level field wins):
 
 ```json
 { "menus": [...], "sales": [...], "market_type": {...},
-  "model": "r005", "confidence_level": 0.55 }
+  "model": "r006", "confidence_correction": -0.1 }
 ```
 
-It is the minimum score the model's universe selector must assign a candidate
-market scenario for it to contribute to the prediction — **higher values mean
-fewer, higher-confidence selections; lower values admit more scenarios at the
-cost of confidence**. Out-of-range or non-numeric values are rejected with 422.
+Since `r006`, the model chooses its own selector confidence threshold per
+prediction with a built-in **meta-calibrator**; you no longer set an absolute
+level. `confidence_correction` is a small signed adjustment added on top of
+the calibrated threshold — **positive values mean fewer, higher-confidence
+selections; negative values admit more scenarios at the cost of confidence**.
+Typical values are `+0.1` / `-0.1`. Out-of-range or non-numeric values are
+rejected with 422. When omitted, the service default of **-0.1** applies.
 
-When omitted, the service default for the chosen model version applies
-(`r005`: **0.6**; earlier versions: the model default of 0.7). The applied
-value is fixed at fit time for the whole session — to compare confidence
-levels, run one `/fit` per level.
+On pre-`r006` model versions (which have no calibrator) the correction shifts
+that version's fixed threshold default instead (`r005`: 0.6; earlier: 0.7).
+The applied correction is fixed at fit time for the whole session — to compare
+corrections, run one `/fit` per value.
+
+The old absolute `confidence_level` parameter is retired: sending it (as a
+field or inside `market_type`) returns 422 with a migration hint.
 
 ## Wire formats
 

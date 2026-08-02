@@ -77,10 +77,11 @@ def main() -> None:
     ap.add_argument("--url", default=os.environ.get("P34_API_URL", "https://api.hyperc.com/v1"))
     ap.add_argument("--key", default=os.environ.get("P34_API_KEY"))
     ap.add_argument("--model", default=None, help="model version (see GET /); default: server default")
-    ap.add_argument("--confidence-level", type=float, default=None,
-                    help="universe-selector cutoff in [0,1]; higher = fewer, "
-                         "higher-confidence selections (default: service default"
-                         " for the model version, r005: 0.6)")
+    ap.add_argument("--confidence-correction", type=float, default=None,
+                    help="signed adjustment in [-1,1] added to the model's "
+                         "calibrated confidence threshold (r006+); positive = "
+                         "fewer, higher-confidence selections (default: "
+                         "service default -0.1)")
     ap.add_argument("--poll", type=int, default=30, help="seconds between /result polls")
     ap.add_argument("--timeout-min", type=int, default=30, help="give up after this many minutes")
     args = ap.parse_args()
@@ -94,8 +95,8 @@ def main() -> None:
     body = {"menus": records(menus), "sales": records(sales), "market_type": MARKET_TYPE}
     if args.model:
         body["model"] = args.model
-    if args.confidence_level is not None:
-        body["confidence_level"] = args.confidence_level
+    if args.confidence_correction is not None:
+        body["confidence_correction"] = args.confidence_correction
     r = requests.post(f"{url}/fit", json=body, headers=headers, timeout=120)
     r.raise_for_status()
     out = r.json()
