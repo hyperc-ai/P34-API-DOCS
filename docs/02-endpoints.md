@@ -68,6 +68,9 @@ A `done` response contains **only the T=0 menu, with profit predictions**:
 One row per key of your task menu: `qty` is the model-selected size (`0` = do
 not trade) and `profit` the predicted total profit at that size. Keys are your
 original ids. Take the `qty > 0` rows together as the recommended portfolio.
+On `r007` the menu carries only the keys of the chosen market scenario's
+solution rather than every key of your task menu — any key absent from the
+response means "do not trade", exactly like a `qty: 0` row.
 
 On `r006`+ fits the response also carries the **confidence sweep** (see
 [Confidence correction](#confidence-correction)): for every candidate
