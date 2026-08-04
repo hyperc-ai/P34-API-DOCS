@@ -79,6 +79,13 @@ the portfolio is to the confidence setting and to pick a correction for the
 next `/fit` without paying for exploratory runs. Absent on pre-`r006` model
 versions.
 
+On `r007` the sweep comes from the model itself and differs slightly: the
+grid is fixed (`-0.3, -0.2, -0.1, -0.05, 0, +0.05, +0.1, +0.2, +0.3` — an
+off-grid applied correction is not added as an extra entry), profits are
+totals over the keys of the applied portfolio, and entries carry
+`n_keys_positive` (keys with positive predicted profit under that correction)
+instead of the per-scenario fields.
+
 ## Model versions
 
 Every `/fit` runs against a released **model version**. Select one with the
@@ -98,6 +105,7 @@ top-level field wins):
 | `r003-alpha-ray` | same as `r003-alpha` with a distributed fitting backend (faster on large menus) |
 | `r005` | released tag with a retrained universe selector and distributed fitting |
 | `r006` | released tag with a **meta-calibrated** universe selector: the confidence threshold is chosen per prediction by a calibrator model and adjusted by `confidence_correction` |
+| `r007` | released tag with an **improved meta-calibrated** selector: winner's-curse-aware scenario choice, a zero-inflation guard on the calibrated threshold, and reverse-market handling |
 
 `GET /` lists the versions the server currently offers; an unknown version is
 rejected with 422. The chosen version is echoed in the `/fit` response and in
