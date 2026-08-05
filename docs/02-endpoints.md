@@ -109,6 +109,7 @@ top-level field wins):
 | `r005` | released tag with a retrained universe selector and distributed fitting |
 | `r006` | released tag with a **meta-calibrated** universe selector: the confidence threshold is chosen per prediction by a calibrator model and adjusted by `confidence_correction` |
 | `r007` | released tag with an **improved meta-calibrated** selector: winner's-curse-aware scenario choice, a zero-inflation guard on the calibrated threshold, and reverse-market handling |
+| `r008` | released tag with a `predict_proba` correctness fix in the selector path and a selector retrained on the full 29-market r008 telemetry sweep |
 
 `GET /` lists the versions the server currently offers; an unknown version is
 rejected with 422. The chosen version is echoed in the `/fit` response and in
@@ -132,7 +133,10 @@ level. `confidence_correction` is a small signed adjustment added on top of
 the calibrated threshold — **positive values mean fewer, higher-confidence
 selections; negative values admit more scenarios at the cost of confidence**.
 Typical values are `+0.1` / `-0.1`. Out-of-range or non-numeric values are
-rejected with 422. When omitted, the service default of **-0.1** applies.
+rejected with 422. When omitted, a per-version service default applies:
+**`0.0`** (no adjustment) on `r008`, whose selector is retrained on the full
+29-market telemetry sweep and whose calibrated threshold is used as-is, and
+**`-0.1`** on `r006` and `r007`.
 
 On pre-`r006` model versions (which have no calibrator) the correction shifts
 that version's fixed threshold default instead (`r005`: 0.6; earlier: 0.7).
