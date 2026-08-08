@@ -11,7 +11,7 @@ What the script does:
 1. Generates a synthetic market with KNOWN ground truth (per-key latent demand;
    only some keys are genuinely profitable). Ground truth stays local — it is
    never sent to the API (the API would refuse it on task rows anyway).
-2. Builds the documented Menus/Sales sheets from it: 6 historical weeks in
+2. Builds the documented Menus/Sales sheets from it: 12 historical weeks in
    which a plausible-but-imperfect business chose one option per key, and a
    T=0 task menu.
 3. Baseline: trains a gradient-boosting regressor (features+qty -> profit) on
@@ -91,7 +91,7 @@ def simulate_weeks(keys: pd.DataFrame, qty: np.ndarray, rng) -> np.ndarray:
     return sold * margin - holding - writeoff
 
 
-def build_history(keys: pd.DataFrame, weeks: int = 6, seed: int = 4):
+def build_history(keys: pd.DataFrame, weeks: int = 12, seed: int = 4):
     """Historical menus: every (key, qty) option each week; the business chose
     ONE option per key using a decent-but-imperfect heuristic, and only chosen
     rows have observed profit. Plus the matching weekly sales log."""
@@ -102,8 +102,9 @@ def build_history(keys: pd.DataFrame, weeks: int = 6, seed: int = 4):
         menu_id = 1000 + w
         # the business's heuristic: order roughly signal*horizon, snapped to a qty
         target = keys["f_signal"].to_numpy() * HOLD_WEEKS * rng.uniform(0.5, 1.1, len(keys))
-        chosen = np.array([min(QTYS, key=lambda q: abs(q - t)) for t in target])
-        chosen[keys["unit_price"].to_numpy() < keys["unit_cost"].to_numpy() * 1.15] = 0
+        would_take = np.array([min(QTYS, key=lambda q: abs(q - t)) for t in target])
+        declined = keys["unit_price"].to_numpy() < keys["unit_cost"].to_numpy() * 1.15
+        chosen = np.where(declined, 0, would_take)
         # realized outcome of the chosen size (ground truth simulation)
         profit = simulate_weeks(keys, chosen, rng)
         weekly_share = rng.dirichlet(np.ones(HOLD_WEEKS), len(keys))
@@ -112,27 +113,32 @@ def build_history(keys: pd.DataFrame, weeks: int = 6, seed: int = 4):
         for i, row in keys.iterrows():
             f_sig = row["f_signal"] * rng.lognormal(0, 0.15)   # features drift week to week
             f_noi = rng.normal(0, 1)
+            # the API requires each historical key to live on exactly ONE menu
+            # (sales attribution is per key), so the same product on different
+            # weeks travels under a distinct per-week key id
+            week_key = f"{row['key']}#w{w}"
             for q in QTYS:
                 menus_rows.append({
-                    "key": row["key"], "menu": menu_id, "T": t_menu, "T_lead": 0,
+                    "key": week_key, "menu": menu_id, "T": t_menu, "T_lead": 0,
                     "f_signal": f_sig, "f_noise": f_noi,
                     "unit_cost": row["unit_cost"], "unit_price": row["unit_price"],
                     "qty": q, "historically_available": 1,
-                    "historically_chosen": int(q == chosen[i]),
-                    "profit": float(profit[i]) if q == chosen[i] else None,
+                    # declined deals keep the would-be size flagged: without a
+                    # chosen row the group is dropped at intake, and P34 needs
+                    # the declined groups as its unlabeled context
+                    "historically_chosen": int(q == would_take[i]),
+                    "profit": float(profit[i]) if (q == chosen[i] and not declined[i]) else None,
                 })
-            if chosen[i] == 0:
-                # "no trade" was the choice: mark the smallest option unchosen-but-
-                # available and record no sales. Groups with no chosen row are
-                # dropped by the parser and counted in parse_report — acceptable
-                # for this demo.
+            if declined[i]:
+                # "no trade" was the choice: the group stays in with profit
+                # blank on every row and no sales — the unobserved context
                 pass
             else:
                 sold_weeks = np.round(weekly_share[i] * sold_total[i]).astype(int)
                 for dw, qty_sold in enumerate(sold_weeks):
                     if qty_sold > 0 and t_menu + dw <= 0:
                         sales_rows.append({
-                            "key": row["key"], "menu": menu_id, "T": t_menu + dw,
+                            "key": week_key, "menu": menu_id, "T": t_menu + dw,
                             "T_signal_delay": None, "qty": int(qty_sold),
                             "price": row["unit_price"],
                             "unit_holding_cost": HOLD_COST, "unit_fee": None,
@@ -206,6 +212,8 @@ def p34_portfolio(url: str, key: str | None, model: str | None,
     if res["status"] != "done":
         raise RuntimeError(f"P34 fit not done: {res['status']} {res.get('error', '')}")
     port = pd.DataFrame(res["menu"])
+    if port.empty:            # a valid answer: the model takes no trades
+        return pd.DataFrame(columns=["key", "qty", "profit"])
     return port[port["qty"] > 0][["key", "qty", "profit"]]
 
 

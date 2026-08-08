@@ -16,7 +16,9 @@ You send **two tables and a config**, and later receive **one predicted menu**:
   per *(key, quantity option)*. Historical menus are the model's **context**:
   P34 is pre-trained, so the fitting done on your history does not teach it
   markets from scratch — it statistically calibrates the model to *your*
-  market before it answers.
+  market before it answers. "Every option" is literal: the deals you
+  *declined* belong in the context too, with no outcome attached — see
+  [Include the deals you did not take](03-data-format.md#include-the-deals-you-did-not-take).
 - **Sales** — your realized sales log. Used to *ground* the history: the
   service replays your inventory economics (holding costs, write-offs, fees)
   to reconstruct what every historical option would have earned.

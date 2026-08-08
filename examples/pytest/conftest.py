@@ -34,5 +34,8 @@ def api_headers() -> dict:
 def tiny_market():
     from example_client import MARKET_TYPE, build_sheets
 
-    menus, sales = build_sheets(n_keys=8, qtys=3, seed=11)
+    # build_sheets defaults are the smallest CLUSTER-viable size: current
+    # models need ~100 observed groups per qty option plus declined groups as
+    # unlabeled context, so the smoke fit here can also complete end-to-end
+    menus, sales = build_sheets(seed=11)
     return menus, sales, MARKET_TYPE

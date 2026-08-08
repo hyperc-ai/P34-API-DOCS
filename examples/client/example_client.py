@@ -3,7 +3,7 @@
     export P34_API_KEY=...        # from https://api.hyperc.com/app/
     python example_client.py --url https://api.hyperc.com/v1
 
-Builds a miniature Menus/Sales payload in the documented format
+Builds a small Menus/Sales payload in the documented format
 (T < 0 history, T = 0 current menu — see docs/03-data-format.md and
 examples/data/menu_api_sample.xlsx), submits it with POST /fit, sanity-checks
 the payload with POST /predict, and polls GET /result until the cluster
@@ -35,19 +35,38 @@ MARKET_TYPE = {
 }
 
 
-def build_sheets(n_keys: int = 12, qtys: int = 3, seed: int = 7) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Menus + Sales sheets: two historical weeks (T=-2,-1) and a T=0 menu."""
+def build_sheets(n_keys: int = 300, qtys: int = 3, seed: int = 7) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Menus + Sales sheets: 12 historical weekly menus (T=-12..-1) and a T=0 menu.
+
+    Sized to the model's data floors (see docs/03-data-format.md): roughly a
+    fifth of the keys are deals the desk DECLINED — their menu groups stay in
+    with the would-be size flagged historically_chosen and profit blank,
+    becoming the unlabeled context current models require; the observed side
+    needs at least ~100 groups sharing a qty option; the history must span
+    enough decision moments (12 menus here, not 2); and each menu needs a
+    healthy count of observed deals (hence 300 keys ≈ 20 observed per menu).
+    """
     rng = np.random.default_rng(seed)
     menus_rows, sales_rows = [], []
     for k in range(n_keys):
         key = f"A{k:03d}"                       # string keys, like the sample sheet
-        t_menu = -2 if k % 2 == 0 else -1
+        t_menu = -12 + (k % 12)          # spread keys over 12 weekly menus
         cost = round(rng.uniform(8, 20), 2)
         price = round(cost * rng.uniform(1.2, 2.2), 2)
+        # f_edge is a real (noisy) demand signal: high-edge deals sell,
+        # low-edge deals rot on the shelf — something for the model to learn
         edge = rng.normal(0, 1)
-        chosen_qty = int(rng.integers(1, qtys + 1))
-        weekly_sales = rng.integers(0, 3, size=2)  # weeks 0..1 after the menu
-        profit_chosen = float(weekly_sales.sum() * (price - cost) - chosen_qty * cost * 0.1)
+        weekly_sales = rng.poisson(np.clip(1.0 + 0.9 * edge, 0.05, None), size=2)
+        # the desk's biased selection: it passes on low-edge deals and sizes
+        # its orders roughly by the same signal it screens with
+        declined = bool(edge + rng.normal(0, 0.5) < -0.8)
+        chosen_qty = int(np.clip(round(1.5 + edge), 1, qtys))  # taken — or would-be — size
+        stock_left, sold_weeks = chosen_qty, []
+        for demand in weekly_sales:              # can't sell more than was stocked
+            sold = int(min(demand, stock_left))
+            sold_weeks.append(sold)
+            stock_left -= sold
+        profit_chosen = float(sum(sold_weeks) * (price - cost) - chosen_qty * cost * 0.1)
 
         for q in range(1, qtys + 1):
             menus_rows.append({
@@ -55,7 +74,7 @@ def build_sheets(n_keys: int = 12, qtys: int = 3, seed: int = 7) -> tuple[pd.Dat
                 "f_edge": edge, "unit_cost": cost, "unit_price": price, "qty": q,
                 "historically_available": 1,
                 "historically_chosen": int(q == chosen_qty),
-                "profit": profit_chosen if q == chosen_qty else None,
+                "profit": profit_chosen if (q == chosen_qty and not declined) else None,
             })
             menus_rows.append({
                 "key": key, "menu": 0, "T": 0, "T_lead": 0,
@@ -63,10 +82,12 @@ def build_sheets(n_keys: int = 12, qtys: int = 3, seed: int = 7) -> tuple[pd.Dat
                 "qty": q, "historically_available": None, "historically_chosen": None,
                 "profit": None,                  # task rows NEVER carry outcomes
             })
-        for week, qty_sold in enumerate(weekly_sales):
+        if declined:
+            continue                            # no outcome, no sales — unlabeled context
+        for week, qty_sold in enumerate(sold_weeks):
             sales_rows.append({
                 "key": key, "menu": 100 + abs(t_menu), "T": t_menu + week,
-                "T_signal_delay": None, "qty": int(qty_sold), "price": price,
+                "T_signal_delay": None, "qty": qty_sold, "price": price,
                 "unit_holding_cost": 0.1, "unit_fee": None,
             })
     return pd.DataFrame(menus_rows), pd.DataFrame(sales_rows)
@@ -132,10 +153,15 @@ def main() -> None:
         print("FAILED:", res.get("error"))
         return
     portfolio = pd.DataFrame(res["menu"])
-    trades = portfolio[portfolio["qty"] > 0]
+    trades = portfolio[portfolio["qty"] > 0] if len(portfolio) else portfolio
     print(f"done — {len(portfolio)} keys predicted, {len(trades)} trades recommended, "
           f"predicted profit {res['predicted_profit_sum']:.2f}")
-    print(trades.to_string(index=False))
+    if len(trades):
+        print(trades.to_string(index=False))
+    else:
+        # an empty (or all-qty-0) menu is a valid answer: the model judged
+        # that no deal on this menu is worth taking
+        print("the model recommends taking no trades on this menu")
 
 
 if __name__ == "__main__":

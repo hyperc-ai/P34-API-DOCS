@@ -22,8 +22,8 @@ One row per *(key, quantity option)* per decision moment.
 | `unit_price` | yes | current/historical unit price. |
 | `qty` | yes | the deal-size option this row represents. |
 | `historically_available` | no | 1/0 — was the option available at decision time. |
-| `historically_chosen` | history: yes | 1/0 — was this row the option your business actually took. **Exactly one chosen row per (menu, key).** |
-| `profit` | no | realized total profit of the decision, on the chosen row only. Leave blank when unknown — grounding replays it from Sales. **Must be blank on all T=0 task rows** — the task is the prediction target, and the API refuses outcome values for it. |
+| `historically_chosen` | history: yes | 1/0 — was this row the option your business actually took. **Exactly one chosen row per (menu, key).** For deals you declined outright, still include the group and flag the size your process *would* have taken — see [Include the deals you did not take](#include-the-deals-you-did-not-take). |
+| `profit` | no | realized total profit of the decision, on the chosen row only. A value here marks the group as an **observed outcome** (labeled context); the number itself is not trusted — the economics are replayed from Sales, so send the Sales rows that produced it. Leave blank when the outcome was not observed. **Must be blank on all T=0 task rows** — the task is the prediction target, and the API refuses outcome values for it. |
 
 Rules the server enforces (violations → HTTP 422 with a specific message):
 
@@ -38,6 +38,42 @@ Rules the server enforces (violations → HTTP 422 with a specific message):
 Messy-but-harmless input is tolerated and *counted* rather than rejected —
 blank rows, groups with no chosen row, profits on non-chosen rows — see
 `parse_report` in the fit response for exactly what was dropped or ignored.
+
+## Include the deals you did not take
+
+P34 fits on the *whole* menu, not just your wins. Two kinds of historical
+groups make up the context:
+
+- **Observed** — groups whose chosen row carries a `profit` value. Their
+  economics are replayed from Sales and they become the **labeled** context.
+- **Declined** — deals your process passed on. Include them too: flag the
+  size your process *would* have taken as `historically_chosen` and leave
+  `profit` blank on every row of the group. They carry no outcome, and that
+  is the point — they become the **unlabeled** context that teaches the
+  model your selection pattern (a group with no chosen row at all is simply
+  dropped at intake, so the would-be flag is what keeps them in).
+
+Both kinds are required, and there are volume floors:
+
+- current model versions refuse a history that is all wins — the fit fails
+  with `Unlabeled business-menu mask selected zero rows`;
+- at least ~100 observed groups must share a qty option, or the fit fails
+  with `NotEnoughData: No qty values have at least 100 rows`;
+- the history must span enough **decision moments**: a toy history of one or
+  two menus fails with `ParmlInsufficientDataError: Not enough valid menus to
+  train on` — provide at least ~10 historical menus (50+ recommended);
+- each menu needs a healthy count of **observed deals**: internal fit
+  candidates with fewer than ~10 outcome-carrying deals are skipped, and if
+  every candidate is skipped the fit fails with `No FC-fit universe had
+  enough rows to fit an FC regressor` — aim for 20+ observed deals per menu.
+
+As a rule of thumb: **hundreds of observed deals spread over a dozen or more
+menus** is the practical minimum; real business histories clear these floors
+easily, toy payloads usually don't.
+
+`POST /fit` validates shape, not statistics — both conditions surface only
+when the calculation runs; see
+[Fit-time failures](04-errors-and-checks.md#fit-time-cluster-failures).
 
 ## The Sales table
 
