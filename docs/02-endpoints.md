@@ -17,7 +17,9 @@ real time). Registration is free, but calling the API requires an **active
 subscription** — requests on an account without one return `429` with
 `"no active subscription — subscribe to a plan to use the API"`. Subscribe
 from the console's plans page. `GET /` and `GET /health` are open liveness
-endpoints.
+endpoints. Exception: [mock requests](#mock-mode-free-integration-testing)
+(`"mock": true`) are free and need only a registered key, so you can build
+and test your integration before subscribing.
 
 ## Endpoints
 
@@ -25,7 +27,7 @@ endpoints.
 | --- | --- |
 | `GET /` | Service info: protocol, available model versions, endpoint list. |
 | `GET /health` | Liveness probe. |
-| `POST /fit` | Submit Menus + Sales + market_type. Validates, grounds the history, enqueues the calculation. Returns `session_id` immediately. |
+| `POST /fit` | Submit Menus + Sales + market_type. Validates, grounds the history, enqueues the calculation. Returns `session_id` immediately. Add `"mock": true` for a free simulated run (see [Mock mode](#mock-mode-free-integration-testing)). |
 | `GET /result/{session_id}` | Poll the calculation: `queued` → `processing` → `done` / `failed`. `done` carries the predicted T=0 menu. |
 | `POST /predict` | Instant selection from a small in-process reference model — a payload sanity-checker while the real calculation runs. **Not** P34's answer; `/result` is. |
 | `DELETE /session/{id}` | Discard a session you no longer need. |
@@ -68,26 +70,59 @@ A `done` response contains **only the T=0 menu, with profit predictions**:
 One row per key of your task menu: `qty` is the model-selected size (`0` = do
 not trade) and `profit` the predicted total profit at that size. Keys are your
 original ids. Take the `qty > 0` rows together as the recommended portfolio.
-On `r007` the menu carries only the keys of the chosen market scenario's
-solution rather than every key of your task menu — any key absent from the
-response means "do not trade", exactly like a `qty: 0` row.
+On `r008`, `rc012` and `rc012-ray` (and `default`, which aliases `rc012`) the
+menu carries only the keys of the chosen market scenario's solution rather
+than every key of your task menu — any key absent from the response means "do not trade",
+exactly like a `qty: 0` row.
 
-On `r006`+ fits the response also carries the **confidence sweep** (see
-[Confidence correction](#confidence-correction)): for every candidate
-correction on a grid (`-0.3 … +0.3`, step `0.05`, the applied value included
-and flagged `"applied": true`), the threshold it produces and what would have
-been selected — number of market scenarios passing, the winning scenario, its
-selected-key count and total predicted profit. Use it to judge how sensitive
-the portfolio is to the confidence setting and to pick a correction for the
-next `/fit` without paying for exploratory runs. Absent on pre-`r006` model
-versions.
-
-On `r007` the sweep comes from the model itself and differs slightly: the
-grid is fixed (`-0.3, -0.2, -0.1, -0.05, 0, +0.05, +0.1, +0.2, +0.3` — an
-off-grid applied correction is not added as an extra entry), profits are
-totals over the keys of the applied portfolio, and entries carry
+On `r008`, `rc012` and `rc012-ray` fits the response also carries the
+**confidence sweep**
+(see [Confidence correction](#confidence-correction)): for every candidate
+correction on a fixed grid (`-0.3, -0.2, -0.1, -0.05, 0, +0.05, +0.1, +0.2,
++0.3`, the applied value flagged `"applied": true`; an off-grid applied
+correction is not added as an extra entry), the threshold it produces,
 `n_keys_positive` (keys with positive predicted profit under that correction)
-instead of the per-scenario fields.
+and the total predicted profit over the keys of the applied portfolio. Use it
+to judge how sensitive the portfolio is to the confidence setting and to pick
+a correction for the next `/fit` without paying for exploratory runs. Absent
+on `r003-alpha-ray`.
+
+## Mock mode (free integration testing)
+
+Add `"mock": true` to a `/fit` request — top-level field or `"mock": true`
+inside `market_type` — to run it as a **simulation**: the request goes through
+the exact same validation as a real fit (sheet parsing, menu-0 rules,
+grounding, model-version and confidence checks — every 422 behaves
+identically), but **no calculation runs and no tokens are charged**. Use it to
+verify your request format and exercise your polling/response handling before
+spending compute budget.
+
+- A registered API key is still required (`401` otherwise), but mock requests
+  work **without an active subscription** and with an exhausted budget — you
+  can finish and test your integration before subscribing.
+- `/result` plays the real lifecycle (`queued` → `processing` → `done`) on a
+  short timer, and the `done` payload has the full real shape shown above —
+  `menu`, `n_selected`, `predicted_profit_sum`, `summary`, and the
+  `confidence_*` / `confidence_sweep` fields on sweep-capable model versions.
+  The numbers are **deterministic placeholders derived from your own T=0
+  menu, not predictions**; every mock response carries `"mock": true` and a
+  `mock_note` so it can never be mistaken for a real result.
+- The fit response's `billing` block reports the `input_cells` and `effort`
+  the request *would* have cost, with `"tokens_charged": 0`.
+- `"mock": "failed"` simulates a **failing** fit instead — `/result` ends at
+  `status: "failed"` with an `error` field — so you can test your error path.
+- `"mock_result_seconds": <n>` (default 6, max 600) sets how long the
+  simulated calculation takes; `0` makes the terminal status available on the
+  first poll. The first third of the interval reports `queued`, the rest
+  `processing`.
+
+```json
+{ "menus": [...], "sales": [...], "market_type": {...},
+  "mock": true, "mock_result_seconds": 30 }
+```
+
+Mock sessions don't appear in the console's calculations panel and are pruned
+after 7 days (`DELETE /session/{id}` removes one immediately).
 
 ## Model versions
 
@@ -96,20 +131,16 @@ optional top-level `model` field (or a `"model"` key inside `market_type`; the
 top-level field wins):
 
 ```json
-{ "menus": [...], "sales": [...], "market_type": {...}, "model": "r001" }
+{ "menus": [...], "sales": [...], "market_type": {...}, "model": "r008" }
 ```
 
 | version | meaning |
 | --- | --- |
-| `default` | the current live model revision (used when `model` is omitted) |
-| `r000` | released tag with a dedicated universe-selector model |
-| `r001` | the first released tag |
-| `r003-alpha` | released tag with a pooled small-markets universe selector |
-| `r003-alpha-ray` | same as `r003-alpha` with a distributed fitting backend (faster on large menus) |
-| `r005` | released tag with a retrained universe selector and distributed fitting |
-| `r006` | released tag with a **meta-calibrated** universe selector: the confidence threshold is chosen per prediction by a calibrator model and adjusted by `confidence_correction` |
-| `r007` | released tag with an **improved meta-calibrated** selector: winner's-curse-aware scenario choice, a zero-inflation guard on the calibrated threshold, and reverse-market handling |
-| `r008` | released tag with a `predict_proba` correctness fix in the selector path and a selector retrained on the full 29-market r008 telemetry sweep |
+| `default` | alias for the current recommended model (used when `model` is omitted) — currently `rc012` |
+| `r003-alpha-ray` | released tag with a pooled small-markets universe selector and a distributed fitting backend (faster on large menus) |
+| `r008` | released tag with a meta-calibrated universe selector, a `predict_proba` correctness fix in the selector path, and a selector retrained on the full 29-market r008 telemetry sweep |
+| `rc012` | release candidate built on the `r008` line: multiverse candidates are chosen for **variety** across ten quality metrics instead of by a pareto front, and selector thresholding is **target-calibrated** — a zero-take classifier gates predictions and a fixed calibrated threshold replaces the per-prediction threshold regression; ships a selector retrained on an updated confidence-feature set |
+| `rc012-ray` | release candidate: `rc012`'s selection and target-calibrated thresholding on a **ray-distributed fitting backend** — the phase-1 fit and candidate fitting fan out over the compute cluster, which is faster on large menus; predictions use the same selector as `rc012` |
 
 `GET /` lists the versions the server currently offers; an unknown version is
 rejected with 422. The chosen version is echoed in the `/fit` response and in
@@ -124,22 +155,22 @@ top-level field wins):
 
 ```json
 { "menus": [...], "sales": [...], "market_type": {...},
-  "model": "r006", "confidence_correction": -0.1 }
+  "model": "rc012", "confidence_correction": -0.1 }
 ```
 
-Since `r006`, the model chooses its own selector confidence threshold per
+On `r008`, `rc012` and `rc012-ray`, the model chooses its own selector confidence threshold per
 prediction with a built-in **meta-calibrator**; you no longer set an absolute
 level. `confidence_correction` is a small signed adjustment added on top of
 the calibrated threshold — **positive values mean fewer, higher-confidence
 selections; negative values admit more scenarios at the cost of confidence**.
 Typical values are `+0.1` / `-0.1`. Out-of-range or non-numeric values are
-rejected with 422. When omitted, a per-version service default applies:
-**`0.0`** (no adjustment) on `r008`, whose selector is retrained on the full
-29-market telemetry sweep and whose calibrated threshold is used as-is, and
-**`-0.1`** on `r006` and `r007`.
+rejected with 422. When omitted, the service default is **`0.0`** (no
+adjustment) on `default`, `r008`, `rc012` and `rc012-ray`, whose selectors are
+retrained on their own telemetry sweeps and whose calibrated thresholds are
+used as-is.
 
-On pre-`r006` model versions (which have no calibrator) the correction shifts
-that version's fixed threshold default instead (`r005`: 0.6; earlier: 0.7).
+On `r003-alpha-ray` (which predates the calibrator) the correction shifts the
+fixed threshold default `0.7` instead.
 The applied correction is fixed at fit time for the whole session — to compare
 corrections, run one `/fit` per value.
 
