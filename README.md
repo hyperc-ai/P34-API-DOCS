@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://hyperc.com/assets/img/og-card.png" alt="HyperC P34 — The Self-Driving Business Platform" width="720">
+<img src="https://hyperc.com/assets/img/og-card.png" alt="HyperC P34 — The Self-Driving Business AI Model" width="720">
 
 # P34 API
 
