@@ -6,7 +6,7 @@
 
 **Your AI can talk. P34 lets it do business.**
 
-[Website](https://hyperc.com) · [Membership](https://hyperc.com/membership.html) · [Console](https://api.hyperc.com/app/) · [Simulator](https://api.hyperc.com/sim/) · [Research](https://hyperc.com/research.html) · [Technical report](https://github.com/hyperc-ai/p34-technical-report)
+[Website](https://hyperc.com) · [Membership](https://hyperc.com/membership.html) · [Console](https://api.hyperc.com/app/) · [Simulator](https://api.hyperc.com/sim/) · [Research](https://hyperc.com/research.html) · [Computable Markets](https://computablemarkets.com) · [Technical report](https://github.com/hyperc-ai/p34-technical-report)
 
 </div>
 
