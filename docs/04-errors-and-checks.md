@@ -36,8 +36,9 @@
 Other statuses you may meet: **401/403** — missing/invalid API key, or a
 feature your account isn't flagged for; **413** — request over your plan's
 size cap; **429** — no active subscription (subscribe in the console), or
-the plan's compute budget is exhausted for the current window (see
-utilization in the [management console](https://api.hyperc.com/app/)).
+the plan's compute budget is exhausted for the current weekly or monthly
+window (see utilization in the
+[management console](https://api.hyperc.com/app/)).
 
 ## Fit-time (cluster) failures
 

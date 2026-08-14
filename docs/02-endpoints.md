@@ -12,8 +12,8 @@ Authorization: Bearer <key>
 ```
 
 Keys come in `test-…` and `profit-…` flavours tied to your plan; usage is
-metered against your plan's compute budget (the console shows utilization in
-real time). Registration is free, but calling the API requires an **active
+metered against your plan's compute budget over two rolling windows — weekly
+and monthly (the console shows utilization of both in real time). Registration is free, but calling the API requires an **active
 subscription** — requests on an account without one return `429` with
 `"no active subscription — subscribe to a plan to use the API"`. Subscribe
 from the console's plans page. `GET /` and `GET /health` are open liveness
