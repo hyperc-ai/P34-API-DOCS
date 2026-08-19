@@ -195,11 +195,18 @@ Resolution order when the field is absent or empty:
    dashboard (**Business profile → Business description**);
 3. the description this account **last sent** on a previous `/fit` (the
    service records it every time one is sent — mock fits included);
-4. none of the three exists → the request is rejected with **422**.
+4. **simulator-style payloads only**: requests with the simple sample-sheet
+   column setup (`synthetic_inventory` + `synthetic_full` grounding, at most
+   a few feature columns — what the [market simulator](https://api.hyperc.com/sim/)
+   and the synthetic examples emit) fall back to a built-in default
+   description, so legacy simulator clients keep working. Real business
+   integrations (richer features or `business_observed` grounding) are not
+   exempted;
+5. none of the above exists → the request is rejected with **422**.
 
 The fit response reports which source was used in
-`business_description_source` (`request` / `account_profile` / `last_sent`),
-and the resolved text is recorded with the fit task. Current model versions
+`business_description_source` (`request` / `account_profile` / `last_sent` /
+`simulator_default`), and the resolved text is recorded with the fit task. Current model versions
 do not consume it yet — the interface and the recording exist so the
 description can later be used to **enrich the choices and balance risks**.
 
@@ -217,6 +224,17 @@ deepen them over iterations (see
 user to provide this unit-economics information, or research it on the
 internet with the maximum effort possible — it is later used to enrich the
 choices and balance risks, so a thin description degrades the result.
+
+### Grounding modes (reserved)
+
+`/fit` accepts an optional `grounding_mode` (also inside `market_type`; the
+top-level field wins): `internal` — the default, today's server-side replay
+grounding — or `business_led`, a **reserved** mode in which the recorded
+business description and documents will drive the outcome reconstruction
+instead of the fixed replay formula. `business_led` is disabled pending a
+redesign of the grounding pipeline: requesting it returns **501**. Omit the
+field (or send `internal`); the applied mode is echoed in the fit response's
+`grounding_mode`.
 
 ## Free-form feedback
 

@@ -21,8 +21,12 @@
 - `model` — the model version this fit will run on.
 - `business_description_source` — where the fit's
   [business description](02-endpoints.md#business-description) came from:
-  `request`, `account_profile` (console Business profile), or `last_sent`
-  (reused from the account's previous fit).
+  `request`, `account_profile` (console Business profile), `last_sent`
+  (reused from the account's previous fit), or `simulator_default` (the
+  built-in fallback for simulator-style payloads).
+- `grounding_mode` — the applied
+  [grounding mode](02-endpoints.md#grounding-modes-reserved); currently
+  always `internal`.
 
 ## Common 422 errors
 
@@ -40,7 +44,9 @@
 
 Other statuses you may meet: **401/403** — missing/invalid API key, or a
 feature your account isn't flagged for; **413** — request over your plan's
-size cap; **429** — no active subscription (subscribe in the console), or
+size cap; **501** — you requested the reserved `business_led`
+[grounding mode](02-endpoints.md#grounding-modes-reserved), which is
+disabled pending redesign; **429** — no active subscription (subscribe in the console), or
 the plan's compute budget is exhausted for the current weekly or monthly
 window (see utilization in the
 [management console](https://api.hyperc.com/app/)).
