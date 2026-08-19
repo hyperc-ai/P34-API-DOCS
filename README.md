@@ -6,7 +6,7 @@
 
 **Your AI can talk. P34 lets it do business.**
 
-[Website](https://hyperc.com) · [Membership](https://hyperc.com/membership.html) · [Console](https://api.hyperc.com/app/) · [Simulator](https://api.hyperc.com/sim/) · [Research](https://hyperc.com/research.html) · [Computable Markets](https://computablemarkets.com) · [Technical report](https://github.com/hyperc-ai/p34-technical-report)
+[Website](https://hyperc.com) · [Markets catalogue](docs/05-market-catalog.md) · [Membership](https://hyperc.com/membership.html) · [Console](https://api.hyperc.com/app/) · [Simulator](https://api.hyperc.com/sim/) · [Research](https://hyperc.com/research.html) · [Technical report](https://github.com/hyperc-ai/p34-technical-report)
 
 </div>
 
@@ -129,7 +129,10 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    market_type input format, rule by rule.
 4. [docs/04-errors-and-checks.md](docs/04-errors-and-checks.md) — common
    validation errors and quick self-checks.
-5. [examples/](examples/) — runnable code:
+5. [docs/05-market-catalog.md](docs/05-market-catalog.md) — the computable
+   markets catalogue: every market, its tier, its support state, its menu
+   shape and the data it runs on.
+6. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
      (fit → poll → portfolio).
    - [examples/data/](examples/data/) — sample input as Excel, CSV, and JSON.
@@ -155,12 +158,29 @@ Enterprise (governed rollout: shadow test → capped pilot → scale with contro
 
 ## Market coverage
 
-- ✅ **Amazon wholesale — US & EU** — supported, in production since 2023
-- ✅ **Synthetic markets** — simulator + API, open to every member
-- 🟠 **Micro-lending** — validated in a ~3,000-loan live test; gated as regulated commerce
-- 🟠 **Collectibles & online arbitrage** — research workflows, bring your own execution
-- ⚪ **Freight, leads, capacity, and 40+ candidate markets** — research; see the
-  [market-fit framework](https://hyperc.com/markets.html) and run the fit check on yours
+**[→ The computable markets catalogue](docs/05-market-catalog.md)** — 69 markets, six tiers,
+each with a support state, menu shape and data sources. Read it before the industry cases:
+it is the overview, they are the deep dives. Machine-readable copy for agents at
+[hyperc.com/markets.json](https://hyperc.com/markets.json).
+
+| Tier | What it is | Count |
+| --- | --- | --- |
+| **Core** | Institutional scale — wholesale, lending, cards, insurance, treasury, procurement | 19 |
+| **Tier 1** | Cleanest telemetry, minimal handling — domain drops, vinyl, retro games, LEGO, TCG, sneakers | 10 |
+| **Tier 2** | Strong fit, needs handling or local presence — tools, cameras, salvage, pallets, auctions | 18 |
+| **Tier 3** | Digital and intangible — micro-acquisitions, plugins, stock assets, gift cards, points | 8 |
+| **Tier 4** | Operational and local — vending routes, rentals, lead arbitrage, work arbitrage | 8 |
+| **Flagged** | Textbook menu structure, real legal exposure — declined by policy | 6 |
+
+Support states across the catalogue: **1 supported** (Amazon wholesale US & EU, in production
+since 2023), **6 pilot-ready** (validated or in enterprise discovery — micro-lending, card
+credit, bank onboarding, manager underwriting, online arbitrage), **53 research** candidates,
+**9 not currently supported** (regulated perimeter or declined by policy).
+
+Synthetic markets are open to every member through the [simulator](https://api.hyperc.com/sim/)
+and this API. **Listing a market is not a claim of support** — check the state before you plan
+around it, and run the [market-fit check](https://hyperc.com/markets.html#fit) on your own
+market. Proposing a new one: [hyperc.com/contact.html?topic=market](https://hyperc.com/contact.html?topic=market).
 
 ## What P34 is *not*
 

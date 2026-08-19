@@ -104,6 +104,11 @@ The distinctions run along four dimensions:
    bounded option set per decision moment — which is what makes the market
    *computable* at all.
 
+Which markets clear that bar in practice is catalogued in
+[05-market-catalog.md](05-market-catalog.md) — 69 of them, from Amazon wholesale
+and micro-lending down to expiring domain drops and local lead arbitrage, each
+with its support state. Read that before the industry cases; it is the overview.
+
 ## Lifecycle of a request
 
 ```
