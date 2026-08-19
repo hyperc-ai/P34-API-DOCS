@@ -76,10 +76,15 @@ def test_fit_rejects_task_ground_truth(api_url, api_headers, tiny_market):
 
 
 def test_fit_and_instant_predict(api_url, api_headers, tiny_market):
+    from example_client import BUSINESS_DESCRIPTION
+
     menus, sales, market_type = tiny_market
     r = requests.post(
         f"{api_url}/fit",
-        json={"menus": records(menus), "sales": records(sales), "market_type": market_type},
+        json={"menus": records(menus), "sales": records(sales), "market_type": market_type,
+              # required context: the business + its unit economics (or save
+              # one in the console's Business profile instead)
+              "business_description": BUSINESS_DESCRIPTION},
         headers=api_headers, timeout=120,
     )
     assert r.status_code == 200, r.text
@@ -111,11 +116,12 @@ def test_end_to_end_portfolio(api_url, api_headers):
     session_id = _FIT_SESSION.get("id")
     # fall back: submit our own fit if the smoke test didn't run first
     if session_id is None:
-        from example_client import MARKET_TYPE, build_sheets
+        from example_client import BUSINESS_DESCRIPTION, MARKET_TYPE, build_sheets
         menus, sales = build_sheets(seed=11)  # defaults are cluster-viable
         out = requests.post(
             f"{api_url}/fit",
-            json={"menus": records(menus), "sales": records(sales), "market_type": MARKET_TYPE},
+            json={"menus": records(menus), "sales": records(sales), "market_type": MARKET_TYPE,
+                  "business_description": BUSINESS_DESCRIPTION},
             headers=api_headers, timeout=120,
         ).json()
         session_id = out["session_id"]

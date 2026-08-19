@@ -34,6 +34,19 @@ MARKET_TYPE = {
     },
 }
 
+# Every fit must resolve to a business description: this field, or the one
+# saved in the console's Business profile, or the one last sent by the
+# account (422 otherwise). Describe the business AND how its unit economics
+# is computed — fees, accumulated costs, holding costs; approximations OK.
+# See docs/02-endpoints.md#business-description.
+BUSINESS_DESCRIPTION = (
+    "Synthetic inventory reseller (demo): buys SKU lots at weekly decision "
+    "moments, sells over an 8-week horizon. Unit economics: net profit = "
+    "unit_price - unit_cost - 0.1/unit/week holding cost; unsold leftovers "
+    "are written off in full after 8 weeks; no marketplace or referral fees "
+    "in this toy market."
+)
+
 
 def build_sheets(n_keys: int = 300, qtys: int = 3, seed: int = 7) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Menus + Sales sheets: 12 historical weekly menus (T=-12..-1) and a T=0 menu.
@@ -113,7 +126,8 @@ def main() -> None:
     print("service:", info.get("service"), "| models:", info.get("models"))
 
     menus, sales = build_sheets()
-    body = {"menus": records(menus), "sales": records(sales), "market_type": MARKET_TYPE}
+    body = {"menus": records(menus), "sales": records(sales), "market_type": MARKET_TYPE,
+            "business_description": BUSINESS_DESCRIPTION}
     if args.model:
         body["model"] = args.model
     if args.confidence_correction is not None:

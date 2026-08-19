@@ -27,7 +27,7 @@ and test your integration before subscribing.
 | --- | --- |
 | `GET /` | Service info: protocol, available model versions, endpoint list. |
 | `GET /health` | Liveness probe. |
-| `POST /fit` | Submit Menus + Sales + market_type. Validates, grounds the history, enqueues the calculation. Returns `session_id` immediately. Add `"mock": true` for a free simulated run (see [Mock mode](#mock-mode-free-integration-testing)). |
+| `POST /fit` | Submit Menus + Sales + market_type (+ a resolvable [business description](#business-description)). Validates, grounds the history, enqueues the calculation. Returns `session_id` immediately. Add `"mock": true` for a free simulated run (see [Mock mode](#mock-mode-free-integration-testing)). |
 | `GET /result/{session_id}` | Poll the calculation: `queued` → `processing` → `done` / `failed`. `done` carries the predicted T=0 menu. |
 | `POST /predict` | Instant selection from a small in-process reference model — a payload sanity-checker while the real calculation runs. **Not** P34's answer; `/result` is. |
 | `DELETE /session/{id}` | Discard a session you no longer need. |
@@ -176,6 +176,55 @@ corrections, run one `/fit` per value.
 
 The old absolute `confidence_level` parameter is retired: sending it (as a
 field or inside `market_type`) returns 422 with a migration hint.
+
+## Business description
+
+Every fit must resolve to a non-empty **business description**. `/fit`
+accepts an optional top-level `business_description` string (also accepted
+inside `market_type`; the top-level field wins):
+
+```json
+{ "menus": [...], "sales": [...], "market_type": {...},
+  "business_description": "Wholesale reseller of industrial fasteners on ..." }
+```
+
+Resolution order when the field is absent or empty:
+
+1. the `business_description` sent in the request;
+2. the description saved in the [management console](https://api.hyperc.com/app/)
+   dashboard (**Business profile → Business description**);
+3. the description this account **last sent** on a previous `/fit` (the
+   service records it every time one is sent — mock fits included);
+4. none of the three exists → the request is rejected with **422**.
+
+The fit response reports which source was used in
+`business_description_source` (`request` / `account_profile` / `last_sent`),
+and the resolved text is recorded with the fit task. Current model versions
+do not consume it yet — the interface and the recording exist so the
+description can later be used to **enrich the choices and balance risks**.
+
+### What to write in it
+
+Along with the actual description of the business (what is traded, on which
+market, at what decision cadence), you **must provide all necessary details
+about how the unit economics is computed**: all the fees, accumulated costs,
+holding costs, and so on — with approximations where necessary. Start with
+formula-based approximations of the cost structure per deal/item/asset and
+deepen them over iterations (see
+[Start small, iterate](03-data-format.md#start-small-iterate)).
+
+**If an agent is assembling the API input**, the agent must either ask the
+user to provide this unit-economics information, or research it on the
+internet with the maximum effort possible — it is later used to enrich the
+choices and balance risks, so a thin description degrades the result.
+
+## Free-form feedback
+
+Beyond the structured counters (`parse_report`, volume-floor errors), the API
+may occasionally produce **rich free-form text feedback** about your input.
+Agentic clients should surface it — and act on it: it is written to improve
+the next iteration of your input construction (features to add, grounding to
+fix, history to extend).
 
 ## Wire formats
 

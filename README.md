@@ -105,7 +105,10 @@ Or call it directly:
 import requests
 r = requests.post("https://api.hyperc.com/v1/fit",
                   headers={"Authorization": "Bearer <key>"},
-                  json={"menus": [...], "sales": [...], "market_type": {...}})
+                  json={"menus": [...], "sales": [...], "market_type": {...},
+                        # your business + its unit economics (fees, holding
+                        # costs, …); or save it once in the console instead
+                        "business_description": "..."})
 session = r.json()["session_id"]
 # poll until done:
 requests.get(f"https://api.hyperc.com/v1/result/{session}",

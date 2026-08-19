@@ -10,7 +10,8 @@ observed what the picks earned.
 
 ## The mental model
 
-You send **two tables and a config**, and later receive **one predicted menu**:
+You send **two tables, a config, and a business description**, and later
+receive **one predicted menu**:
 
 - **Menus** — every trade option you faced, historically and right now. One row
   per *(key, quantity option)*. Historical menus are the model's **context**:
@@ -23,6 +24,11 @@ You send **two tables and a config**, and later receive **one predicted menu**:
   service replays your inventory economics (holding costs, write-offs, fees)
   to reconstruct what every historical option would have earned.
 - **market_type** — the grounding configuration describing those economics.
+- **business description** — free text describing the business *and how its
+  unit economics is computed* (fees, accumulated costs, holding costs;
+  approximations are fine). Sent per request, saved once in the console, or
+  reused from the last fit — but a fit must resolve to one; see
+  [Business description](02-endpoints.md#business-description).
 
 The **task** is the menu you want decided **now**. It is marked two ways at
 once, and both must agree: `T = 0` and `menu = 0`. Menu id `0` is reserved for
@@ -58,6 +64,45 @@ P34's principles, at the level relevant to a user:
 
 See it in action against a naive regressor:
 [examples/baseline_comparison/](../examples/baseline_comparison/).
+
+## Why it works here: computable markets are *business* markets
+
+P34 targets **computable markets**, and the reason the approach works on them
+is that these are **business markets** — markets whose inefficiency exists
+**by design**. A wholesale channel, a procurement program, a liquidation
+pipeline: these are places where a business is *supposed* to capture a margin
+by operating well. Markets like NASDAQ or the currency exchanges are the
+opposite kind of place — markets where, in general, people are **not supposed
+to do business** in that sense, and they are **not supported** by P34.
+
+The distinctions run along four dimensions:
+
+1. **A process, not a ticket.** On a computable market the business has to
+   *operate a process* — sourcing, holding, fulfilling, collecting cash — and
+   every business has its own specifics in how that process performs. The
+   choices on the menu are therefore *specific to that business*: your MOQs,
+   your lead times, your fee schedule, your risk appetite. On a regulated
+   exchange the instrument is identical for every participant, and there is no
+   operating process for a model to exploit.
+2. **Inefficiencies persist.** The inefficiency P34 is designed to work in is
+   expected to **persist over months and years** — it is structural, priced
+   into how the market is organized. On exchanges, stocks, and forex, an
+   inefficiency — even once discovered — is **very short-lived**: information
+   is generally available, and any edge is easy to detect and exploit without
+   a complex machine-learning / deep-learning system, so it is arbitraged away
+   almost immediately.
+3. **The data is honestly bad.** On P34-favored markets the data is **biased
+   and only partially observed**, and the collectable features are typically
+   **indirect signals** about the market — a sales rank, a stock-out flag, a
+   category trend — rather than true volumes, order-book depths, the entire
+   tape of deals traded by every player, plus the limit orders demonstrating
+   every player's desires that an exchange publishes. P34 is built for the
+   biased-and-partial regime (that is what the selection-aware fitting is
+   for); exchange-grade transparency is precisely what makes exchange
+   inefficiencies vanish.
+4. **You already hold the menu.** Business decisions arrive as menus with a
+   bounded option set per decision moment — which is what makes the market
+   *computable* at all.
 
 ## Lifecycle of a request
 

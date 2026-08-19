@@ -19,6 +19,10 @@
   `menus_rows_dropped_no_choice` usually means `historically_chosen` is
   missing or mis-filled.
 - `model` — the model version this fit will run on.
+- `business_description_source` — where the fit's
+  [business description](02-endpoints.md#business-description) came from:
+  `request`, `account_profile` (console Business profile), or `last_sent`
+  (reused from the account's previous fit).
 
 ## Common 422 errors
 
@@ -32,6 +36,7 @@
 | `keys appear in historical menus at multiple T values` | split those into distinct keys or separate requests. |
 | `grounding failed: ...` | economics couldn't replay — the message names the failing constraint (e.g. non-integer sales qty). |
 | unknown `model` version | check `GET /` for the versions this server offers. |
+| `business_description could not be resolved` | none of the three sources exists: send `business_description` in the request (the business **and** its unit economics — fees, accumulated/holding costs, approximations OK), or save one in the console's Business profile — see [Business description](02-endpoints.md#business-description). |
 
 Other statuses you may meet: **401/403** — missing/invalid API key, or a
 feature your account isn't flagged for; **413** — request over your plan's
