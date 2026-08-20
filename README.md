@@ -144,10 +144,13 @@ for menus, grounding and portfolio behaviour before wiring your own data.
 
 ## Access & membership
 
-API access comes with the **P34 Membership** — base tier **$200/month**: the
-API, console and simulator, a weekly compute allowance (shown as % used),
-supported-market workflows starting with **Amazon wholesale (US & EU)**, agent
-skills and examples, and a community of operators. Early paid accounts lock the
+API access comes with the **P34 Membership** — base tier **$200/month**: a
+**24/7 virtual machine** for your agent — an always-on workspace preloaded with
+market-access tools, curated data sources and web scraping, so the agent can
+collect data and operate the business continuously rather than only while you
+are at the keyboard — plus the API, console and simulator, a weekly compute
+allowance (shown as % used), supported-market workflows starting with **Amazon
+wholesale (US & EU)**, agent skills and examples, and a community of operators. Early paid accounts lock the
 introductory **10% success-fee rate** where profit-share pricing applies —
 assigned by paid-registration order and shown in your account.
 
