@@ -12,9 +12,12 @@ Authorization: Bearer <key>
 ```
 
 Keys come in `test-…` and `profit-…` flavours tied to your plan; usage is
-metered against your plan's compute budget over two rolling windows — weekly
-and monthly (the console shows utilization of both in real time). Registration is free, but calling the API requires an **active
-subscription** — requests on an account without one return `429` with
+metered against your **token wallet**: your plan's token amount is credited
+every month, **unused tokens accumulate**, and API calls debit the balance
+(a weekly window remains as a burst bound only) — see
+[the token wallet](06-token-wallet.md) for accrual, transfers and the
+ledger. Registration is free, but calling the API requires tokens — an
+account with no active subscription and an empty wallet gets `429` with
 `"no active subscription — subscribe to a plan to use the API"`. Subscribe
 from the console's plans page. `GET /` and `GET /health` are open liveness
 endpoints. Exception: [mock requests](#mock-mode-free-integration-testing)
@@ -32,6 +35,9 @@ and test your integration before subscribing.
 | `POST /predict` | Instant selection from a small in-process reference model — a payload sanity-checker while the real calculation runs. **Not** P34's answer; `/result` is. |
 | `DELETE /session/{id}` | Discard a session you no longer need. |
 | `GET /queue` | Intake spool state (admin accounts). |
+| `GET /account/balance` | Token wallet balance (accruals materialize on read). [Details.](06-token-wallet.md) |
+| `GET /account/ledger` | Full query-able token ledger — every pay-in/pay-out with time, from, to, amount, msg; cursor-paginated. [Details.](06-token-wallet.md) |
+| `POST /account/transfer` | Send tokens to another account by email. [Details.](06-token-wallet.md) |
 
 ## Result statuses
 
@@ -253,8 +259,9 @@ tables (e.g. `/predict`'s `selection`) use the same encoding.
 
 ## Request limits
 
-An active subscription is required to call the API (see Authentication
-above). Compute budgets scale with the plan — see the plans page in the
+Calling the API requires tokens in the wallet (see Authentication above and
+[the token wallet](06-token-wallet.md)). Monthly token accruals scale with
+the plan — see the plans page in the
 [management console](https://api.hyperc.com/app/). Accounts without an
-active plan also have a request-size cap (currently 300 MB per request),
-though their requests are refused with `429` regardless.
+active plan also have a request-size cap (currently 300 MB per request);
+with an empty wallet on top, their requests are refused with `429`.

@@ -132,7 +132,10 @@ for menus, grounding and portfolio behaviour before wiring your own data.
 5. [docs/05-market-catalog.md](docs/05-market-catalog.md) — the computable
    markets catalogue: every market, its tier, its support state, its menu
    shape and the data it runs on.
-6. [examples/](examples/) — runnable code:
+6. [docs/06-token-wallet.md](docs/06-token-wallet.md) — the accumulating
+   token wallet: monthly accruals that carry over, transfers between
+   accounts by email, and the full query-able ledger.
+7. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
      (fit → poll → portfolio).
    - [examples/data/](examples/data/) — sample input as Excel, CSV, and JSON.
