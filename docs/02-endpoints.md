@@ -5,13 +5,18 @@ Base URL: **`https://api.hyperc.com/v1`**
 ## Authentication
 
 Get an API key from the [management console](https://api.hyperc.com/app/)
-(register → API keys). Send it on every request:
+(register → API keys). A `test-` key is **issued automatically the moment
+your subscription activates** — and if you use the agent-workspace VM, the
+same key is placed on the machine as `/workspace/.p34_api_key`, so your agent
+can call the API without any copy-pasting. Send it on every request:
 
 ```
 Authorization: Bearer <key>
 ```
 
-Keys come in `test-…` and `profit-…` flavours tied to your plan; usage is
+Keys come in `test-…` and `profit-…` flavours tied to your plan
+(`profit-` keys are **not yet self-serve** — the console issues `test-` keys
+only for now); usage is
 metered against your **token wallet**: your plan's token amount is credited
 every month, **unused tokens accumulate**, and API calls debit the balance
 (a weekly window remains as a burst bound only) — see
