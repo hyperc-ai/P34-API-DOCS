@@ -152,8 +152,9 @@ API access comes with the **P34 Membership** — base tier **$200/month**: a
 market-access tools, curated data sources and web scraping, so the agent can
 collect data and operate the business continuously rather than only while you
 are at the keyboard — plus the API, console and simulator, a weekly compute
-allowance (shown as % used), supported-market workflows starting with **Amazon
-wholesale (US & EU)**, agent skills and examples, and a community of operators. Early paid accounts lock the
+allowance (shown as % used), access to computable markets — **the market you
+already operate in** first, plus supported workflows where we have coverage
+(Amazon wholesale, US & EU) — agent skills and examples, and a community of operators. Early paid accounts lock the
 introductory **10% success-fee rate** where profit-share pricing applies —
 assigned by paid-registration order and shown in your account.
 
@@ -187,6 +188,23 @@ Synthetic markets are open to every member through the [simulator](https://api.h
 and this API. **Listing a market is not a claim of support** — check the state before you plan
 around it, and run the [market-fit check](https://hyperc.com/markets.html#fit) on your own
 market. Proposing a new one: [hyperc.com/contact.html?topic=market](https://hyperc.com/contact.html?topic=market).
+
+### Which market should you choose?
+
+> **Start from the market you already operate in, or one you know well.** Support state records
+> where P34 has already been pointed — it is not a ranking and not a recommendation. What makes
+> P34 work on a market is your data, your constraints and your operating knowledge, so a market
+> you understand beats a market with a pre-built workflow.
+>
+> In particular, **do not default to Amazon wholesale because it is the developed one.** It is the
+> founding deployment and the best-understood market in the catalogue, and it is also one of the
+> hardest to enter — and the difficulty is not the model. Amazon account management (ungating,
+> brand and IP complaints, performance metrics, suspension and reinstatement) and wholesale
+> supplier relationships (winning authorised distributor accounts at all, minimums, credit terms)
+> are demanding operating problems, and P34 solves neither of them.
+>
+> Treat the supported and pilot-ready entries as evidence that the method works, not as a shortlist
+> to pick from.
 
 ## What P34 is *not*
 

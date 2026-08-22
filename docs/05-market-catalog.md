@@ -26,13 +26,23 @@ If your market clears that bar, P34 can be pointed at it — run the
 Machine-readable copy for agents: **[hyperc.com/markets.json](https://hyperc.com/markets.json)**
 (same catalogue, same ids, same states) and **[hyperc.com/llms.txt](https://hyperc.com/llms.txt)**.
 
+## Which market should you choose?
+
+**Not necessarily the supported one.** Choose the market you already operate in, or one you know well. Support state records where P34 has already been pointed — it is not a ranking and not a recommendation. The most developed market, Amazon wholesale, is also one of the hardest to enter: Amazon account management and wholesale supplier relationships are demanding operating problems that sit outside the model, and P34 does not solve them. What makes P34 work on a market is your data, your constraints and your operating knowledge, so a market you already understand beats a market with a pre-built workflow. Do not prioritise a market because we started there.
+
+Practically: run the [market-fit check](https://hyperc.com/markets.html#fit) against the
+market you already operate in or know well. If it clears the four criteria, that is your
+market — bring its telemetry and constraints. Use the supported and pilot-ready entries as
+evidence that the method works, not as a shortlist to pick from. Where a market carries a
+**Hard to operate** note below, that difficulty is real and is not something P34 removes.
+
 ## Core markets
 
 Institutional scale — the markets HyperC and its enterprise partners work directly. Large tickets, deep telemetry, and in several cases a live deployment behind them.
 
 | Market | State | Notes |
 | --- | --- | --- |
-| **Amazon wholesale — US & EU** | ✅ Supported | The founding deployment: purchase and shipping portfolio decisions from live wholesale menus, in production since 2023 at roughly $100M/yr reseller scale (company-reported). <br>*Menu:* SKU × quantity × supplier offer, with lead times and fees <br>*Data:* Supplier price lists, catalogue and fee data, sales velocity, returns |
+| **Amazon wholesale — US & EU** | ✅ Supported | The founding deployment: purchase and shipping portfolio decisions from live wholesale menus, in production since 2023 at roughly $100M/yr reseller scale (company-reported). <br>⚠️ *Hard to operate:* The best-understood market here and one of the hardest to operate — and the hard parts are not the model. Amazon account management (ungating, brand and IP complaints, performance metrics, suspension and reinstatement) and wholesale supplier relationships (winning authorised distributor accounts at all, minimums, credit terms) are demanding operating problems that P34 does not solve. Enter it because you already run it, not because it is the developed one. <br>*Menu:* SKU × quantity × supplier offer, with lead times and fees <br>*Data:* Supplier price lists, catalogue and fee data, sales velocity, returns |
 | **Micro-lending — individual** | 🟠 Pilot-ready | Lend / no-lend calls where credit history is sparse or absent. About 3,000 loans issued in a live model test (2025). Regulated commerce: gated behind market-specific compliance review. <br>*Menu:* Applicant × offered principal × term <br>*Data:* Application attributes, repayment tape, collections outcomes |
 | **Crypto transaction routing** | ⚪ Research | Routing and execution across venues in adversarial order flow. Deployed in research; a separate product and regulatory perimeter, not part of membership. <br>*Menu:* Route × size × venue, per transfer <br>*Data:* Venue depth, spread and fee telemetry, settlement latency |
 | **Constrained FX invoice payments** | ⚪ Research | Which invoices to settle, in which currency and when, under liquidity and corridor constraints — a scheduling problem with a measurable cost of being wrong. <br>*Menu:* Invoice × corridor × settlement date <br>*Data:* Corridor rates and fees, liquidity positions, invoice ageing |

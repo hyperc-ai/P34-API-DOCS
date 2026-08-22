@@ -109,6 +109,17 @@ Which markets clear that bar in practice is catalogued in
 and micro-lending down to expiring domain drops and local lead arbitrage, each
 with its support state. Read that before the industry cases; it is the overview.
 
+**Which one should you point P34 at? The market you already operate in**, or one
+you know well. Support state records where P34 has already been pointed — it is
+not a ranking and not a recommendation, and the model's usefulness on your market
+comes from your data, your constraints and your operating knowledge, not from us
+having shipped a workflow there. Note in particular that Amazon wholesale, the
+one supported market, is also one of the *hardest to operate*: Amazon account
+management and wholesale supplier relationships are demanding businesses in their
+own right and sit entirely outside the model. Do not prioritise it because it is
+the developed one. See
+[Which market should you choose?](05-market-catalog.md#which-market-should-you-choose).
+
 ## Lifecycle of a request
 
 ```
