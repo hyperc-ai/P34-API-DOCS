@@ -4,6 +4,12 @@
 
 `POST /fit` returns immediately after grounding and enqueueing:
 
+> Under the recommended [`business_led` grounding
+> mode](02-endpoints.md#grounding-modes) grounding happens **after** the
+> response, so `/fit` answers `"status": "grounding"` and the row-count
+> fields below (`labeled_rows`, `unlabeled_rows`) arrive later — poll
+> `/result` for them. Everything else on this page applies to both modes.
+
 - `session_id` — use it to poll `/result`.
 - `labeled_rows` / `unlabeled_rows` — sizes of the grounded context. A group
   counts as **labeled** when its chosen row carries a `profit` value (the
@@ -25,8 +31,10 @@
   (reused from the account's previous fit), or `simulator_default` (the
   built-in fallback for simulator-style payloads).
 - `grounding_mode` — the applied
-  [grounding mode](02-endpoints.md#grounding-modes-reserved); currently
-  always `internal`.
+  [grounding mode](02-endpoints.md#grounding-modes): `internal` (what an
+  omitted field still means) or `business_led`. If you sent the recommended
+  `default`/`auto` alias, this field tells you which concrete mode it
+  resolved to.
 
 ## Common 422 errors
 
@@ -44,9 +52,10 @@
 
 Other statuses you may meet: **401/403** — missing/invalid API key, or a
 feature your account isn't flagged for; **413** — request over your plan's
-size cap; **501** — you requested the reserved `business_led`
-[grounding mode](02-endpoints.md#grounding-modes-reserved), which is
-disabled pending redesign; **429** — no active subscription (subscribe in the console), or
+size cap; **501** — you asked for `business_led`
+[grounding](02-endpoints.md#grounding-modes) on a deployment that does not
+run that pipeline (send `default` instead and you get that server's best
+available grounding rather than an error); **429** — no active subscription (subscribe in the console), or
 the plan's compute budget is exhausted for the current weekly or monthly
 window (see utilization in the
 [management console](https://api.hyperc.com/app/)).
@@ -64,9 +73,11 @@ still fail when the calculation runs on the cluster. These surface as
 | `Not enough valid menus to train on` | the history spans too few decision moments (`valid_fc_group_count` reports what survived; the floor is 10) | spread the history over more menus — at least ~10 decision moments, 50+ recommended |
 | `No FC-fit universe had enough rows to fit an FC regressor` | every internal fit candidate was skipped — too few observed (outcome-carrying) deals per menu | send more observed deals per decision moment — aim for 20+ per menu |
 
-The session is billed at intake, so catching both conditions client-side
-before submitting (count your observed groups per qty; make sure declined
-groups are present) is worth the few lines of pandas.
+A fit that fails on the cluster is metered but **charged nothing**, so these
+cost you time rather than tokens. They still cost you a full queue wait, so
+catching both conditions client-side before submitting (count your observed
+groups per qty; make sure declined groups are present) is worth the few lines
+of pandas.
 
 ## Quick self-checks before you file a support request
 

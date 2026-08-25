@@ -217,9 +217,21 @@ Resolution order when the field is absent or empty:
 
 The fit response reports which source was used in
 `business_description_source` (`request` / `account_profile` / `last_sent` /
-`simulator_default`), and the resolved text is recorded with the fit task. Current model versions
-do not consume it yet — the interface and the recording exist so the
-description can later be used to **enrich the choices and balance risks**.
+`simulator_default`), and the resolved text is recorded with the fit task.
+
+Under the recommended [`business_led` grounding mode](#grounding-modes) this
+description is **executable input, not metadata**: it is compiled into the
+economics adapter that reconstructs your labels, so its accuracy directly
+determines result quality. (Under legacy `internal` grounding it is only
+recorded, and the fixed replay formula is used instead.)
+
+Note that step 2 makes the console description a first-class way to drive
+fits: save it once in the dashboard, then send `/fit` requests with **no**
+`business_description` field at all and `"grounding_mode": "default"`. The
+response's `business_description_source` will read `account_profile`, and the
+saved text is what your grounding is compiled from. This keeps a long,
+carefully-maintained description out of every request payload — and lets a
+non-engineer own it in the console while the integration stays untouched.
 
 ### What to write in it
 
@@ -236,16 +248,68 @@ user to provide this unit-economics information, or research it on the
 internet with the maximum effort possible — it is later used to enrich the
 choices and balance risks, so a thin description degrades the result.
 
-### Grounding modes (reserved)
+### Grounding modes
 
 `/fit` accepts an optional `grounding_mode` (also inside `market_type`; the
-top-level field wins): `internal` — the default, today's server-side replay
-grounding — or `business_led`, a **reserved** mode in which the recorded
-business description and documents will drive the outcome reconstruction
-instead of the fixed replay formula. `business_led` is disabled pending a
-redesign of the grounding pipeline: requesting it returns **501**. Omit the
-field (or send `internal`); the applied mode is echoed in the fit response's
-`grounding_mode`.
+top-level field wins). It decides **how your history becomes the labelled
+examples the model learns from** — the single biggest lever on result
+quality.
+
+| value | what it does | use it when |
+| --- | --- | --- |
+| `default` (or `auto`) | **Recommended.** Whatever grounding this deployment considers best — today, `business_led`. Your client never has to track which pipeline is live. | always, unless you have a reason not to |
+| `business_led` | Pins description-driven grounding explicitly. | you want the request to fail loudly rather than quietly fall back |
+| `internal` | The original fixed replay formula: a synthetic-inventory economics model whose cost structure crosses the API as a handful of scalars. | simulator-style payloads and the quickstart |
+
+**Omitting the field still means `internal`**, so existing integrations keep
+their exact behaviour. Sending `"grounding_mode": "default"` is the whole
+migration. The applied mode is echoed back in the fit response's
+`grounding_mode`, and it always names a concrete mode (`internal` /
+`business_led`) — never the alias you sent.
+
+#### Why business-led grounding is recommended
+
+`internal` can only express economics that fit its fixed formula. Real cost
+structures — tiered and per-channel fees, accumulated and holding costs,
+write-off schedules, minimum order quantities — have nowhere to go in it, so
+they get approximated away, and the model learns from labels that do not
+match your P&L.
+
+Business-led grounding instead **compiles your
+[business description](#business-description) into an economics adapter for
+your account** (and, where your account has a workspace VM, reads your own
+profit-calculation code from it). Your history is expanded into a grounded
+option grid and replayed through *your* economics to produce the labels. The
+replayed profits are then reconciled against the realized profits you sent:
+if they disagree beyond tolerance the fit fails with feedback naming the
+mismatch, instead of quietly training on wrong labels.
+
+This is also why the description is worth real effort — see
+[what to write in it](#what-to-write-in-it). It is no longer metadata; it is
+the specification the grounding is compiled from.
+
+#### It runs asynchronously
+
+A business-led `/fit` returns **`"status": "grounding"`** immediately with
+your `session_id` — compiling and replaying takes minutes, not milliseconds.
+Poll `GET /result/{session_id}` exactly as you already do: it reports the
+grounding phase while the pipeline runs, then switches to the normal
+`queued` → `processing` → `done` lifecycle once the task reaches the compute
+queue. A client that already polls through to `done` needs no changes.
+
+If grounding cannot succeed, `/result` ends at `status: "failed"` with a
+`feedback` field describing what to fix in your data or your description —
+see [free-form feedback](#free-form-feedback).
+
+#### What it costs
+
+Grounding is metered and billed as its own line when the task is published —
+the LLM work of compiling your adapter plus the CPU of the replay — and
+appears in your [ledger](06-token-wallet.md) as a `service` entry. The fit's
+own compute is billed separately at settlement, exactly as for `internal`. A
+fit that fails during grounding is metered but **charged nothing**. Compiled
+adapters are cached per account and description, so only the first fit after
+you change your description pays the compile cost.
 
 ## Free-form feedback
 

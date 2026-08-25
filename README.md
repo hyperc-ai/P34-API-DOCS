@@ -71,6 +71,12 @@ You send **two tables and a config**, and later receive **one predicted menu**:
   replays your inventory economics (holding costs, write-offs, fees) to
   reconstruct what every historical option would have earned.
 - **market_type** — the grounding configuration describing those economics.
+- **business_description** — your business and, crucially, **how its unit
+  economics is computed**. Under the recommended
+  [`business_led` grounding mode](docs/02-endpoints.md#grounding-modes) this
+  text is compiled into the economics used to reconstruct your history, so it
+  is executable input rather than documentation. You can send it per request
+  or save it once in the console.
 
 The **task** is the menu you want decided **now** (`T = 0`, `menu = 0`). The
 response fills it in: per key, the selected quantity (`qty = 0` = *do not
@@ -82,6 +88,14 @@ POST /fit  ──►  validation + grounding  ──►  queued
                                              │   (calculation runs on
                                              ▼    HyperC's compute cluster)
 GET /result/{session_id}  ◄──  queued → processing → done | failed
+```
+
+With the recommended `grounding_mode: "default"`, grounding is compiled from
+your description and runs *after* the response, so `/fit` answers
+`grounding` and the same poll loop covers the extra phase:
+
+```
+GET /result/{session_id}  ◄──  grounding → queued → processing → done | failed
 ```
 
 ## Quickstart
@@ -108,9 +122,13 @@ r = requests.post("https://api.hyperc.com/v1/fit",
                   json={"menus": [...], "sales": [...], "market_type": {...},
                         # your business + its unit economics (fees, holding
                         # costs, …); or save it once in the console instead
-                        "business_description": "..."})
+                        # and omit this field entirely
+                        "business_description": "...",
+                        # recommended: grounding compiled from that
+                        # description. Omit for the legacy fixed formula.
+                        "grounding_mode": "default"})
 session = r.json()["session_id"]
-# poll until done:
+# poll until done (business-led fits pass through "grounding" first):
 requests.get(f"https://api.hyperc.com/v1/result/{session}",
              headers={"Authorization": "Bearer <key>"}).json()
 ```

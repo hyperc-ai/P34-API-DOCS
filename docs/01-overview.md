@@ -28,7 +28,11 @@ receive **one predicted menu**:
   unit economics is computed* (fees, accumulated costs, holding costs;
   approximations are fine). Sent per request, saved once in the console, or
   reused from the last fit — but a fit must resolve to one; see
-  [Business description](02-endpoints.md#business-description).
+  [Business description](02-endpoints.md#business-description). Under the
+  recommended [`business_led` grounding
+  mode](02-endpoints.md#grounding-modes) this text is **compiled into the
+  economics that reconstruct your history**, so it is the highest-leverage
+  field in the request.
 
 The **task** is the menu you want decided **now**. It is marked two ways at
 once, and both must agree: `T = 0` and `menu = 0`. Menu id `0` is reserved for
@@ -127,6 +131,15 @@ POST /fit  ──►  validation + grounding  ──►  queued
                                              │   (calculation runs on
                                              ▼    HyperC's compute cluster)
 GET /result/{session_id}  ◄──  queued → processing → done | failed
+```
+
+With the recommended `grounding_mode: "default"`, the grounding step is
+compiled from your business description and runs after the response, adding
+one phase in front of the same poll loop:
+
+```
+POST /fit  ──►  validation  ──►  grounding (minutes, asynchronous)  ──►  queued
+GET /result/{session_id}  ◄──  grounding → queued → processing → done | failed
 ```
 
 Fits are **asynchronous**: `POST /fit` returns in seconds with a
