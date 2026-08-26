@@ -18,10 +18,11 @@ Keys come in `test-…` and `profit-…` flavours tied to your plan
 (`profit-` keys are **not yet self-serve** — the console issues `test-` keys
 only for now); usage is
 metered against your **token wallet**: your plan's token amount is credited
-every month, **unused tokens accumulate**, and API calls debit the balance
+every month (200 tokens on the base plan, **400 for founding members**),
+**unused tokens accumulate**, and API calls debit the balance
 (a weekly window remains as a burst bound only) — see
-[the token wallet](06-token-wallet.md) for accrual, transfers and the
-ledger. Registration is free, but calling the API requires tokens — an
+[the token wallet](06-token-wallet.md) for accrual, the founding grant,
+transfers and the ledger. Registration is free, but calling the API requires tokens — an
 account with no active subscription and an empty wallet gets `429` with
 `"no active subscription — subscribe to a plan to use the API"`. Subscribe
 from the console's plans page. `GET /` and `GET /health` are open liveness
@@ -40,7 +41,7 @@ and test your integration before subscribing.
 | `POST /predict` | Instant selection from a small in-process reference model — a payload sanity-checker while the real calculation runs. **Not** P34's answer; `/result` is. |
 | `DELETE /session/{id}` | Discard a session you no longer need. |
 | `GET /queue` | Intake spool state (admin accounts). |
-| `GET /account/balance` | Token wallet balance (accruals materialize on read). [Details.](06-token-wallet.md) |
+| `GET /account/balance` | Token wallet balance, monthly grant and founding status (accruals materialize on read). [Details.](06-token-wallet.md) |
 | `GET /account/ledger` | Full query-able token ledger — every pay-in/pay-out with time, from, to, amount, msg; cursor-paginated. [Details.](06-token-wallet.md) |
 | `POST /account/transfer` | Send tokens to another account by email. [Details.](06-token-wallet.md) |
 
@@ -119,7 +120,8 @@ spending compute budget.
   menu, not predictions**; every mock response carries `"mock": true` and a
   `mock_note` so it can never be mistaken for a real result.
 - The fit response's `billing` block reports the `input_cells` and `effort`
-  the request *would* have cost, with `"tokens_charged": 0`.
+  the request *would* have cost, with `"tokens_charged": 0` (and
+  `"tokens_charged_units": 0`).
 - `"mock": "failed"` simulates a **failing** fit instead — `/result` ends at
   `status: "failed"` with an `error` field — so you can test your error path.
 - `"mock_result_seconds": <n>` (default 6, max 600) sets how long the
@@ -330,7 +332,8 @@ tables (e.g. `/predict`'s `selection`) use the same encoding.
 
 Calling the API requires tokens in the wallet (see Authentication above and
 [the token wallet](06-token-wallet.md)). Monthly token accruals scale with
-the plan — see the plans page in the
+the plan — 200 tokens a month on base, doubled to 400 for founding members —
+see the plans page in the
 [management console](https://api.hyperc.com/app/). Accounts without an
 active plan also have a request-size cap (currently 300 MB per request);
 with an empty wallet on top, their requests are refused with `429`.
