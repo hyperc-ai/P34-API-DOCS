@@ -37,7 +37,7 @@ and test your integration before subscribing.
 | `GET /` | Service info: protocol, available model versions, endpoint list. |
 | `GET /health` | Liveness probe. |
 | `POST /fit` | Submit Menus + Sales + market_type (+ a resolvable [business description](#business-description)). Validates, grounds the history, enqueues the calculation. Returns `session_id` immediately. Add `"mock": true` for a free simulated run (see [Mock mode](#mock-mode-free-integration-testing)). |
-| `GET /result/{session_id}` | Poll the calculation: `queued` → `processing` → `done` / `failed`. `done` carries the predicted T=0 menu. |
+| `GET /result/{session_id}` | Poll the calculation: `grounding` → `queued` → `processing` → `done` / `failed`. `done` carries the predicted T=0 menu. |
 | `POST /predict` | Instant selection from a small in-process reference model — a payload sanity-checker while the real calculation runs. **Not** P34's answer; `/result` is. |
 | `DELETE /session/{id}` | Discard a session you no longer need. |
 | `GET /queue` | Intake spool state (admin accounts). |
@@ -49,6 +49,7 @@ and test your integration before subscribing.
 
 | status | meaning |
 | --- | --- |
+| `grounding` | your economics are being compiled from your business description and your history replayed through them — the phase a [business-led](#grounding-modes) fit (the default) starts in. Takes minutes. Ends by moving to `queued`, or to `failed` with a `feedback` field. |
 | `queued` | waiting for the compute queue. |
 | `processing` | fitting/predicting on the cluster (a `runner` field carries progress detail). |
 | `done` | predictions ready — see below. |
@@ -221,7 +222,7 @@ The fit response reports which source was used in
 `business_description_source` (`request` / `account_profile` / `last_sent` /
 `simulator_default`), and the resolved text is recorded with the fit task.
 
-Under the recommended [`business_led` grounding mode](#grounding-modes) this
+Under the default [`business_led` grounding mode](#grounding-modes) this
 description is **executable input, not metadata**: it is compiled into the
 economics adapter that reconstructs your labels, so its accuracy directly
 determines result quality. (Under legacy `internal` grounding it is only
@@ -259,15 +260,30 @@ quality.
 
 | value | what it does | use it when |
 | --- | --- | --- |
-| `default` (or `auto`) | **Recommended.** Whatever grounding this deployment considers best — today, `business_led`. Your client never has to track which pipeline is live. | always, unless you have a reason not to |
-| `business_led` | Pins description-driven grounding explicitly. | you want the request to fail loudly rather than quietly fall back |
+| *omitted* | **The default: `business_led`.** Description-driven grounding is what you get when you express no preference. | you have nothing special to say |
+| `default` (or `auto`) | Identical to omitting it — whatever grounding this deployment considers best. Spells the intent out for readers of your code. | you prefer to be explicit |
+| `business_led` | Pins description-driven grounding by name. | you want the request to fail loudly on a server that cannot do it, instead of quietly getting the fallback |
 | `internal` | The original fixed replay formula: a synthetic-inventory economics model whose cost structure crosses the API as a handful of scalars. | simulator-style payloads and the quickstart |
 
-**Omitting the field still means `internal`**, so existing integrations keep
-their exact behaviour. Sending `"grounding_mode": "default"` is the whole
-migration. The applied mode is echoed back in the fit response's
-`grounding_mode`, and it always names a concrete mode (`internal` /
-`business_led`) — never the alias you sent.
+> **Changed:** an omitted `grounding_mode` used to mean `internal`. It now
+> means `business_led`. If you send no `grounding_mode` today, your fits
+> become **asynchronous** (`status: "grounding"` — see
+> [below](#it-runs-asynchronously)) and carry a
+> [grounding charge](#what-it-costs). To keep the old behaviour exactly, send
+> `"grounding_mode": "internal"` — the legacy path did not change, it just
+> has to be asked for by name.
+
+The applied mode is echoed back in the fit response's `grounding_mode`, and
+it always names a concrete mode (`internal` / `business_led`) — never the
+alias you sent. On a deployment that does not run the business-led pipeline,
+omitting the field still resolves to `internal`, so nothing there changes.
+
+One thing the new default *relaxes*: `/fit` refuses a history that is too
+thin to fit ([volume floors](04-errors-and-checks.md#common-422-errors)), but
+a business-led fit is only held to the structural checks — grounding is what
+produces the rows the model trains on, so the intake counts are not the ones
+it will see. Histories that a bare `internal` fit rejects at intake are
+accepted here.
 
 #### Why business-led grounding is recommended
 

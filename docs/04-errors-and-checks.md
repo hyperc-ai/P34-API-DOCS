@@ -4,7 +4,7 @@
 
 `POST /fit` returns immediately after grounding and enqueueing:
 
-> Under the recommended [`business_led` grounding
+> Under the default [`business_led` grounding
 > mode](02-endpoints.md#grounding-modes) grounding happens **after** the
 > response, so `/fit` answers `"status": "grounding"` and the row-count
 > fields below (`labeled_rows`, `unlabeled_rows`) arrive later — poll
@@ -31,10 +31,10 @@
   (reused from the account's previous fit), or `simulator_default` (the
   built-in fallback for simulator-style payloads).
 - `grounding_mode` — the applied
-  [grounding mode](02-endpoints.md#grounding-modes): `internal` (what an
-  omitted field still means) or `business_led`. If you sent the recommended
-  `default`/`auto` alias, this field tells you which concrete mode it
-  resolved to.
+  [grounding mode](02-endpoints.md#grounding-modes): `business_led` (what an
+  omitted field now means) or `internal` (asked for by name). Always a
+  concrete mode, so this is where you confirm what an omitted field or a
+  `default`/`auto` alias resolved to.
 
 ## Common 422 errors
 

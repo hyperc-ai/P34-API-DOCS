@@ -90,9 +90,9 @@ POST /fit  ──►  validation + grounding  ──►  queued
 GET /result/{session_id}  ◄──  queued → processing → done | failed
 ```
 
-With the recommended `grounding_mode: "default"`, grounding is compiled from
-your description and runs *after* the response, so `/fit` answers
-`grounding` and the same poll loop covers the extra phase:
+By default, grounding is compiled from your business description and runs
+*after* the response, so `/fit` answers `grounding` and the same poll loop
+covers the extra phase:
 
 ```
 GET /result/{session_id}  ◄──  grounding → queued → processing → done | failed
@@ -123,10 +123,10 @@ r = requests.post("https://api.hyperc.com/v1/fit",
                         # your business + its unit economics (fees, holding
                         # costs, …); or save it once in the console instead
                         # and omit this field entirely
-                        "business_description": "...",
-                        # recommended: grounding compiled from that
-                        # description. Omit for the legacy fixed formula.
-                        "grounding_mode": "default"})
+                        "business_description": "..."})
+                        # grounding is compiled from that description by
+                        # default; send "grounding_mode": "internal" for the
+                        # legacy fixed formula
 session = r.json()["session_id"]
 # poll until done (business-led fits pass through "grounding" first):
 requests.get(f"https://api.hyperc.com/v1/result/{session}",

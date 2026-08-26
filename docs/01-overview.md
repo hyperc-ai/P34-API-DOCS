@@ -29,7 +29,7 @@ receive **one predicted menu**:
   approximations are fine). Sent per request, saved once in the console, or
   reused from the last fit — but a fit must resolve to one; see
   [Business description](02-endpoints.md#business-description). Under the
-  recommended [`business_led` grounding
+  default [`business_led` grounding
   mode](02-endpoints.md#grounding-modes) this text is **compiled into the
   economics that reconstruct your history**, so it is the highest-leverage
   field in the request.
@@ -133,9 +133,8 @@ POST /fit  ──►  validation + grounding  ──►  queued
 GET /result/{session_id}  ◄──  queued → processing → done | failed
 ```
 
-With the recommended `grounding_mode: "default"`, the grounding step is
-compiled from your business description and runs after the response, adding
-one phase in front of the same poll loop:
+By default the grounding step is compiled from your business description and
+runs after the response, adding one phase in front of the same poll loop:
 
 ```
 POST /fit  ──►  validation  ──►  grounding (minutes, asynchronous)  ──►  queued
