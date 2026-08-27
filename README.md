@@ -151,7 +151,7 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    markets catalogue: every market, its tier, its support state, its menu
    shape and the data it runs on.
 6. [docs/06-token-wallet.md](docs/06-token-wallet.md) — the accumulating
-   token wallet: monthly accruals that carry over (200 tokens on base, 400
+   token wallet: monthly accruals that carry over (4,000 tokens a month, 8,000
    for founding members), transfers between accounts by email, and the full
    query-able ledger.
 7. [examples/](examples/) — runnable code:
@@ -166,7 +166,7 @@ for menus, grounding and portfolio behaviour before wiring your own data.
 
 ## Access & membership
 
-API access comes with the **P34 Membership** — base tier **$200/month**: a
+API access comes with the **P34 Membership** — **$2,000/month**: a
 **24/7 virtual machine** for your agent — an always-on workspace preloaded with
 market-access tools, curated data sources and web scraping, so the agent can
 collect data and operate the business continuously rather than only while you
