@@ -18,7 +18,7 @@ Keys come in `test-…` and `profit-…` flavours tied to your plan
 (`profit-` keys are **not yet self-serve** — the console issues `test-` keys
 only for now); usage is
 metered against your **token wallet**: your plan's token amount is credited
-every month (4,000 tokens on the plan currently sold, **8,000 for founding members**),
+every month (2,000 tokens on the plan currently sold, **4,000 for founding members**),
 **unused tokens accumulate**, and API calls debit the balance
 (a weekly window remains as a burst bound only) — see
 [the token wallet](06-token-wallet.md) for accrual, the founding grant,
@@ -348,7 +348,7 @@ tables (e.g. `/predict`'s `selection`) use the same encoding.
 
 Calling the API requires tokens in the wallet (see Authentication above and
 [the token wallet](06-token-wallet.md)). Monthly token accruals scale with
-the plan — 4,000 tokens a month on the plan currently sold, doubled to 8,000
+the plan — 2,000 tokens a month on the plan currently sold, doubled to 4,000
 for founding members —
 see the plans page in the
 [management console](https://api.hyperc.com/app/). Accounts without an

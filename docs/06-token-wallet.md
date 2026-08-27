@@ -4,8 +4,8 @@ Since **2026-08-21** P34 token budgets are an **accumulating wallet**, not a
 window that resets:
 
 * Every monthly window, an account with an active paid plan is **credited its
-  plan's monthly token amount** — **4,000 tokens** on the $2,000 plan currently
-  sold, and **8,000** while your account holds the [founding
+  plan's monthly token amount** — **2,000 tokens** on the $2,000 plan currently
+  sold, and **4,000** while your account holds the [founding
   membership](#founding-membership-2-tokens) — automatically, as a normal
   ledger entry.
 * **Unused tokens carry over.** Nothing expires at the end of the month; a
