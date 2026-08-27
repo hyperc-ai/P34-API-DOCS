@@ -72,6 +72,38 @@ still fail when the calculation runs on the cluster. These surface as
 | `NotEnoughData: No qty values have at least 100 rows` | too little observed history — the model needs at least ~100 observed groups sharing a qty option (`max_qty_rows` in the message reports your best count) | send more history: more observed keys/menus per qty option |
 | `Not enough valid menus to train on` | the history spans too few decision moments (`valid_fc_group_count` reports what survived; the floor is 10) | spread the history over more menus — at least ~10 decision moments, 50+ recommended |
 | `No FC-fit universe had enough rows to fit an FC regressor` | every internal fit candidate was skipped — too few observed (outcome-carrying) deals per menu | send more observed deals per decision moment — aim for 20+ per menu |
+| `bg_replay_ground: reconciliation failed` | replaying your Sales tape did not reproduce the `profit` you reported. Either the economics in your business description are wrong, **or** the tape and the profit were computed from different quantities (a rounded/aggregated/re-derived export) | read the stats in the message before changing anything — see [reading a reconciliation failure](#reading-a-reconciliation-failure) below |
+
+### Reading a reconciliation failure
+
+The message carries the whole diagnosis; read it before touching your model.
+
+```
+reconciliation failed: {'n_rows': 2526, 'n_excluded_nan': 0, 'n_compared': 2526,
+ 'n_within_zero_band': 2387, 'p80': 0.2449, 'p98': 1.0, 'median_signed': 0.0492}
+```
+
+- `n_within_zero_band` — rows that matched **exactly** (within 1% of the menu's
+  mean `|profit|`). Here 2,387 of 2,526.
+- `p80`/`p98` are percentiles of the relative difference over the **remaining**
+  rows only — 139 of them above, not all 2,526. Gate: `p80 ≤ 0.10`,
+  `p98 ≤ 0.30`. `p98 = 1.0` means at least one row has the opposite sign.
+- `median_signed` is likewise over those remaining rows only. Positive = the
+  replay reports **more** profit than your books.
+
+So a small `p80` failure with a large `n_within_zero_band` does **not** mean
+"the model is 24% wrong". It means most rows are perfect and a minority are not
+— and *which* minority is the question worth answering. Group the disagreeing
+rows by key, quantity and any regime flag you have: if they fall into an
+identifiable subset and the errors run in both directions, suspect the tape,
+not the formula — see
+[The tape and the profit must agree](03-data-format.md#the-tape-and-the-profit-must-agree).
+If instead the bias is one-signed across the board, a cost component is missing
+or double-counted; `median_signed` gives you its sign and rough size.
+
+Do not tune a fact-grounded component to make the gate pass. Undercharging one
+term can partially cancel an unrelated error and *improve* the number while
+making the model wrong — which then trains on the wrong economics.
 
 A fit that fails on the cluster is metered but **charged nothing**, so these
 cost you time rather than tokens. They still cost you a full queue wait, so

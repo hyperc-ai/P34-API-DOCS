@@ -170,7 +170,7 @@ the replayed economics are only as honest as this tape.
 | `menu` | no | the menu the sale belongs to (informational). |
 | `T` | yes | when the sale happened, same axis as Menus. **Must be ≤ 0** — future-dated sales are rejected. |
 | `T_signal_delay` | no | reporting delay of the sales reading vs. when the sale actually happened. Zero delay is assumed when the column is omitted. |
-| `qty` | yes | units sold (whole numbers). `0`/blank rows are ignored (they may still carry per-key columns). |
+| `qty` | yes | units sold. `0`/blank rows are ignored (they may still carry per-key columns). Whole numbers are the usual case and the only thing some market types accept (`synthetic_inventory` rejects fractions), but the wire itself only requires `qty > 0` — so **if your `profit` was computed from a fractional quantity, send the fraction**. See [The tape and the profit must agree](#the-tape-and-the-profit-must-agree). |
 | `price` | format: yes | realized price at sale. The format spec treats it as required for the sales log — it is what lets the model infer price sensitivity on compatible markets and advise price behaviour — though the current wire validator only enforces `key`/`T`/`qty`. Send it. |
 | `unit_holding_cost` | no | per-unit storage/holding cost as incurred at that date. If holding costs have changed over time, recalculate historical rows to **current** holding costs. An entire column holding a single constant value is fine. |
 | `unit_fee` | no | per-unit extra fee, defined by the identity `price − unit_fee − unit_cost − unit_holding_cost` = net profit per unit. |
@@ -178,6 +178,57 @@ the replayed economics are only as honest as this tape.
 A sale is attributed to the key's menu: its replay week is `T − T(menu)`, and
 must fall within the write-off horizon set in `market_type`. Every sale must
 already have happened (`T ≤ 0`) — the pipeline refuses future information.
+
+### The tape and the profit must agree
+
+Grounding **replays** your Sales tape to reproduce the `profit` you reported on
+each chosen menu row, and compares the two. Both numbers can be individually
+correct and the fit will still fail if they were computed from *different*
+quantities. The most common way that happens is an export step:
+
+- realized sales were fractional (weight, volume, continuous demand, a modelled
+  fill) and the tape was **rounded to whole units** on the way out;
+- the tape was aggregated, truncated to a shorter window, or reconstructed from
+  a different system than the one that produced `profit`;
+- `profit` came from an authoritative ledger while the tape came from an
+  operational feed that never quite matches it.
+
+The replay has only the tape. It cannot recover the quantity your accounting
+actually used, so it produces a different profit and reconciliation fails with
+`bg_replay_ground: reconciliation failed`.
+
+**Recognising it.** Rounding noise and a wrong formula look nothing alike:
+
+| | lossy tape | wrong profit model |
+| --- | --- | --- |
+| which rows disagree | an identifiable subset (the keys the export touched) | spread across all rows |
+| direction | **two-sided** — model too high on some rows, too low on others | **one-signed** — a missing or extra cost term biases every row the same way |
+| size | bounded by the rounding step — at most about one unit × `unit_price` per row | scales with the missing component |
+| worst rows | the **smallest** `qty` — on a 1-unit order, one unit of rounding is the difference between selling at margin and writing off at cost, i.e. a sign flip |
+
+If rows without the export problem reconcile *exactly*, the model is right and
+the tape is the problem.
+
+**Fixing it.** In order of preference:
+
+1. **Send the quantity your `profit` was computed from**, fractional if that is
+   what it was. The wire accepts it (`qty > 0` is the only rule). Check your
+   `market_type` first — `synthetic_inventory` requires whole units, so a
+   fractional tape needs a business-led fit with a compiled adapter.
+2. **Or recompute `profit` from the tape you can actually export.** If whole
+   units are a hard constraint, make the label agree with the tape rather than
+   the other way round. Consistency matters more than which of the two is more
+   "true" — the model learns the economics you demonstrate.
+3. **Only if neither is possible**, say so in your business description,
+   naming the affected keys and the size of the discrepancy, and contact
+   support: a market whose realized profits genuinely diverge per row can be
+   moved to an advisory reconciliation policy per account. It is not automatic,
+   and it is not a way around a fixable export — the same lossy tape also
+   generates the counterfactual labels for every quantity you did *not* choose,
+   so those rows carry the error too.
+
+Describing the rounding in your business description does **not** exempt the
+fit: the gate is arithmetic on your numbers, not a reading of your prose.
 
 ## market_type
 
