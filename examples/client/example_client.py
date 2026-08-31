@@ -53,8 +53,12 @@ def build_sheets(n_keys: int = 300, qtys: int = 3, seed: int = 7) -> tuple[pd.Da
 
     Sized to the model's data floors (see docs/03-data-format.md): roughly a
     fifth of the keys are deals the desk DECLINED — their menu groups stay in
-    with the would-be size flagged historically_chosen and profit blank,
-    becoming the unlabeled context current models require; the observed side
+    with ONE row flagged historically_chosen (any row does; on a group with no
+    outcome the flag is only the placeholder that keeps the group) and profit
+    blank, becoming the unlabeled context current models require. A fifth is a
+    demo floor, not a target: see "How much unlabeled context is enough" — a
+    history where almost everything was taken trains a take-all policy. The
+    observed side
     needs at least ~100 groups sharing a qty option; the history must span
     enough decision moments (12 menus here, not 2); and each menu needs a
     healthy count of observed deals (hence 300 keys ≈ 20 observed per menu).

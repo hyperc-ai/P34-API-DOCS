@@ -19,15 +19,21 @@
   chosen rows carry `profit` values. If `unlabeled_rows` is 0, every group you
   sent is observed — send the groups with no trustworthy outcome too
   ([data format](03-data-format.md#include-the-deals-you-did-not-take));
-  current models refuse an all-observed history at fit time.
+  current models refuse an all-observed history at fit time. **Read the ratio,
+  not just the zero check:** an `unlabeled_rows` that is a thin slice of the
+  total clears every gate and then trains a take-all policy — see [how much
+  unlabeled context is
+  enough](03-data-format.md#how-much-unlabeled-context-is-enough).
 - `task_menu_rows` — how many T=0 option rows were received.
-- `parse_report` — per-rule counts of dropped/ignored rows. A large
-  `menus_rows_dropped_no_choice` means whole (menu, key) groups had no
-  `historically_chosen = 1` row and were dropped in full — usually the column
-  is missing, or it was filled as "what the business selected" and left blank
-  wherever nobody selected anything. It marks the group's **labeled pick**,
-  which every group needs; see [what it really
-  means](03-data-format.md#what-historically_chosen-really-means).
+- `parse_report` — per-rule counts of dropped/ignored rows, and the only place
+  the shrinkage is visible. A large `menus_rows_dropped_no_choice` means whole
+  (menu, key) groups had no `historically_chosen = 1` row and were dropped in
+  full — usually the column is missing, or it was filled as "what the business
+  selected" and left blank wherever nobody selected anything. It marks the
+  group's **labeled pick**, which every group needs; see [what it really
+  means](03-data-format.md#what-historically_chosen-really-means). Each
+  counter's exact granularity — row, cell, or whole group — is tabulated in
+  [what intake drops](03-data-format.md#what-intake-drops-and-what-it-reports).
 - `model` — the model version this fit will run on.
 - `business_description_source` — where the fit's
   [business description](02-endpoints.md#business-description) came from:

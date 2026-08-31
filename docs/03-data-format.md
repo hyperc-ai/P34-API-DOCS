@@ -33,7 +33,7 @@ option space, taken and untaken, is what makes the history usable.
 | `*stock*` columns (e.g. `qty_stock`) | no | any column whose name matches the `*stock*` wildcard: the currently open (sellable) position for this key — the amount already in stock. A single market is assumed for all keys, so positions exit FIFO (first in, first out) when there were multiple past orders: profit depends on whether previous stock could be sold (full position close) before the new qty. If no sales of a batch happened, its profit is negative — a full cost write-off. |
 | `qty_outstanding_T+1` (`…T+N`) | no | inventory that must enter the FIFO process but is not yet sellable; the `T+N` suffix says it arrives in N time units. `T+0` is impossible by definition — anything already arrived belongs in the `*stock*` column. |
 | `qty` | **yes** | the deal-size option this row represents. Integer count-type values (1 apple, 2 apples) **or** floating-point values ($151.50, 38.566 kg) — but not both and not a mixture within one dataset. Required and numeric on every row. Options are **mutually exclusive** within a key-date — see [One choice per key-date](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive). |
-| `historically_available` | no | 1/0 — was this option actually available as a trade option at decision time. `0` marks a **grounded option**: a row whose features and outcome you were able to pre-calculate, but that was not actually selectable in the deal — e.g. only certain quantity combinations were tradeable because of MOQ or pack-size increments. Grounding more outcomes than were selectable is an optional, useful enrichment. |
+| `historically_available` | no | 1/0 — was this option actually available as a trade option at decision time. `0` marks a **grounded option**: a row whose features and outcome you were able to pre-calculate, but that was not actually selectable in the deal — e.g. only certain quantity combinations were tradeable because of MOQ or pack-size increments. Grounding more outcomes than were selectable is an optional, useful enrichment. **The column is optional and narrow in scope**: omit it and the whole history reads as real offers, which is what every dataset predating the column meant. It exists to keep an invented quote from being mistaken for one that was made, so it matters only where an *outcome is being replayed* from it. On declined, rejected, and unlabeled rows it changes nothing — see [Availability is not required on unlabeled rows](#availability-is-not-required-on-unlabeled-rows). |
 | `historically_chosen` | history: yes | 1/0 — the group's **labeled pick**: the one row whose outcome is known. **Exactly one chosen row per (menu, key)**, because `qty` is a mutex — see [One choice per key-date](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive). It does **not** have to be a row your business literally took; a history reconstructed by replaying past deals is equally valid. Read [What `historically_chosen` really means](#what-historically_chosen-really-means) before filling this column — it is the single most misread field in the contract. |
 | `profit` | no | realized total profit of the decision, on the chosen row only. A value here marks the group as an **observed outcome** (labeled context); the number itself is not trusted — the economics are replayed from Sales, so send the Sales rows that produced it. When the precise outcome is unknown, leave it blank and put any *approximate* values in feature columns instead — propagated to **all rows** of the dataset, not just the ones lacking a label. Keep profits as close to the real, money-in-the-bank values as possible, updated with the very latest state of the sales process. **Must be blank on all T=0 task rows** — the task is the prediction target, and the API refuses outcome values for it. |
 
@@ -48,11 +48,11 @@ Rules the server enforces (violations → HTTP 422 with a specific message):
 - `unit_cost`, `unit_price`, `qty` must be present and numeric.
 
 Messy-but-harmless input is tolerated and *counted* rather than rejected —
-blank rows, groups with no chosen row, profits on non-chosen rows — see
-`parse_report` in the fit response for exactly what was dropped or ignored.
-"Tolerated" is not "kept", though: a (menu, key) group with no chosen row is
-**dropped in full**, counted as `menus_rows_dropped_no_choice`, and teaches
-the model nothing.
+blank rows, groups with no chosen row, profits on non-chosen rows. "Tolerated"
+is not "kept", though: some of those rows never reach the model. Exactly which,
+at what granularity, and under which counter is set out in [What intake drops,
+and what it reports](#what-intake-drops-and-what-it-reports) — read it before
+you conclude a fit trained on everything you sent.
 
 ## One choice per key-date: qty and cost are mutually exclusive
 
@@ -140,14 +140,52 @@ Fill it mechanically:
   rule](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive)), so a
   group's label is its best known outcome.
 - If **nothing** in the group is safely known, still send the group — it is
-  the unlabeled context, and it is required. Flag the option that would have
-  been taken (or any reference option) and leave `profit` blank on every row.
-  A group with no chosen row at all is dropped at intake.
+  the unlabeled context, and it is required. Put the flag on **any one row** and
+  leave `profit` blank on every row. A group with no chosen row at all is
+  dropped at intake.
 
 When the history *does* come from a real operator's decisions, flagging what
 they actually took is the natural way to satisfy all of the above, and it
 carries a bonus: it also calibrates the model to that business's risk appetite
 and selection behaviour. That is a nice-to-have, not a precondition.
+
+### On an unlabeled group the flag is a placeholder, not a decision
+
+Earlier editions of this page told you to flag "the size your process *would*
+have taken". **Ignore that.** It asked for a counterfactual nobody can source,
+and it made a structural requirement look like a research task.
+
+On a group with no outcome, the flag is a **placeholder that keeps the group in
+the dataset** — it satisfies the one-per-group invariant and nothing more. Pick
+any row: the first, the smallest `qty`, the one your grid centres on. Do not
+reconstruct a decision, do not interview anyone about it, and do not withhold
+the group because you cannot say what would have been chosen.
+
+This is checkable in the pipeline, not just a stylistic preference. The replay
+uses the chosen row's quantity (`business_chosen_qty`, `is_sold_out`) only
+inside groups that are **accepted** — those carrying a realized profit. Every
+label an unlabeled group produces is gated on `accepted` being true, so which of
+its rows wears the flag cannot change any of them.
+
+### Availability is not required on unlabeled rows
+
+`historically_available` and `historically_chosen` answer different questions and
+are not a pair. Availability exists so that a quote you *invented* is not
+replayed as one that was *made*; it therefore matters only where an outcome is
+being derived. On declined, rejected, and unlabeled rows there is no outcome to
+derive, so:
+
+- **you do not need to set it** on those rows, or send the column at all;
+- **leaving it blank is not a defect** and does not shrink your context — a blank
+  reads as `1`, and nothing downstream distinguishes the two on a row that
+  carries no label;
+- the only hard rule involving it is that `historically_available = 0` and
+  `historically_chosen = 1` on the same row is a **422** — you cannot label an
+  outcome for an offer you say was never on the table.
+
+Where it does earn its keep is the opposite case: a *labeled* history that mixes
+real quotes with rows you generated. Mark the generated ones `0` there, so the
+grounding knows which economics are real.
 
 ### You do not need an operating history
 
@@ -173,11 +211,12 @@ historical group make up the context:
 - **Unobserved** — groups with no trustworthy outcome. For an operating
   business these are the deals your process passed on; for a
   research-assembled history they are the line items you could not replay
-  safely, or deliberately did not. Either way: flag one row as
+  safely, or deliberately did not. Either way: flag any one row as
   `historically_chosen` and leave `profit` blank on every row of the group.
   They carry no outcome, and that is the point — they become the **unlabeled**
   context (a group with no chosen row at all is simply dropped at intake, so
-  the flag is what keeps them in).
+  the flag is what keeps them in). Nothing else is asked of these rows: no
+  availability flags, no reconstructed decision, no estimated profit.
 
 Both kinds are required, and there are volume floors:
 
@@ -197,9 +236,94 @@ As a rule of thumb: **hundreds of observed deals spread over a dozen or more
 menus** is the practical minimum; real business histories clear these floors
 easily, toy payloads usually don't.
 
+### How much unlabeled context is enough
+
+Note what the floors above are, and what they are not. They are **absolute
+counts on the observed side** — enough labeled deals for the regressor to have
+something to fit. They are **not a ratio**, and there is no requirement anywhere
+that the labeled rows outnumber the available options, or reach any particular
+share of them. A history of thousands of options with a few hundred outcomes
+among them is entirely normal and entirely fine.
+
+The requirement that does bind runs the other way, and only the last of the
+floors above touches it — by rejecting the zero case. **The declined, rejected,
+and untested options must be present in quantity, not merely present.**
+
+Here is why the zero check is not enough. If your history shows almost every
+option being taken, then what it describes is a market in which taking
+everything was the right move — and on that data, "take everything" *is* the
+profit-maximising policy. The model will learn it, faithfully. But a take-all
+optimum is an artefact of a history that never recorded a refusal; it is false
+of essentially every real market, where capital, capacity, shelf life, and
+counterparty risk make some deals worth declining. P34's product is the
+refusals, and a history without enough of them gives it nothing to refuse with.
+
+There is no server-side threshold for this — intake checks only that the
+unlabeled context is non-empty, and the cluster only that it is non-zero. It is
+on you. Practically: aim for the unlabeled groups to be a **substantial share of
+the history, comparable to or larger than the observed ones**, and treat a
+history that is 90-odd percent observed as a data-collection problem rather than
+a payload ready to send. It will pass every check and then recommend that you
+buy everything.
+
+If your market genuinely reveals almost every outcome, you are not out of
+options — you are in the case that [observed and unobserved
+outcomes](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement)
+is about, where the split has to be constructed rather than found.
+
 `POST /fit` validates shape, not statistics — both conditions surface only
 when the calculation runs; see
 [Fit-time failures](04-errors-and-checks.md#fit-time-cluster-failures).
+
+## What intake drops, and what it reports
+
+Some of what you send does not reach the model. This is worth stating precisely
+rather than in passing, because the largest of these drops is at *group*
+granularity and is easy to trigger by accident.
+
+First, the scope of the word "drop". **Nothing is deleted anywhere.** Your
+payload is not modified, nothing is written back, and no stored copy of your
+data is altered. The drop happens while parsing one request into one training
+context and applies to that request only: fix the input, resubmit, and every row
+returns. Every drop is also **counted and returned to you** in `parse_report` on
+the same response — none of it is silent, though all of it is easy to not read.
+
+| `parse_report` counter | granularity | what goes, and why |
+| --- | --- | --- |
+| `menus_rows_dropped_incomplete` | **row** | rows with a blank `key`, or a non-numeric `T` or `qty`. These cannot be placed in a menu or a group at all. If it takes *every* row, the request is a 422 instead. |
+| `menus_rows_dropped_no_choice` | **group — every row of it** | historical `(menu, key)` groups without exactly one `historically_chosen = 1`. Zero chosen rows → the entire group is removed, however many quantity options it held. (Two or more chosen rows is a 422, not a drop.) **This is the one that costs you real context** — see below. |
+| `profit_values_ignored_on_non_chosen` | **cell** | a `profit` written on a row that is not the group's chosen row. The row survives; only the number is discarded. Grounding supports one label per group, on the labeled pick. |
+| `sales_rows_dropped_unknown_key` | **row** | Sales rows whose `key` is absent from the surviving historical menus. Note the cascade: a key that vanished with a no-choice group takes its sales with it, under *this* counter, not the menus one. |
+| `sales_rows_dropped_zero_or_blank_qty` | **row** | Sales rows with `qty` of 0 or blank. `unit_fee` is harvested from them **before** they go, so per-key fee rows that carry no quantity still do their job. |
+| `client_grounding_rows` | — | not a drop at all: how many rows carried `historically_available = 0`. Informational. |
+
+**Why the no-choice drop is worth checking every time.** The flag column is
+coerced leniently — anything non-numeric, and any blank, becomes `0`. So a
+mis-typed header, a boolean exported as `TRUE`/`FALSE`, a locale that wrote
+`1,0`, or a transform that filled the column only for the deals that were taken,
+all produce the same outcome: groups with no flag, removed whole. The counter is
+the only visible symptom, and if enough goes this way the fit then fails on a
+volume floor for a history you believed you had sent.
+
+Guard against it client-side rather than after billing:
+
+```python
+g = hist.groupby(["menu", "key"])["historically_chosen"].sum()
+assert (g == 1).all(), g[g != 1]
+```
+
+Everything a *labeled* group carries is kept: the non-chosen quantity options of
+an observed group are the counterfactuals, and they go to the model in full.
+
+> **On the design of the no-choice drop.** Discarding a customer's rows to make
+> a request parse is a defensible convenience and a poor default, and we take the
+> point. A group with no flag is far more often an input the sender got wrong
+> than an intentional submission, and refusing it at the door — a 422 naming the
+> groups, the way every other structural mistake in this table is treated — would
+> surface it before the session is billed rather than in a counter afterwards.
+> Changing it is an API-behaviour change for every existing client, so it is not
+> something this page can do unilaterally; it is on the list. Until then, the
+> pre-flight check above is the reliable defence.
 
 ## The Sales table
 
