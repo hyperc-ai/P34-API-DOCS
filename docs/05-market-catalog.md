@@ -7,6 +7,12 @@ has identified as computable or as a candidate for computability; the
 
 A market is **computable** when feasible actions can be enumerated as a menu, outcomes can
 be attributed back to decisions, constraints can be encoded, and repeated feedback exists.
+One further condition carries most of the weight, and gives this class its other names —
+**rejected-deals markets**, **partially observed markets**: outcomes must be *partially*
+observed. Some can be replayed or simulated safely; others are genuinely enterable but were
+never tested by the business, by the market, or by a trustworthy replay. On a market where
+an ordinary trade would reveal everything, that split can be engineered — see [observed and
+unobserved outcomes](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement).
 If your market clears that bar, P34 can be pointed at it — run the
 [market-fit check](https://hyperc.com/markets.html) first.
 

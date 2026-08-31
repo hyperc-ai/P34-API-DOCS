@@ -34,7 +34,7 @@ option space, taken and untaken, is what makes the history usable.
 | `qty_outstanding_T+1` (`…T+N`) | no | inventory that must enter the FIFO process but is not yet sellable; the `T+N` suffix says it arrives in N time units. `T+0` is impossible by definition — anything already arrived belongs in the `*stock*` column. |
 | `qty` | **yes** | the deal-size option this row represents. Integer count-type values (1 apple, 2 apples) **or** floating-point values ($151.50, 38.566 kg) — but not both and not a mixture within one dataset. Required and numeric on every row. Options are **mutually exclusive** within a key-date — see [One choice per key-date](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive). |
 | `historically_available` | no | 1/0 — was this option actually available as a trade option at decision time. `0` marks a **grounded option**: a row whose features and outcome you were able to pre-calculate, but that was not actually selectable in the deal — e.g. only certain quantity combinations were tradeable because of MOQ or pack-size increments. Grounding more outcomes than were selectable is an optional, useful enrichment. |
-| `historically_chosen` | history: yes | 1/0 — was this row the option your business actually took. **Exactly one chosen row per (menu, key).** This is what calibrates the model's risk appetite and other business-process behaviors. For deals you declined outright, still include the group and flag the size your process *would* have taken — see [Include the deals you did not take](#include-the-deals-you-did-not-take). |
+| `historically_chosen` | history: yes | 1/0 — the group's **labeled pick**: the one row whose outcome is known. **Exactly one chosen row per (menu, key)**, because `qty` is a mutex — see [One choice per key-date](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive). It does **not** have to be a row your business literally took; a history reconstructed by replaying past deals is equally valid. Read [What `historically_chosen` really means](#what-historically_chosen-really-means) before filling this column — it is the single most misread field in the contract. |
 | `profit` | no | realized total profit of the decision, on the chosen row only. A value here marks the group as an **observed outcome** (labeled context); the number itself is not trusted — the economics are replayed from Sales, so send the Sales rows that produced it. When the precise outcome is unknown, leave it blank and put any *approximate* values in feature columns instead — propagated to **all rows** of the dataset, not just the ones lacking a label. Keep profits as close to the real, money-in-the-bank values as possible, updated with the very latest state of the sales process. **Must be blank on all T=0 task rows** — the task is the prediction target, and the API refuses outcome values for it. |
 
 Rules the server enforces (violations → HTTP 422 with a specific message):
@@ -50,6 +50,9 @@ Rules the server enforces (violations → HTTP 422 with a specific message):
 Messy-but-harmless input is tolerated and *counted* rather than rejected —
 blank rows, groups with no chosen row, profits on non-chosen rows — see
 `parse_report` in the fit response for exactly what was dropped or ignored.
+"Tolerated" is not "kept", though: a (menu, key) group with no chosen row is
+**dropped in full**, counted as `menus_rows_dropped_no_choice`, and teaches
+the model nothing.
 
 ## One choice per key-date: qty and cost are mutually exclusive
 
@@ -117,24 +120,69 @@ agent preparing the input may additionally generate **set-encoder based
 embeddings** of items, menus, or market states and attach them as feature
 columns.
 
+## What `historically_chosen` really means
+
+The column's name is historical; its job is not. `historically_chosen = 1`
+marks **the one row of a (menu, key) group whose outcome is known** — the row
+`profit` attaches to. It is *not* a claim that somebody at the business picked
+that line, and the data is not invalid because nobody did.
+
+Fill it mechanically:
+
+- **1** on the row whose profit was safely calculated, predicted, replayed, or
+  otherwise obtained as the realized yield of that historical line item.
+- **0** on every unlabeled row — profit not calculated, `NaN`, never tested by
+  the business or by the market, or a row where replay/simulation would not
+  have been safe enough to trust.
+- If **several** `qty` options in the same group carry a safely known profit,
+  flag the **most profitable** one and leave the rest at 0. Only one `qty` per
+  key may be chosen in a menu ([the mutex
+  rule](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive)), so a
+  group's label is its best known outcome.
+- If **nothing** in the group is safely known, still send the group — it is
+  the unlabeled context, and it is required. Flag the option that would have
+  been taken (or any reference option) and leave `profit` blank on every row.
+  A group with no chosen row at all is dropped at intake.
+
+When the history *does* come from a real operator's decisions, flagging what
+they actually took is the natural way to satisfy all of the above, and it
+carries a bonus: it also calibrates the model to that business's risk appetite
+and selection behaviour. That is a nice-to-have, not a precondition.
+
+### You do not need an operating history
+
+Because the flag means *labeled*, not *selected*, **P34 applies to a business
+that has never traded**. A history assembled entirely from market research and
+data collection — menus reconstructed from past market state, outcomes
+obtained by replaying or simulating each deal against what the market went on
+to do — is a first-class input. Nothing in the model requires a purchase order
+behind a labeled row.
+
+What such a history must still supply is the *split*: some line items with a
+safe, trustworthy outcome and others with none. Manufacturing that split
+deliberately is the interesting part of the job — see [Observed and unobserved
+outcomes](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement).
+
 ## Include the deals you did not take
 
-P34 fits on the *whole* menu, not just your wins. Two kinds of historical
-groups make up the context:
+P34 fits on the *whole* menu, not just the outcomes you hold. Two kinds of
+historical group make up the context:
 
 - **Observed** — groups whose chosen row carries a `profit` value. Their
   economics are replayed from Sales and they become the **labeled** context.
-- **Declined** — deals your process passed on. Include them too: flag the
-  size your process *would* have taken as `historically_chosen` and leave
-  `profit` blank on every row of the group. They carry no outcome, and that
-  is the point — they become the **unlabeled** context that teaches the
-  model your selection pattern (a group with no chosen row at all is simply
-  dropped at intake, so the would-be flag is what keeps them in).
+- **Unobserved** — groups with no trustworthy outcome. For an operating
+  business these are the deals your process passed on; for a
+  research-assembled history they are the line items you could not replay
+  safely, or deliberately did not. Either way: flag one row as
+  `historically_chosen` and leave `profit` blank on every row of the group.
+  They carry no outcome, and that is the point — they become the **unlabeled**
+  context (a group with no chosen row at all is simply dropped at intake, so
+  the flag is what keeps them in).
 
 Both kinds are required, and there are volume floors:
 
-- current model versions refuse a history that is all wins — the fit fails
-  with `Unlabeled business-menu mask selected zero rows`;
+- current model versions refuse a history in which *every* group is observed —
+  the fit fails with `Unlabeled business-menu mask selected zero rows`;
 - at least ~100 observed groups must share a qty option, or the fit fails
   with `NotEnoughData: No qty values have at least 100 rows`;
 - the history must span enough **decision moments**: a toy history of one or

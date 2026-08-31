@@ -15,15 +15,19 @@
   counts as **labeled** when its chosen row carries a `profit` value (the
   observed-outcome marker; the value itself is replayed from Sales). Groups
   whose chosen row has no profit are the **unlabeled** context. If
-  `labeled_rows` is 0, no historical group had an observed outcome — check
-  that chosen rows carry `profit` values. If `unlabeled_rows` is 0, the
-  history is all wins — include the deals you declined
+  `labeled_rows` is 0, no historical group had a known outcome — check that
+  chosen rows carry `profit` values. If `unlabeled_rows` is 0, every group you
+  sent is observed — send the groups with no trustworthy outcome too
   ([data format](03-data-format.md#include-the-deals-you-did-not-take));
   current models refuse an all-observed history at fit time.
 - `task_menu_rows` — how many T=0 option rows were received.
 - `parse_report` — per-rule counts of dropped/ignored rows. A large
-  `menus_rows_dropped_no_choice` usually means `historically_chosen` is
-  missing or mis-filled.
+  `menus_rows_dropped_no_choice` means whole (menu, key) groups had no
+  `historically_chosen = 1` row and were dropped in full — usually the column
+  is missing, or it was filled as "what the business selected" and left blank
+  wherever nobody selected anything. It marks the group's **labeled pick**,
+  which every group needs; see [what it really
+  means](03-data-format.md#what-historically_chosen-really-means).
 - `model` — the model version this fit will run on.
 - `business_description_source` — where the fit's
   [business description](02-endpoints.md#business-description) came from:
@@ -68,7 +72,7 @@ still fail when the calculation runs on the cluster. These surface as
 
 | `error` contains | meaning | fix |
 | --- | --- | --- |
-| `Unlabeled business-menu mask selected zero rows` | the history contains only observed outcomes — no unlabeled context for the model to fit against | include the deals you declined: their menu groups with the would-be size flagged `historically_chosen` and `profit` blank on every row — see [the data-format guide](03-data-format.md#include-the-deals-you-did-not-take) |
+| `Unlabeled business-menu mask selected zero rows` | the history contains only observed outcomes — no unlabeled context for the model to contrast against. P34 needs both halves of a [partially observed market](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement) | include the groups with no trustworthy outcome — one row flagged `historically_chosen`, `profit` blank on every row of the group — see [the data-format guide](03-data-format.md#include-the-deals-you-did-not-take) |
 | `NotEnoughData: No qty values have at least 100 rows` | too little observed history — the model needs at least ~100 observed groups sharing a qty option (`max_qty_rows` in the message reports your best count) | send more history: more observed keys/menus per qty option |
 | `Not enough valid menus to train on` | the history spans too few decision moments (`valid_fc_group_count` reports what survived; the floor is 10) | spread the history over more menus — at least ~10 decision moments, 50+ recommended |
 | `No FC-fit universe had enough rows to fit an FC regressor` | every internal fit candidate was skipped — too few observed (outcome-carrying) deals per menu | send more observed deals per decision moment — aim for 20+ per menu |

@@ -17,9 +17,13 @@ receive **one predicted menu**:
   per *(key, quantity option)*. Historical menus are the model's **context**:
   P34 is pre-trained, so the fitting done on your history does not teach it
   markets from scratch — it statistically calibrates the model to *your*
-  market before it answers. "Every option" is literal: the deals you
-  *declined* belong in the context too, with no outcome attached — see
+  market before it answers. "Every option" is literal: the options with no
+  trustworthy outcome belong in the context too, carrying no `profit` — see
   [Include the deals you did not take](03-data-format.md#include-the-deals-you-did-not-take).
+  That history does not have to be a record of decisions somebody made: one
+  reconstructed by replaying past deals works just as well — see [What
+  `historically_chosen` really
+  means](03-data-format.md#what-historically_chosen-really-means).
 - **Sales** — your realized sales log. Used to *ground* the history: the
   service replays your inventory economics (holding costs, write-offs, fees)
   to reconstruct what every historical option would have earned.
@@ -43,11 +47,12 @@ The response fills in the task menu: for each key, the selected quantity
 
 ## Why not just a regressor?
 
-Your history is **biased**: you only observed outcomes for the options your
-business actually took, and your business took them *selectively*. A model
-trained naively on that history looks great on business-observed holdouts and
-then over-trades false positives on the full future menu — it has never seen
-the options you (wisely) declined.
+Your history is **biased**: outcomes exist only for a subset of the options —
+the ones your business actually took, or, on a history assembled by research
+and replay, the ones you could safely value — and that subset was not drawn at
+random. A model trained naively on it looks great on the observed holdout and
+then over-trades false positives on the full future menu, because it has never
+been shown the options nobody priced.
 
 P34's principles, at the level relevant to a user:
 
@@ -107,6 +112,46 @@ The distinctions run along four dimensions:
 4. **You already hold the menu.** Business decisions arrive as menus with a
    bounded option set per decision moment — which is what makes the market
    *computable* at all.
+
+## Observed and unobserved outcomes: the load-bearing requirement
+
+Of everything above, one property decides whether P34 can work on a market at
+all. It is one of the working definitions of a **computable market** — the same
+class is also called a **rejected-deals market** or a **partially observed
+market**:
+
+> The outcome space must come in two parts. **Some** outcomes can be replayed
+> or simulated safely, or at least reasonably. **Others** are genuinely
+> enterable — the deal was there to be taken — but were never tested by the
+> business, by the market, or by a replay you would trust.
+
+That asymmetry is the signal. A history in which every outcome is known says
+nothing about what a process refuses, and the fit rejects it outright
+(`Unlabeled business-menu mask selected zero rows`); a history in which nothing
+is known has nothing to calibrate against. Everything P34 does with selection
+bias lives in the gap between the two.
+
+Note what this requirement does *not* ask for. It says nothing about who chose
+the labeled options, or whether anyone did — only that the split exists. That is
+why a history built entirely from replayed or simulated past deals is a
+first-class input, and why a business with no trading record at all can still be
+fit: see [What `historically_chosen` really
+means](03-data-format.md#what-historically_chosen-really-means).
+
+### Advanced strategies: manufacturing the split
+
+Where the split comes from is a design decision, and on a market whose ordinary
+trade reveals almost every outcome it is the most interesting part of the work.
+Constructing it on purpose is what we call an **advanced strategy**: composing
+deals so that a meaningful part of the outcome space stays genuinely untested
+even when the underlying instrument is transparent.
+
+The direction of travel — by analogy only, since these particular markets sit
+outside P34's perimeter — is **pair trading and multi-leg strategies** in
+equities. A single leg's tape reveals its own outcome; the composite position's
+does not, because the composite was never entered. Discovering the equivalent
+construction on *your* market is a member's job, and it is where the leverage
+is.
 
 Which markets clear that bar in practice is catalogued in
 [05-market-catalog.md](05-market-catalog.md) — 69 of them, from Amazon wholesale

@@ -36,7 +36,7 @@ other API calls require an API key from the management console, sent as
 ## Is this for you?
 
 - ✅ You face **menu-shaped decisions**: inventory purchasing, wholesale lots, loan approvals, load acceptance, contract sizing — many (item, quantity) options per decision moment.
-- ✅ You have **history**, including the options you *declined* — or you're willing to start logging it.
+- ✅ You have **history**, including the options with no outcome attached — or you're willing to start logging it. No trading record at all? A history assembled from market research and replayed past deals is a first-class input — see [what `historically_chosen` really means](docs/03-data-format.md#what-historically_chosen-really-means).
 - ✅ You can measure an economic outcome: profit, contribution margin, recovery, yield.
 - ✅ You want an executable answer — sizes and predicted economics — not a dashboard.
 - ✅ You're wiring an **AI agent** (Claude, ChatGPT, open models, custom code) to real commercial decisions and need the one step it can't do alone.
@@ -45,7 +45,7 @@ other API calls require an API key from the management console, sent as
 
 ## Why not just train a regressor on your history?
 
-Your history is **biased**: you only observed outcomes for the options your business actually took, and it took them *selectively*. A model trained naively on that history looks great on business-observed holdouts — then over-buys false positives on the full future menu it was never forced to refuse.
+Your history is **biased**: outcomes exist only for a subset of the options — the ones your business actually took, or the ones a research-built history could safely value — and that subset was never drawn at random. A model trained naively on it looks great on the observed holdout — then over-buys false positives on the full future menu it was never forced to refuse.
 
 | | Naive profit regressor | P34 |
 | --- | --- | --- |
@@ -65,8 +65,12 @@ You send **two tables and a config**, and later receive **one predicted menu**:
   per *(key, quantity option)*. Historical menus are the model's **context**:
   P34 is pre-trained, so fitting on your history doesn't teach it markets from
   scratch — it calibrates the model to *your* market before it answers.
-  "Every option" is literal: the deals you *declined* belong in the context too —
-  the service **refuses histories that are all wins**.
+  "Every option" is literal: the options carrying **no** trustworthy outcome
+  belong in the context too — the service **refuses a history in which every
+  group is observed**. That two-part structure (some outcomes safely known,
+  others enterable but never tested) is what makes a market computable in the
+  first place — see [observed and unobserved
+  outcomes](docs/01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement).
 - **Sales** — your realized sales log. Used to *ground* the history: the service
   replays your inventory economics (holding costs, write-offs, fees) to
   reconstruct what every historical option would have earned.
