@@ -444,6 +444,13 @@ recommended deployment path is iterative:
    for the added compute — and **plan the deployment in iterations** rather
    than aiming for the perfect first payload.
 
+**"Small" means shallow, not narrow.** Start with fewer feature columns and a
+shorter history — never with a narrower live menu. The task menu still has to
+carry the market's full flow of candidate deals, hundreds at the least, because
+a handful of hand-picked options is not a small dataset: it is a sign that the
+market, the collection mechanism or the plan is wrong. See [reject markets, at
+scale](01-overview.md#where-the-theory-meets-reality-reject-markets-at-scale).
+
 Along the way, read what the service sends back: beyond `parse_report` and
 the counters, the API may occasionally return **rich free-form text
 feedback**. If an agentic LLM is assembling your inputs, it should treat that

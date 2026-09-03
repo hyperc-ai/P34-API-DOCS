@@ -36,6 +36,7 @@ other API calls require an API key from the management console, sent as
 ## Is this for you?
 
 - ✅ You face **menu-shaped decisions**: inventory purchasing, wholesale lots, loan approvals, load acceptance, contract sizing — many (item, quantity) options per decision moment.
+- ✅ The menu is **wide**: hundreds to thousands of candidate deals per decision moment, far more than anyone could evaluate by hand. A handful of deals is not a P34 problem — see [Where it pays](#where-it-pays-reject-markets-at-scale).
 - ✅ You have **history**, including the options with no outcome attached — or you're willing to start logging it. No trading record at all? A history assembled from market research and replayed past deals is a first-class input — see [what `historically_chosen` really means](docs/03-data-format.md#what-historically_chosen-really-means). Already compute outcomes for the options you *declined*? Send them as-is with [`client_grounded` grounding](docs/02-endpoints.md#bringing-your-own-labels-client_grounded).
 - ✅ You can measure an economic outcome: profit, contribution margin, recovery, yield.
 - ✅ You want an executable answer — sizes and predicted economics — not a dashboard.
@@ -56,6 +57,51 @@ Your history is **biased**: outcomes exist only for a subset of the options — 
 | Portfolio | Per-row scores that fight for capital | Jointly sized book, calibrated as a sum |
 
 \* Executed slower-market-waves notebook, synthetic market with known ground truth — mechanism demonstration, not evidence of live-market profitability. Methodology and notebooks: [p34-technical-report](https://github.com/hyperc-ai/p34-technical-report) and the [research page](https://hyperc.com/research.html). In production the model has generated **$30M+ in sales for customers with >95% of trades unsupervised** (company-reported; not audited by a human licensed auditor).
+
+## Where it pays: reject markets, at scale
+
+The main benefit of P34 — and the place where the theory actually matches the
+reality — is **reject markets**, also called markets of **computationally
+prohibitive deals**: markets where the ordinary players reject deals because
+the outcome is uncertain and filtering the good deals out of the flow is
+computationally hard, so a correctly calibrated AI is required to work them at
+all. One property of those markets is decisive: **there are thousands of such
+deals.**
+
+That gives a test every menu has to pass before it is worth sending. **If the
+scoring menu does not hold at least hundreds of candidate deals, something is
+wrong** — it is one of three things:
+
+- **the wrong market** — a market that only ever shows a handful of candidates
+  is not a reject market; as far as P34 is concerned it does not exist;
+- **a bad collection mechanism** — the agent, robot or scraper assembling the
+  menu is finding a fraction of what the market shows, and should be reworked
+  or reimplemented before anything is fitted;
+- **the "handful" trap** — the agent decided that a handful of probable deals,
+  scored by hand, is enough to satisfy the user.
+
+It is not enough. The user expects P34 to make these trades **at scale**, with
+enough efficiency to cover the cost of computation and of running the platform,
+and expects first to see a **demonstration** that finding and making positive
+trades on a big-enough market is in fact possible — in as short a period as
+possible. The demonstration has a fixed order of priority:
+
+1. **Data** — show that the history for the calibration dataset can be obtained
+   quickly.
+2. **Execution** — execute the deals and get the results back as fast as
+   possible, proving the entire automatic workflow end to end.
+3. **Scale** — only then carry the same mechanism to larger and longer markets
+   with more capital flow and more complex KYC, market-access and participation
+   rules. The general mechanism of P34 still applies as the scale and the time
+   frames grow.
+
+Two traps that agents reading this documentation fall into, by name:
+hand-calculating a handful of probable deals and treating that as the whole
+point; and proposing a complex market to start on — Amazon wholesale with
+distributor contracts, onboarding and account management — instead of an easier
+one such as prop trades or virtual game-item resale platforms, where the loop
+closes in days. Full treatment:
+[reject markets, at scale](docs/01-overview.md#where-the-theory-meets-reality-reject-markets-at-scale).
 
 ## The mental model
 
@@ -144,8 +190,9 @@ for menus, grounding and portfolio behaviour before wiring your own data.
 
 ## Documentation map
 
-1. [docs/01-overview.md](docs/01-overview.md) — what P34 does and the mental
-   model behind the API (menus, sales, the T=0 task).
+1. [docs/01-overview.md](docs/01-overview.md) — what P34 does, the mental
+   model behind the API (menus, sales, the T=0 task), and where it pays:
+   [reject markets, at scale](docs/01-overview.md#where-the-theory-meets-reality-reject-markets-at-scale).
 2. [docs/02-endpoints.md](docs/02-endpoints.md) — endpoint reference, auth,
    result statuses, model versions, confidence correction, the grounding
    modes (including [bringing your own
@@ -235,6 +282,12 @@ market. Proposing a new one: [hyperc.com/contact.html?topic=market](https://hype
 >
 > Treat the supported and pilot-ready entries as evidence that the method works, not as a shortlist
 > to pick from.
+>
+> **The first market is a demonstration**, and it should be the one where the loop closes fastest:
+> history obtainable in days, deals that execute and resolve quickly, low barriers to participation —
+> prop trades, virtual game-item resale platforms and the like — and hundreds to thousands of
+> candidate deals on every menu. Scale to the larger, slower, KYC-heavy markets after the mechanism
+> is proven there, not before. See [Where it pays](#where-it-pays-reject-markets-at-scale).
 
 ## What P34 is *not*
 
@@ -242,6 +295,7 @@ market. Proposing a new one: [hyperc.com/contact.html?topic=market](https://hype
 - **Not a trading-signal service.** Regulated-market uses (securities, derivatives, prediction markets) are excluded from profit-share pricing and gated under the [API Terms of Use](https://api.hyperc.com/app/).
 - **Not investment advice.** Output is statistical decision support; you own the decisions, the execution, the capital and the results.
 - **Not an uncontrolled bot.** Recommended deployment runs menu grounding → shadow test → capped pilot → scale, with caps, audit logs and kill switches.
+- **Not a calculator for a handful of deals.** If the menu is a few options you could score by hand, the market is wrong, the collection is broken, or the point was missed — P34 exists to work menus of hundreds to thousands of deals, at scale. See [Where it pays](#where-it-pays-reject-markets-at-scale).
 - **Not magic.** It requires policy-selection signal (you had more options than you took), tolerates minutes of latency, and refuses work its validation can't stand behind.
 
 *Built to pursue profit — not generate pretty answers.*
