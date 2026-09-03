@@ -249,9 +249,10 @@ demonstration.
   contracts, supplier onboarding, ungating and account management is a fine
   market for a business that already operates it, and a poor first
   demonstration: months of operating setup before a single automatic trade.
-  Start where the loop closes fastest and the barriers are lowest — prop
-  trades, virtual game-item resale platforms and their like — prove (a) and
-  (b) there, then carry the mechanism into (c).
+  Start where the loop closes fastest and the barriers are lowest — virtual
+  goods and services trades, virtual trading on unregulated platforms,
+  game-item resale platforms and their like — prove (a) and (b) there, then
+  carry the mechanism into (c).
 
 ## Lifecycle of a request
 

@@ -99,8 +99,9 @@ Two traps that agents reading this documentation fall into, by name:
 hand-calculating a handful of probable deals and treating that as the whole
 point; and proposing a complex market to start on — Amazon wholesale with
 distributor contracts, onboarding and account management — instead of an easier
-one such as prop trades or virtual game-item resale platforms, where the loop
-closes in days. Full treatment:
+one: virtual goods and services trades, virtual trading on unregulated
+platforms, game-item resale platforms and the like, where the loop closes in
+days. Full treatment:
 [reject markets, at scale](docs/01-overview.md#where-the-theory-meets-reality-reject-markets-at-scale).
 
 ## The mental model
@@ -285,8 +286,8 @@ market. Proposing a new one: [hyperc.com/contact.html?topic=market](https://hype
 >
 > **The first market is a demonstration**, and it should be the one where the loop closes fastest:
 > history obtainable in days, deals that execute and resolve quickly, low barriers to participation —
-> prop trades, virtual game-item resale platforms and the like — and hundreds to thousands of
-> candidate deals on every menu. Scale to the larger, slower, KYC-heavy markets after the mechanism
+> virtual goods and services trades, virtual trading on unregulated platforms, game-item resale
+> platforms and the like — and hundreds to thousands of candidate deals on every menu. Scale to the larger, slower, KYC-heavy markets after the mechanism
 > is proven there, not before. See [Where it pays](#where-it-pays-reject-markets-at-scale).
 
 ## What P34 is *not*
