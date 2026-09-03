@@ -193,7 +193,9 @@ field or inside `market_type`) returns 422 with a migration hint.
 
 ## Business description
 
-Every fit must resolve to a non-empty **business description**. `/fit`
+Every fit must resolve to a non-empty **business description** — except a
+[`client_grounded`](#bringing-your-own-labels-client_grounded) one, which
+compiles nothing from it and so does not require it. `/fit`
 accepts an optional top-level `business_description` string (also accepted
 inside `market_type`; the top-level field wins):
 
@@ -264,6 +266,7 @@ quality.
 | `default` (or `auto`) | Identical to omitting it — whatever grounding this deployment considers best. Spells the intent out for readers of your code. | you prefer to be explicit |
 | `business_led` | Pins description-driven grounding by name. | you want the request to fail loudly on a server that cannot do it, instead of quietly getting the fallback |
 | `internal` | The original fixed replay formula: a synthetic-inventory economics model whose cost structure crosses the API as a handful of scalars. | simulator-style payloads and the quickstart |
+| `client_grounded` | **You** ground the history. Every historical option row carrying a `profit` is published with that value verbatim; P34 derives nothing — no replay, no adapter, no LLM, no grounding charge. | your own systems already value the options you *did not* take |
 
 > **Changed:** an omitted `grounding_mode` used to mean `internal`. It now
 > means `business_led`. If you send no `grounding_mode` today, your fits
@@ -328,6 +331,98 @@ own compute is billed separately at settlement, exactly as for `internal`. A
 fit that fails during grounding is metered but **charged nothing**. Compiled
 adapters are cached per account and description, so only the first fit after
 you change your description pays the compile cost.
+
+#### Bringing your own labels: `client_grounded`
+
+Both modes above exist to **derive** a profit for every option row, and both
+deliberately discard whatever `profit` you sent on the rows you did not choose
+— they are about to recompute it. If your own systems already value the
+options you declined, that rule is backwards: the labels are the input, not
+something to be reconstructed.
+
+`"grounding_mode": "client_grounded"` inverts it. Every historical option row
+carrying a finite `profit` is published as a **labeled** row with that value
+verbatim; every row without one is published as **unlabeled** context. No
+replay, no compiled adapter, no LLM, no workspace VM, and no
+[grounding charge](#what-it-costs). It is synchronous — `/fit` answers
+`"status": "queued"` exactly as `internal` does.
+
+One 48-row history (12 keys × 4 quantities), submitted three ways:
+
+| you send | mode | `labeled_rows` | `unlabeled_rows` | what happened |
+| --- | --- | ---: | ---: | --- |
+| `profit` on all 48 rows | `client_grounded` | 48 | 0 | all 48 of your labels published as sent |
+| `profit` on the 12 chosen rows only | `client_grounded` | 12 | 36 | the other 36 became unlabeled context |
+| `profit` on all 48 rows | `internal` | 48 | 0 | your 36 non-chosen values were **discarded** and recomputed — `parse_report.profit_values_ignored_on_non_chosen` reads `36` |
+
+`parse_report.client_labeled_rows` counts the labels this mode accepted. It is
+the field to assert on in CI: if it is lower than you expect, some rows you
+believe you labeled arrived with a blank or non-numeric `profit`.
+
+**What it requires, and what it stops requiring.** At least one historical row
+must carry a `profit` — publishing your labels is the whole mode, so there has
+to be one, and a history with none is a 422. In exchange two things become
+optional: the [business description](#business-description) (nothing is
+compiled from it) and `market_type.parameters` (nothing is replayed, so there
+is no replay horizon to describe).
+
+**The trust boundary moves to you.** The derived modes replay your Sales tape
+and reconcile it against the profits you reported, failing loudly when the two
+disagree. This mode has nothing to reconcile against — whatever you send is
+what the model learns. Two consequences worth designing for:
+
+- **Blank is not zero.** A row with no `profit` is unlabeled context, and P34
+  never coerces it to `0`. A zero would teach the model that a zero-profit
+  option was actually observed, which is a different and much more damaging
+  claim than "we do not know".
+- **The [observed / unobserved split](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement)
+  is now yours to get right.** Labeling every row you send leaves the model no
+  declined options to contrast against, and the cluster refuses the fit with
+  `Unlabeled business-menu mask selected zero rows`. Send the options you
+  could not value, with `profit` blank.
+
+`historically_chosen` keeps its usual job here: it marks the group's labeled
+pick, and the quantity on that row is the reference every other option in the
+group is compared against.
+
+## Turning the plausibility checks off
+
+`/fit` forms two different kinds of opinion about a submission.
+**Structural** checks establish that the request can be fitted at all:
+required columns present, T=0 rows agreeing with menu `0`, exactly one
+`historically_chosen` row per group, frames that line up, train and eval
+carrying the same feature columns. **Plausibility** checks are advisory
+economics: the [volume floors](04-errors-and-checks.md#common-422-errors), the
+`historically_available` / `historically_chosen` consistency pair, and the
+replay-horizon bound on Sales.
+
+`"checks": "off"` skips the **plausibility** checks only, in any grounding
+mode. Like `grounding_mode`, it is accepted at the top level or inside
+`market_type`, and the top-level field wins:
+
+```json
+{ "menus": [...], "sales": [...], "market_type": {...},
+  "grounding_mode": "client_grounded", "checks": "off" }
+```
+
+It **cannot** skip a structural check. Those exist because the cluster runner
+raises `KeyError` or silently mis-fits without them, so turning one off would
+trade a clear 422 at intake for an opaque failure hours later, on compute you
+have already paid for. Nor does it lift the two safety refusals — a `profit`
+on a T=0 row, and Sales dated after now — which protect the integrity of the
+prediction rather than your convenience. Both are still 422 with
+`"checks": "off"`.
+
+Reach for it when you know your data is right and P34's generic opinions about
+it are not: a market whose real order volumes sit below the floors, or an
+availability convention that does not match the one the consistency check
+assumes. Accepted values are `"on"` (the default) and `"off"`; anything else
+is a 422 rather than a silent default.
+
+Every fit records which way the switch was set — in `parse_report.checks` and
+in the published task's metadata — so a fit that ran unchecked always says so.
+With the checks off, `parse_report` also carries no `volume_warnings` key,
+because nothing computed them.
 
 ## Free-form feedback
 

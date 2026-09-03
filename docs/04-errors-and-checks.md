@@ -24,6 +24,10 @@
   total clears every gate and then trains a take-all policy — see [how much
   unlabeled context is
   enough](03-data-format.md#how-much-unlabeled-context-is-enough).
+  Under [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded)
+  this counts **rows, not groups**, and the value *is* trusted: every
+  historical row you sent a finite `profit` on is labeled, every other row is
+  unlabeled context.
 - `task_menu_rows` — how many T=0 option rows were received.
 - `parse_report` — per-rule counts of dropped/ignored rows, and the only place
   the shrinkage is visible. A large `menus_rows_dropped_no_choice` means whole
@@ -42,9 +46,17 @@
   built-in fallback for simulator-style payloads).
 - `grounding_mode` — the applied
   [grounding mode](02-endpoints.md#grounding-modes): `business_led` (what an
-  omitted field now means) or `internal` (asked for by name). Always a
-  concrete mode, so this is where you confirm what an omitted field or a
-  `default`/`auto` alias resolved to.
+  omitted field now means), `internal`, or `client_grounded` (the latter two
+  asked for by name). Always a concrete mode, so this is where you confirm
+  what an omitted field or a `default`/`auto` alias resolved to.
+- `parse_report.client_labeled_rows` — under
+  [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded),
+  how many of your own labels were accepted and published verbatim. `0` in
+  the derived modes, which recompute instead.
+- `parse_report.checks` — `on` or `off`, recording whether the
+  [plausibility checks](02-endpoints.md#turning-the-plausibility-checks-off)
+  ran. A fit submitted with `"checks": "off"` always says so here and in the
+  published task's metadata.
 
 ## Common 422 errors
 
@@ -58,6 +70,8 @@
 | `keys appear in historical menus at multiple T values` | split those into distinct keys or separate requests. |
 | `grounding failed: ...` | economics couldn't replay — the message names the failing constraint (e.g. non-integer sales qty). |
 | unknown `model` version | check `GET /` for the versions this server offers. |
+| `client_grounded: no historical row carries a profit` | you asked P34 to publish your labels but sent none. Put a `profit` on the historical rows you have valued, or switch to `internal` / `business_led` to have them derived. |
+| `unknown checks value ...; expected 'on' or 'off'` | the [`checks`](02-endpoints.md#turning-the-plausibility-checks-off) switch takes only `"on"` and `"off"`. |
 | `business_description could not be resolved` | none of the three sources exists: send `business_description` in the request (the business **and** its unit economics — fees, accumulated/holding costs, approximations OK), or save one in the console's Business profile — see [Business description](02-endpoints.md#business-description). |
 
 Other statuses you may meet: **401/403** — missing/invalid API key, or a

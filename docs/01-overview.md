@@ -186,6 +186,11 @@ POST /fit  ──►  validation  ──►  grounding (minutes, asynchronous)  
 GET /result/{session_id}  ◄──  grounding → queued → processing → done | failed
 ```
 
+Two grounding modes skip that phase and return `queued` from `/fit` directly:
+`internal`, the legacy fixed formula, and
+[`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded),
+where you supply the labels yourself so there is nothing left to derive.
+
 Fits are **asynchronous**: `POST /fit` returns in seconds with a
 `session_id`; the calculation itself typically takes minutes. Poll
 `GET /result/{session_id}` (e.g. every 30 s) until `done`, or watch the

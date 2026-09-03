@@ -36,7 +36,7 @@ other API calls require an API key from the management console, sent as
 ## Is this for you?
 
 - ✅ You face **menu-shaped decisions**: inventory purchasing, wholesale lots, loan approvals, load acceptance, contract sizing — many (item, quantity) options per decision moment.
-- ✅ You have **history**, including the options with no outcome attached — or you're willing to start logging it. No trading record at all? A history assembled from market research and replayed past deals is a first-class input — see [what `historically_chosen` really means](docs/03-data-format.md#what-historically_chosen-really-means).
+- ✅ You have **history**, including the options with no outcome attached — or you're willing to start logging it. No trading record at all? A history assembled from market research and replayed past deals is a first-class input — see [what `historically_chosen` really means](docs/03-data-format.md#what-historically_chosen-really-means). Already compute outcomes for the options you *declined*? Send them as-is with [`client_grounded` grounding](docs/02-endpoints.md#bringing-your-own-labels-client_grounded).
 - ✅ You can measure an economic outcome: profit, contribution margin, recovery, yield.
 - ✅ You want an executable answer — sizes and predicted economics — not a dashboard.
 - ✅ You're wiring an **AI agent** (Claude, ChatGPT, open models, custom code) to real commercial decisions and need the one step it can't do alone.
@@ -130,7 +130,8 @@ r = requests.post("https://api.hyperc.com/v1/fit",
                         "business_description": "..."})
                         # grounding is compiled from that description by
                         # default; send "grounding_mode": "internal" for the
-                        # legacy fixed formula
+                        # legacy fixed formula, or "client_grounded" to
+                        # publish profits you have already computed yourself
 session = r.json()["session_id"]
 # poll until done (business-led fits pass through "grounding" first):
 requests.get(f"https://api.hyperc.com/v1/result/{session}",
@@ -146,7 +147,11 @@ for menus, grounding and portfolio behaviour before wiring your own data.
 1. [docs/01-overview.md](docs/01-overview.md) — what P34 does and the mental
    model behind the API (menus, sales, the T=0 task).
 2. [docs/02-endpoints.md](docs/02-endpoints.md) — endpoint reference, auth,
-   result statuses, model versions, confidence correction.
+   result statuses, model versions, confidence correction, the grounding
+   modes (including [bringing your own
+   labels](docs/02-endpoints.md#bringing-your-own-labels-client_grounded)) and
+   the [plausibility-checks
+   switch](docs/02-endpoints.md#turning-the-plausibility-checks-off).
 3. [docs/03-data-format.md](docs/03-data-format.md) — the Menus / Sales /
    market_type input format, rule by rule.
 4. [docs/04-errors-and-checks.md](docs/04-errors-and-checks.md) — common
@@ -160,8 +165,10 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    query-able ledger.
 7. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
-     (fit → poll → portfolio).
-   - [examples/data/](examples/data/) — sample input as Excel, CSV, and JSON.
+     (fit → poll → portfolio). `--grounding-mode client_grounded --checks off`
+     runs the bring-your-own-labels pattern.
+   - [examples/data/](examples/data/) — sample input as Excel, CSV, and JSON,
+     including `request_client_grounded_sample.json`.
    - [examples/pytest/](examples/pytest/) — a minimal pytest workflow you can
      drop into CI to validate your integration.
    - [examples/baseline_comparison/](examples/baseline_comparison/) — a demo

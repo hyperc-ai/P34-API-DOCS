@@ -3,6 +3,9 @@
     export P34_API_KEY=...        # from https://api.hyperc.com/app/
     python example_client.py --url https://api.hyperc.com/v1
 
+    # publish profits you computed yourself, and skip the plausibility checks
+    python example_client.py --grounding-mode client_grounded --checks off
+
 Builds a small Menus/Sales payload in the documented format
 (T < 0 history, T = 0 current menu — see docs/03-data-format.md and
 examples/data/menu_api_sample.xlsx), submits it with POST /fit, sanity-checks
@@ -48,8 +51,16 @@ BUSINESS_DESCRIPTION = (
 )
 
 
-def build_sheets(n_keys: int = 300, qtys: int = 3, seed: int = 7) -> tuple[pd.DataFrame, pd.DataFrame]:
+def build_sheets(n_keys: int = 300, qtys: int = 3, seed: int = 7,
+                 ground_all: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Menus + Sales sheets: 12 historical weekly menus (T=-12..-1) and a T=0 menu.
+
+    ``ground_all=True`` is the shape a ``client_grounded`` fit sends: a profit on
+    EVERY quantity option of an observed key, not only the one the desk took,
+    because the caller valued the alternatives themselves. The declined keys stay
+    unlabeled either way — that split is what the model learns from, and it is the
+    caller's job to preserve it in this mode (see docs/02-endpoints.md,
+    "Bringing your own labels").
 
     Sized to the model's data floors (see docs/03-data-format.md): roughly a
     fifth of the keys are deals the desk DECLINED — their menu groups stay in
@@ -86,12 +97,25 @@ def build_sheets(n_keys: int = 300, qtys: int = 3, seed: int = 7) -> tuple[pd.Da
         profit_chosen = float(sum(sold_weeks) * (price - cost) - chosen_qty * cost * 0.1)
 
         for q in range(1, qtys + 1):
+            if declined:
+                profit_q = None                  # never valued: unlabeled context
+            elif ground_all:
+                # the caller's own grounding: replay this week's demand against
+                # a stock of q instead of the quantity actually ordered
+                left, sold_q = q, 0
+                for demand in weekly_sales:
+                    take = int(min(demand, left))
+                    sold_q += take
+                    left -= take
+                profit_q = float(sold_q * (price - cost) - q * cost * 0.1)
+            else:
+                profit_q = profit_chosen if q == chosen_qty else None
             menus_rows.append({
                 "key": key, "menu": 100 + abs(t_menu), "T": t_menu, "T_lead": 0,
                 "f_edge": edge, "unit_cost": cost, "unit_price": price, "qty": q,
                 "historically_available": 1,
                 "historically_chosen": int(q == chosen_qty),
-                "profit": profit_chosen if (q == chosen_qty and not declined) else None,
+                "profit": profit_q,
             })
             menus_rows.append({
                 "key": key, "menu": 0, "T": 0, "T_lead": 0,
@@ -120,6 +144,15 @@ def main() -> None:
                          "calibrated confidence threshold (r006+); positive = "
                          "fewer, higher-confidence selections (default: "
                          "service default -0.1)")
+    ap.add_argument("--grounding-mode", default=None,
+                    choices=["default", "auto", "business_led", "internal", "client_grounded"],
+                    help="how your history becomes labels (see docs/02-endpoints.md). "
+                         "client_grounded publishes the profits in your Menus verbatim "
+                         "and derives nothing; default: the server's recommended mode")
+    ap.add_argument("--checks", default=None, choices=["on", "off"],
+                    help="'off' skips the PLAUSIBILITY checks only (volume floors, "
+                         "historically_available consistency, replay horizon). "
+                         "Structural and safety checks always run")
     ap.add_argument("--poll", type=int, default=30, help="seconds between /result polls")
     ap.add_argument("--timeout-min", type=int, default=30, help="give up after this many minutes")
     args = ap.parse_args()
@@ -129,9 +162,15 @@ def main() -> None:
     info = requests.get(f"{url}/", headers=headers, timeout=10).json()
     print("service:", info.get("service"), "| models:", info.get("models"))
 
-    menus, sales = build_sheets()
+    client_grounded = args.grounding_mode == "client_grounded"
+    # a client_grounded fit ships a profit on every option row it valued
+    menus, sales = build_sheets(ground_all=client_grounded)
     body = {"menus": records(menus), "sales": records(sales), "market_type": MARKET_TYPE,
             "business_description": BUSINESS_DESCRIPTION}
+    if args.grounding_mode:
+        body["grounding_mode"] = args.grounding_mode
+    if args.checks:
+        body["checks"] = args.checks
     if args.model:
         body["model"] = args.model
     if args.confidence_correction is not None:
@@ -140,8 +179,12 @@ def main() -> None:
     r.raise_for_status()
     out = r.json()
     print(f"fit ok — session {out['session_id'][:8]} ({out['status']}, model {out.get('model', 'default')})")
-    print(f"  grounded: {out['labeled_rows']} labeled / {out['unlabeled_rows']} unlabeled rows")
+    print(f"  grounded: {out['labeled_rows']} labeled / {out['unlabeled_rows']} unlabeled rows"
+          f" (mode {out.get('grounding_mode')})")
     print(f"  report:   {out['parse_report']}")
+    if client_grounded:
+        # the labels P34 took from you verbatim — assert on this in CI
+        print(f"  your labels published: {out['parse_report'].get('client_labeled_rows')}")
 
     # instant sanity check from the in-process reference model (NOT P34's answer)
     now_menu = menus[menus["T"] == 0]

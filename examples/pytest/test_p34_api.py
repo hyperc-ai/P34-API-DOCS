@@ -4,7 +4,8 @@ Three layers, cheapest first:
 
 1. offline payload checks — always run, no network;
 2. live smoke — needs P34_API_KEY: health, capability listing, /fit intake
-   validation (including the no-ground-truth rule) and the instant /predict
+   validation (including the no-ground-truth rule), the client_grounded
+   bring-your-own-labels path in free mock mode, and the instant /predict
    sanity check;
 3. optional end-to-end — set P34_WAIT_MIN>0 to also wait for the real cluster
    fit and assert the returned portfolio's shape.
@@ -103,6 +104,48 @@ def test_fit_and_instant_predict(api_url, api_headers, tiny_market):
     assert r.status_code == 200
     selection = b64_to_df(r.json()["selection"])
     assert set(selection.columns) >= {"key", "qty", "profit"}
+
+
+def test_client_grounded_publishes_your_labels(api_url, api_headers, client_grounded_market):
+    """grounding_mode=client_grounded: P34 derives nothing, it publishes what you sent.
+
+    Runs in mock mode — the full intake and grounding path, no cluster work and
+    no tokens charged — so this is safe to keep in CI on every commit.
+    """
+    menus, sales, market_type = client_grounded_market
+    labeled_sent = int(menus[menus["T"] < 0]["profit"].notna().sum())
+
+    r = requests.post(
+        f"{api_url}/fit",
+        json={"menus": records(menus), "sales": records(sales), "market_type": market_type,
+              # no business_description: nothing is compiled from one in this mode
+              "grounding_mode": "client_grounded", "mock": True},
+        headers=api_headers, timeout=120,
+    )
+    assert r.status_code == 200, r.text
+    out = r.json()
+    assert out["grounding_mode"] == "client_grounded"
+    assert out["status"] == "queued", "client_grounded is synchronous — no grounding phase"
+    # every label you sent survives to the published task, and none is invented
+    assert out["parse_report"]["client_labeled_rows"] == labeled_sent
+    assert out["parse_report"]["profit_values_ignored_on_non_chosen"] == 0
+    # the split the model needs is YOURS to preserve in this mode
+    assert out["unlabeled_rows"] > 0, "label every row and the cluster fit will refuse it"
+
+
+def test_checks_off_never_relaxes_a_safety_refusal(api_url, api_headers, client_grounded_market):
+    """checks=off skips PLAUSIBILITY checks only — never a structural or safety one."""
+    menus, sales, market_type = client_grounded_market
+    poisoned = menus.copy()
+    poisoned.loc[poisoned["T"] == 0, "profit"] = 1.0   # outcomes on the prediction target
+
+    r = requests.post(
+        f"{api_url}/fit",
+        json={"menus": records(poisoned), "sales": records(sales), "market_type": market_type,
+              "grounding_mode": "client_grounded", "checks": "off", "mock": True},
+        headers=api_headers, timeout=120,
+    )
+    assert r.status_code == 422, "checks=off must not lift the no-ground-truth rule"
 
 
 # --------------------------------------------------------------------------

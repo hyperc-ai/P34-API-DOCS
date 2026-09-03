@@ -6,6 +6,10 @@ Reference sample with per-column notes:
 sheet). Machine-readable variants of a complete tiny request live next to it:
 `menus_sample.csv`, `sales_sample.csv`, `market_type_sample.json`, and
 `request_sample.json` (the exact `POST /fit` body those three combine into).
+[`request_client_grounded_sample.json`](../examples/data/request_client_grounded_sample.json)
+is the same market sent the other way — a `profit` on every option row the
+caller valued, published verbatim under
+[`client_grounded` grounding](02-endpoints.md#bringing-your-own-labels-client_grounded).
 
 ## The Menus table
 
@@ -35,7 +39,7 @@ option space, taken and untaken, is what makes the history usable.
 | `qty` | **yes** | the deal-size option this row represents. Integer count-type values (1 apple, 2 apples) **or** floating-point values ($151.50, 38.566 kg) — but not both and not a mixture within one dataset. Required and numeric on every row. Options are **mutually exclusive** within a key-date — see [One choice per key-date](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive). |
 | `historically_available` | no | 1/0 — was this option actually available as a trade option at decision time. `0` marks a **grounded option**: a row whose features and outcome you were able to pre-calculate, but that was not actually selectable in the deal — e.g. only certain quantity combinations were tradeable because of MOQ or pack-size increments. Grounding more outcomes than were selectable is an optional, useful enrichment. **The column is optional and narrow in scope**: omit it and the whole history reads as real offers, which is what every dataset predating the column meant. It exists to keep an invented quote from being mistaken for one that was made, so it matters only where an *outcome is being replayed* from it. On declined, rejected, and unlabeled rows it changes nothing — see [Availability is not required on unlabeled rows](#availability-is-not-required-on-unlabeled-rows). |
 | `historically_chosen` | history: yes | 1/0 — the group's **labeled pick**: the one row whose outcome is known. **Exactly one chosen row per (menu, key)**, because `qty` is a mutex — see [One choice per key-date](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive). It does **not** have to be a row your business literally took; a history reconstructed by replaying past deals is equally valid. Read [What `historically_chosen` really means](#what-historically_chosen-really-means) before filling this column — it is the single most misread field in the contract. |
-| `profit` | no | realized total profit of the decision, on the chosen row only. A value here marks the group as an **observed outcome** (labeled context); the number itself is not trusted — the economics are replayed from Sales, so send the Sales rows that produced it. When the precise outcome is unknown, leave it blank and put any *approximate* values in feature columns instead — propagated to **all rows** of the dataset, not just the ones lacking a label. Keep profits as close to the real, money-in-the-bank values as possible, updated with the very latest state of the sales process. **Must be blank on all T=0 task rows** — the task is the prediction target, and the API refuses outcome values for it. |
+| `profit` | no | realized total profit of the decision, on the chosen row only. A value here marks the group as an **observed outcome** (labeled context); the number itself is not trusted — the economics are replayed from Sales, so send the Sales rows that produced it. When the precise outcome is unknown, leave it blank and put any *approximate* values in feature columns instead — propagated to **all rows** of the dataset, not just the ones lacking a label. Keep profits as close to the real, money-in-the-bank values as possible, updated with the very latest state of the sales process. **Must be blank on all T=0 task rows** — the task is the prediction target, and the API refuses outcome values for it. **Under [`client_grounded` grounding](02-endpoints.md#bringing-your-own-labels-client_grounded) this row's rules invert**: send `profit` on *every* historical option row you have valued, not just the chosen one, and the number is taken verbatim rather than replayed. |
 
 Rules the server enforces (violations → HTTP 422 with a specific message):
 
@@ -48,7 +52,9 @@ Rules the server enforces (violations → HTTP 422 with a specific message):
 - `unit_cost`, `unit_price`, `qty` must be present and numeric.
 
 Messy-but-harmless input is tolerated and *counted* rather than rejected —
-blank rows, groups with no chosen row, profits on non-chosen rows. "Tolerated"
+blank rows, groups with no chosen row, profits on non-chosen rows (which
+[`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded)
+keeps rather than discards — there they are the point). "Tolerated"
 is not "kept", though: some of those rows never reach the model. Exactly which,
 at what granularity, and under which counter is set out in [What intake drops,
 and what it reports](#what-intake-drops-and-what-it-reports) — read it before
@@ -292,7 +298,7 @@ the same response — none of it is silent, though all of it is easy to not read
 | --- | --- | --- |
 | `menus_rows_dropped_incomplete` | **row** | rows with a blank `key`, or a non-numeric `T` or `qty`. These cannot be placed in a menu or a group at all. If it takes *every* row, the request is a 422 instead. |
 | `menus_rows_dropped_no_choice` | **group — every row of it** | historical `(menu, key)` groups without exactly one `historically_chosen = 1`. Zero chosen rows → the entire group is removed, however many quantity options it held. (Two or more chosen rows is a 422, not a drop.) **This is the one that costs you real context** — see below. |
-| `profit_values_ignored_on_non_chosen` | **cell** | a `profit` written on a row that is not the group's chosen row. The row survives; only the number is discarded. Grounding supports one label per group, on the labeled pick. |
+| `profit_values_ignored_on_non_chosen` | **cell** | a `profit` written on a row that is not the group's chosen row. The row survives; only the number is discarded, because the derived modes are about to recompute it. Always `0` under [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded), which keeps every one of those values and reports them as `client_labeled_rows` instead. |
 | `sales_rows_dropped_unknown_key` | **row** | Sales rows whose `key` is absent from the surviving historical menus. Note the cascade: a key that vanished with a no-choice group takes its sales with it, under *this* counter, not the menus one. |
 | `sales_rows_dropped_zero_or_blank_qty` | **row** | Sales rows with `qty` of 0 or blank. `unit_fee` is harvested from them **before** they go, so per-key fee rows that carry no quantity still do their job. |
 | `client_grounding_rows` | — | not a drop at all: how many rows carried `historically_available = 0`. Informational. |
