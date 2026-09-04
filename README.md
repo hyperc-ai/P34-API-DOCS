@@ -211,7 +211,11 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    token wallet: monthly accruals that carry over (2,000 tokens a month, 4,000
    for founding members), transfers between accounts by email, and the full
    query-able ledger.
-7. [examples/](examples/) — runnable code:
+7. [docs/07-agent-skills.md](docs/07-agent-skills.md) — notes for specific
+   agent runtimes, where the constraint is the channel rather than the API:
+   the measured URL-length ceiling that makes a healthy workspace answer
+   `502`, and what a fetch-only agent (ChatGPT and friends) should do instead.
+8. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
      (fit → poll → portfolio). `--grounding-mode client_grounded --checks off`
      runs the bring-your-own-labels pattern.
