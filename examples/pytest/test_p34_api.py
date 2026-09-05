@@ -39,8 +39,9 @@ def test_payload_rules_offline(tiny_market):
     assert (task["menu"] == 0).all(), "task rows must use the reserved menu id 0"
     assert (hist["menu"] != 0).all(), "history must stay off menu 0"
     assert task["profit"].isna().all(), "task rows must not carry outcomes"
-    assert hist.groupby(["menu", "key"])["historically_chosen"].sum().eq(1).all(), \
-        "exactly one chosen row per (menu, key)"
+    flags = hist.groupby(["menu", "key"])["historically_chosen"].sum()
+    assert flags.le(1).all(), "at most one chosen row per (menu, key)"
+    assert flags.gt(0).any(), "a present column must flag something, else it reads as absent"
     assert (sales["T"] <= 0).all(), "sales must be historical"
     assert menus.groupby("key")["T"].apply(lambda t: t[t < 0].nunique() <= 1).all(), \
         "each historical key appears at one T"

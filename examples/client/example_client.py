@@ -64,9 +64,10 @@ def build_sheets(n_keys: int = 300, qtys: int = 3, seed: int = 7,
 
     Sized to the model's data floors (see docs/03-data-format.md): roughly a
     fifth of the keys are deals the desk DECLINED — their menu groups stay in
-    with ONE row flagged historically_chosen (any row does; on a group with no
-    outcome the flag is only the placeholder that keeps the group) and profit
-    blank, becoming the unlabeled context current models require. A fifth is a
+    with NO historically_chosen flag (the desk took nothing, and the column
+    records only what it actually took) and profit blank, becoming the
+    unlabeled context current models require. A desk with no such record at
+    all would leave the column out entirely. A fifth is a
     demo floor, not a target: see "How much unlabeled context is enough" — a
     history where almost everything was taken trains a take-all policy. The
     observed side
@@ -114,7 +115,10 @@ def build_sheets(n_keys: int = 300, qtys: int = 3, seed: int = 7,
                 "key": key, "menu": 100 + abs(t_menu), "T": t_menu, "T_lead": 0,
                 "f_edge": edge, "unit_cost": cost, "unit_price": price, "qty": q,
                 "historically_available": 1,
-                "historically_chosen": int(q == chosen_qty),
+                # the desk's previous policy: the size it actually took;
+                # nothing on a declined deal (a flag is a claim about what
+                # the business did, never a placeholder)
+                "historically_chosen": int(q == chosen_qty and not declined),
                 "profit": profit_q,
             })
             menus_rows.append({

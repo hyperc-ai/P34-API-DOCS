@@ -352,8 +352,8 @@ One 48-row history (12 keys × 4 quantities), submitted three ways:
 | you send | mode | `labeled_rows` | `unlabeled_rows` | what happened |
 | --- | --- | ---: | ---: | --- |
 | `profit` on all 48 rows | `client_grounded` | 48 | 0 | all 48 of your labels published as sent |
-| `profit` on the 12 chosen rows only | `client_grounded` | 12 | 36 | the other 36 became unlabeled context |
-| `profit` on all 48 rows | `internal` | 48 | 0 | your 36 non-chosen values were **discarded** and recomputed — `parse_report.profit_values_ignored_on_non_chosen` reads `36` |
+| `profit` on the 12 rows the desk took only | `client_grounded` | 12 | 36 | the other 36 became unlabeled context |
+| `profit` on all 48 rows | `internal` | 48 | 0 | the 36 values off the flagged rows were **discarded** and recomputed — `parse_report.profit_values_ignored_on_non_chosen` reads `36` |
 
 `parse_report.client_labeled_rows` counts the labels this mode accepted. It is
 the field to assert on in CI: if it is lower than you expect, some rows you
@@ -381,17 +381,21 @@ what the model learns. Two consequences worth designing for:
   `Unlabeled business-menu mask selected zero rows`. Send the options you
   could not value, with `profit` blank.
 
-`historically_chosen` keeps its usual job here: it marks the group's labeled
-pick, and the quantity on that row is the reference every other option in the
-group is compared against.
+`historically_chosen` keeps its usual job here, and stays optional: sent, it
+marks the option your business actually took, and the quantity on that row is
+the reference every other option in the group is compared against; absent, the
+reference becomes the smallest available quantity among the rows you labeled,
+filled in when the datasets are formed — see [Your previous business
+policy](03-data-format.md#your-previous-business-policy-what-historically_chosen-marks).
 
 ## Turning the plausibility checks off
 
 `/fit` forms two different kinds of opinion about a submission.
 **Structural** checks establish that the request can be fitted at all:
-required columns present, T=0 rows agreeing with menu `0`, exactly one
-`historically_chosen` row per group, frames that line up, train and eval
-carrying the same feature columns. **Plausibility** checks are advisory
+required columns present, T=0 rows agreeing with menu `0`, at most one
+`historically_chosen` row per group (and one on every group under
+`business_observed`), frames that line up, train and eval carrying the same
+feature columns. **Plausibility** checks are advisory
 economics: the [volume floors](04-errors-and-checks.md#common-422-errors), the
 `historically_available` / `historically_chosen` consistency pair, and the
 replay-horizon bound on Sales.

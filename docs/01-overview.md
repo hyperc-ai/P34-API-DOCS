@@ -21,9 +21,9 @@ receive **one predicted menu**:
   trustworthy outcome belong in the context too, carrying no `profit` — see
   [Include the deals you did not take](03-data-format.md#include-the-deals-you-did-not-take).
   That history does not have to be a record of decisions somebody made: one
-  reconstructed by replaying past deals works just as well — see [What
-  `historically_chosen` really
-  means](03-data-format.md#what-historically_chosen-really-means).
+  reconstructed by replaying past deals works just as well, sent without a
+  `historically_chosen` column — see [Your previous business
+  policy](03-data-format.md#your-previous-business-policy-what-historically_chosen-marks).
 - **Sales** — your realized sales log. Used to *ground* the history: the
   service replays your inventory economics (holding costs, write-offs, fees)
   to reconstruct what every historical option would have earned.
@@ -135,8 +135,9 @@ Note what this requirement does *not* ask for. It says nothing about who chose
 the labeled options, or whether anyone did — only that the split exists. That is
 why a history built entirely from replayed or simulated past deals is a
 first-class input, and why a business with no trading record at all can still be
-fit: see [What `historically_chosen` really
-means](03-data-format.md#what-historically_chosen-really-means).
+fit — `historically_chosen` records a previous policy and is optional: see [Your
+previous business
+policy](03-data-format.md#your-previous-business-policy-what-historically_chosen-marks).
 
 ### Advanced strategies: manufacturing the split
 

@@ -12,11 +12,12 @@
 
 - `session_id` — use it to poll `/result`.
 - `labeled_rows` / `unlabeled_rows` — sizes of the grounded context. A group
-  counts as **labeled** when its chosen row carries a `profit` value (the
-  observed-outcome marker; the value itself is replayed from Sales). Groups
-  whose chosen row has no profit are the **unlabeled** context. If
-  `labeled_rows` is 0, no historical group had a known outcome — check that
-  chosen rows carry `profit` values. If `unlabeled_rows` is 0, every group you
+  counts as **labeled** when a known `profit` marks it — on its
+  `historically_chosen` row where you sent the flag, on any row where you did
+  not (the value itself is replayed from Sales). Groups with no known profit
+  are the **unlabeled** context. If `labeled_rows` is 0, no historical group
+  had a known outcome — check that the rows you know the outcome for carry
+  `profit` values. If `unlabeled_rows` is 0, every group you
   sent is observed — send the groups with no trustworthy outcome too
   ([data format](03-data-format.md#include-the-deals-you-did-not-take));
   current models refuse an all-observed history at fit time. **Read the ratio,
@@ -30,13 +31,16 @@
   unlabeled context.
 - `task_menu_rows` — how many T=0 option rows were received.
 - `parse_report` — per-rule counts of dropped/ignored rows, and the only place
-  the shrinkage is visible. A large `menus_rows_dropped_no_choice` means whole
-  (menu, key) groups had no `historically_chosen = 1` row and were dropped in
-  full — usually the column is missing, or it was filled as "what the business
-  selected" and left blank wherever nobody selected anything. It marks the
-  group's **labeled pick**, which every group needs; see [what it really
-  means](03-data-format.md#what-historically_chosen-really-means). Each
-  counter's exact granularity — row, cell, or whole group — is tabulated in
+  the shrinkage is visible. It also records how the business's previous
+  policy was read: `historically_chosen` is `"provided"` or `"absent"`, and
+  `menus_groups_without_choice` counts the (menu, key) groups that carried no
+  flag and receive the default business choice when the datasets are formed —
+  nothing is dropped for a missing flag (`menus_rows_dropped_no_choice` is
+  always `0`); see [your previous business
+  policy](03-data-format.md#your-previous-business-policy-what-historically_chosen-marks).
+  An unexpected `"absent"` means your column flagged nothing (a
+  `TRUE`/`FALSE` export, a locale that wrote `1,0`). Each counter's exact
+  granularity — row, cell, or whole group — is tabulated in
   [what intake drops](03-data-format.md#what-intake-drops-and-what-it-reports).
 - `model` — the model version this fit will run on.
 - `business_description_source` — where the fit's
@@ -92,7 +96,7 @@ still fail when the calculation runs on the cluster. These surface as
 
 | `error` contains | meaning | fix |
 | --- | --- | --- |
-| `Unlabeled business-menu mask selected zero rows` | the history contains only observed outcomes — no unlabeled context for the model to contrast against. P34 needs both halves of a [partially observed market](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement) | include the groups with no trustworthy outcome — one row flagged `historically_chosen`, `profit` blank on every row of the group — see [the data-format guide](03-data-format.md#include-the-deals-you-did-not-take) |
+| `Unlabeled business-menu mask selected zero rows` | the history contains only observed outcomes — no unlabeled context for the model to contrast against. P34 needs both halves of a [partially observed market](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement) | include the groups with no trustworthy outcome — `profit` blank on every row of the group, no flag needed — see [the data-format guide](03-data-format.md#include-the-deals-you-did-not-take) |
 | `NotEnoughData: No qty values have at least 100 rows` | too little observed history — the model needs at least ~100 observed groups sharing a qty option (`max_qty_rows` in the message reports your best count) | send more history: more observed keys/menus per qty option |
 | `Not enough valid menus to train on` | the history spans too few decision moments (`valid_fc_group_count` reports what survived; the floor is 10) | spread the history over more menus — at least ~10 decision moments, 50+ recommended |
 | `No FC-fit universe had enough rows to fit an FC regressor` | every internal fit candidate was skipped — too few observed (outcome-carrying) deals per menu | send more observed deals per decision moment — aim for 20+ per menu |

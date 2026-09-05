@@ -123,13 +123,12 @@ def build_history(keys: pd.DataFrame, weeks: int = 12, seed: int = 4):
                     "f_signal": f_sig, "f_noise": f_noi,
                     "unit_cost": row["unit_cost"], "unit_price": row["unit_price"],
                     "qty": q, "historically_available": 1,
-                    # a declined group still carries ONE flagged row: without a
-                    # chosen row the group is dropped whole at intake, and P34
-                    # needs the declined groups as its unlabeled context. WHICH
-                    # row wears the flag is immaterial where there is no
-                    # outcome — this reuses would_take because it is to hand,
-                    # not because anything downstream reads the value.
-                    "historically_chosen": int(q == would_take[i]),
+                    # the business's previous policy: the size it actually
+                    # ordered. A declined group carries NO flag — the column
+                    # records what was taken, and the group stays in as the
+                    # unlabeled context P34 needs (nothing is dropped for a
+                    # missing flag).
+                    "historically_chosen": int(q == chosen[i] and not declined[i]),
                     "profit": float(profit[i]) if (q == chosen[i] and not declined[i]) else None,
                 })
             if declined[i]:
