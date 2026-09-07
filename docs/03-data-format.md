@@ -431,6 +431,12 @@ fit: the gate is arithmetic on your numbers, not a reading of your prose.
 units inventory may sell before the leftovers are written off. It also bounds
 how far after its menu a sale row may be dated.
 
+`grounding_labelling_mode` is optional. Omitted, it becomes
+`business_observed` when your history carries `historically_chosen` on every
+historical group (a previous business policy on record), else
+`synthetic_full`; `parse_report.grounding_labelling_mode` echoes `provided` or
+`defaulted:<mode>` so you can see which applied.
+
 ## Start small, iterate
 
 Dataset size trades directly against compute: line-item count and feature

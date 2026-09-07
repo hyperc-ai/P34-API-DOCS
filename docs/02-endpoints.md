@@ -39,7 +39,7 @@ and test your integration before subscribing.
 | `POST /fit` | Submit Menus + Sales + market_type (+ a resolvable [business description](#business-description)). Validates, grounds the history, enqueues the calculation. Returns `session_id` immediately. Add `"mock": true` for a free simulated run (see [Mock mode](#mock-mode-free-integration-testing)). |
 | `GET /result/{session_id}` | Poll the calculation: `grounding` → `queued` → `processing` → `done` / `failed`. `done` carries the predicted T=0 menu. |
 | `POST /predict` | Instant selection from a small in-process reference model — a payload sanity-checker while the real calculation runs. **Not** P34's answer; `/result` is. |
-| `DELETE /session/{id}` | Discard a session you no longer need. |
+| `DELETE /session/{id}` | Cancel a running fit you own (a grounding-phase fit is aborted; a queued/processing calculation is canceled within about a minute) and discard the session. Response: `{"ok": true, "canceled": {"grounding": bool, "calculation": bool}}`. |
 | `GET /queue` | Intake spool state (admin accounts). |
 | `GET /account/balance` | Token wallet balance, monthly grant and founding status (accruals materialize on read). [Details.](06-token-wallet.md) |
 | `GET /account/ledger` | Full query-able token ledger — every pay-in/pay-out with time, from, to, amount, msg; cursor-paginated. [Details.](06-token-wallet.md) |
@@ -136,7 +136,8 @@ spending compute budget.
 ```
 
 Mock sessions don't appear in the console's calculations panel and are pruned
-after 7 days (`DELETE /session/{id}` removes one immediately).
+after 7 days (`DELETE /session/{id}` removes one immediately; on a real
+session the same call cancels the fit — see the endpoint table).
 
 ## Model versions
 
