@@ -293,6 +293,38 @@ is about, where the split has to be constructed rather than found.
 when the calculation runs; see
 [Fit-time failures](04-errors-and-checks.md#fit-time-cluster-failures).
 
+## Keep the record as it is
+
+The tables are a record of what the business faced and what happened, and the
+fit is only as truthful as that record. Send it as it stands:
+
+- **historical rows keep their recorded meaning** — the quantities that were
+  offered, the costs and prices that applied, the outcomes that are known;
+- **an unknown outcome is blank, never `0`.** `0` says the option was taken
+  and returned nothing, and the model believes it;
+- **do not invent a `historically_chosen` flag.** The column is optional and a
+  group with no flag stays in the history — see [Your previous business
+  policy](#your-previous-business-policy-what-historically_chosen-marks);
+- **do not compensate the sample statistically**: no outcome-selective removal,
+  no class balancing, no over- or undersampling, no duplicated or synthetic
+  observations, no invented labels, and no weight or feature column whose
+  purpose is to offset how often an outcome appears. P34 is pre-trained to work
+  on the raw record: it takes no loss weighting and no compensation signal, and
+  a balanced history describes a market that does not exist;
+- **ordinary work is unaffected.** Formula columns, recorded cost, fee and
+  holding rates, faithful mapping into the shape above, and business statistics
+  such as a quantity-weighted average price are all fine — the test is purpose;
+- **shorten a history only by whole consecutive most-recent menus**, never a
+  selection of rows or keys inside them, and say what you dropped;
+- **the T=0 menu carries every currently executable quantity option**, each
+  with the cost and terms that actually apply to it. Thin historical support is
+  a caveat to report, not a reason to prune a real choice; `profit` stays blank
+  there.
+
+The long form — provenance, coverage records, and what to answer when one of
+these is requested — is in
+[the history contract](../skills/p34-prepare-inputs/references/history-contract.md).
+
 ## What intake drops, and what it reports
 
 Some of what you send does not reach the model. This is worth stating precisely
