@@ -79,10 +79,15 @@ Start with formula-based approximations of the cost structure and deepen them
 over iterations ([Start small, iterate](../../docs/03-data-format.md#start-small-iterate)).
 The cheap, defensible ones:
 
-- **realized outcomes**, from a recorded tape and recorded terms. A group whose
-  tape shows `q` units sold at price `p`, bought at recorded cost `c` under a
-  fee rate `f`, realized `(p × (1 − f) − c) × q`. Where a payout or settlement
-  statement exists, compute it that way too and check the two agree.
+- **realized outcomes**, from a recorded tape and recorded terms. Units sold
+  and units bought are different numbers, and the ones that never sold were
+  still paid for: at price `p`, fee rate `f` and recorded cost `c`, the outcome
+  is `p × (1 − f) × q_sold − c × q_bought − holding cost as the tape records
+  it`, which collapses to
+  `(p × (1 − f) − c) × q` only when the group sold everything it bought. A
+  batch that sold nothing is a full write-off of its cost, not a zero. Where a
+  payout or settlement statement exists, compute it that way too and check the
+  two agree.
 - **rates you can recompute.** Where a payout, invoice or settlement record
   shows the money that actually moved, derive the rate from it instead of
   taking a stated one on trust, and compare the two. A rate somebody states is
