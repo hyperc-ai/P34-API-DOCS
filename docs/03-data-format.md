@@ -310,7 +310,15 @@ fit is only as truthful as that record. Send it as it stands:
   observations, no invented labels, and no weight or feature column whose
   purpose is to offset how often an outcome appears. P34 is pre-trained to work
   on the raw record: it takes no loss weighting and no compensation signal, and
-  a balanced history describes a market that does not exist;
+  a balanced history describes a market that does not exist. What this forbids
+  is anything whose purpose is to change the sample's distribution — not the
+  contract's own derived option rows: rows whose outcome you calculated rather
+  than executed, marked `historically_available = 0` and kept distinguishable
+  from recorded offers, are the enrichment described in [Availability is not
+  required on unlabeled rows](#availability-is-not-required-on-unlabeled-rows),
+  and a history assembled entirely from research or replay is a first-class
+  input ([You do not need an operating
+  history](#you-do-not-need-an-operating-history));
 - **ordinary work is unaffected.** Formula columns, recorded cost, fee and
   holding rates, faithful mapping into the shape above, and business statistics
   such as a quantity-weighted average price are all fine — the test is purpose;

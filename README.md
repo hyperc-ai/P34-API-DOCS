@@ -270,8 +270,9 @@ installation of its own, point it at the four `SKILL.md` paths, or copy
 `skills/` into wherever it already looks.
 
 The skills need nothing besides this repository — no workspace VM, no
-membership, no bundle to install first. A member workspace adds market
-playbooks that shorten the research step; nothing above depends on them.
+membership, no bundle to install first. An agent working inside a HyperC member
+workspace may find market playbooks there that shorten the research step;
+nothing above depends on them.
 
 ## Access & membership
 
