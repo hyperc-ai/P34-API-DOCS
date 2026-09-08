@@ -38,6 +38,10 @@ T=0 row, at most one `historically_chosen = 1` per `(menu, key)`, Sales dated
 `T <= 0` and inside the replay horizon, one `T` per key across historical
 menus, a `market_type` and a resolvable
 [business description](../../docs/02-endpoints.md#business-description).
+Under [`client_grounded`](../../docs/02-endpoints.md#bringing-your-own-labels-client_grounded)
+nothing is replayed, so the Sales, replay-horizon and description checks do not
+apply; what must hold instead is that at least one historical row carries a
+`profit`.
 
 Two more conditions are accepted by `/fit` and fail later, so they are worth a
 few lines of pandas now rather than a queue wait: enough observed groups

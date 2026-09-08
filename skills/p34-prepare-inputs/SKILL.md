@@ -105,7 +105,10 @@ copying them offers the model two of the choices the business really has.
 
 Ordinary business economics are yours to compute: fee and cost formulas,
 recorded rates, landed cost, quantity-weighted business statistics, and modest
-decision-time features. Carry feature columns on **all** rows of the dataset.
+decision-time features — the request-specific unit economics and the business
+description that goes with them are
+[p34-business-economics](../p34-business-economics/SKILL.md). Carry feature
+columns on **all** rows of the dataset.
 
 Keep four things distinguishable in the report: measured facts, values you
 calculated from them, estimates, and unknowns. A speculative demand or profit
@@ -194,3 +197,10 @@ and
 The recommended path is
 [Start small, iterate](../../docs/03-data-format.md#start-small-iterate):
 a shallow history with few features first — never a narrower live menu.
+
+## Next
+
+The finished tables go to
+[p34-submit-and-monitor](../p34-submit-and-monitor/SKILL.md), which validates
+and submits them; what comes back is read with
+[p34-interpret-results](../p34-interpret-results/SKILL.md).
