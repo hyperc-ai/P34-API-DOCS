@@ -130,9 +130,13 @@ are watching.
 process feedback and how much of it is still owed
 ([where feedback is delivered](../../docs/02-endpoints.md#where-feedback-is-delivered)).
 Each poll retries a few of the owed entries, so a `pending` that falls to `0`
-means everything landed; a `pending` that does not fall means your workspace is
-unreachable — nothing is lost, the entries are still in `feedback_log`, and
-that is where you read them from.
+means everything landed; a `pending` that does not fall is not lost, and
+`last_error` is where you read why it has not moved — no workspace to deliver
+to, or one that refused the write or could not be reached. Report that reason
+rather than treating the entries as missing. While the session is `grounding`
+or `failed`, `feedback_log` carries the channel entries in the poll itself
+(capped and truncated); the final report goes to the workspace only, so a
+delivery still owed there is the one thing the poll cannot hand you.
 
 `POST /predict` is an instant sanity check on your payload from a small
 reference model. It is **not** P34's answer; `/result` is.

@@ -103,12 +103,12 @@ on `r003-alpha-ray`.
 ### Where feedback is delivered
 
 A [business-led](#grounding-modes) fit produces process feedback while it
-grounds — blocking problems, defaulted assumptions, interpretations, and a
-final report. `/result` returns those entries in `feedback_log` as it always
-has, and next to it a `feedback_delivery` block saying where the service is
-also *writing* them in your workspace and how far it got. It is served while
-the session is `grounding`, when it `failed`, and on a published fit's
-`queued` / `processing` / `done` polls:
+grounds: **channel entries** — blocking problems, defaulted assumptions,
+interpretations — and one **final report** at the end. `/result` carries a
+`feedback_delivery` block saying where the service is writing them in your
+workspace and how far it got. It is served while the session is `grounding`,
+when it `failed`, and on a published fit's `queued` / `processing` / `done`
+polls:
 
 ```json
 "feedback_delivery": {
@@ -126,16 +126,26 @@ the session is `grounding`, when it `failed`, and on a published fit's
 | --- | --- |
 | `target` | `project` when the fit was [bound to a project](#binding-a-fit-to-a-workspace-project), `session` when it was not. |
 | `project_id` / `run_id` | the bound pair; both `null` on a session-scoped fit. |
-| `path` | the directory holding the three channel files — the project folder, or `/workspace/api-feedback/<session_id>/`. The run's `REPORT.md` sits one level below it, under `runs/<run_id>/`. `null` if the destination could not be determined. |
+| `path` | where these entries belong (it names the destination whether or not anything has been written yet): the project folder, or `/workspace/api-feedback/<session_id>/`. An unbound session's `REPORT.md` sits **in** that folder; a bound run's sits one level below, under `runs/<run_id>/`. `null` if the destination could not be determined. |
 | `delivered` / `pending` | how many entries have reached your workspace, and how many are still owed. |
 | `last_error` | why the owed entries have not moved; `null` when nothing is outstanding. |
 
 **How to read it.** Each poll re-attempts a few of the owed entries before
 reporting these counts, so a `pending` that falls to `0` as you poll means
-everything landed. A `pending` that does not fall means your workspace is
-unreachable — nothing is lost: the entries are still returned in
-`feedback_log`, and a later poll delivers them. Redelivery is deduplicated on
-the entry's own id, so a retry never doubles an entry that already arrived.
+everything landed. A `pending` that does not fall is not a lost entry — it is
+still held for you and still retried — and `last_error` says why it has not
+moved: this account has no workspace to deliver to, or the workspace refused
+the write or could not be reached. Redelivery is deduplicated on the entry's
+own id, so a retry never doubles an entry that already arrived.
+
+While the session is `grounding` or `failed`, the response also carries
+`feedback_log`: a copy of the **channel** entries in the poll itself, so you
+can read them without going to the workspace at all. It is a recent-history
+window, not the archive — at most 50 entries, each body truncated to 2,000
+characters — and it never contains the final report, which is written to your
+workspace only. That is why a published fit's polls keep retrying delivery:
+its report is produced after the task reaches the compute queue, and the
+workspace is the only place it lands.
 
 ## Mock mode (free integration testing)
 
@@ -519,11 +529,15 @@ nothing about any other account. The acceptance response echoes the
 `feedback_target` (`"project"` when the fit is bound, `"session"` when it is
 not).
 
-Only a [business-led](#grounding-modes) fit routes feedback this way, because
-only it produces process feedback in the first place. A mock, demo,
-`internal` or `client_grounded` fit echoes the same two fields back so you can
-verify your integration, but keeps no binding and delivers nothing to the
-project.
+A mock, `internal` or `client_grounded` fit echoes those two fields back so
+you can verify your integration, but produces no process feedback and so
+delivers nothing: only a [business-led](#grounding-modes) fit has a grounding
+phase to report on, and only it keeps the binding and retries delivery. A
+sponsored demonstration on a live demo market sits in between — it stores no
+binding either, but it does write its one explanatory report, into the bound
+run's folder when the request carried a resolvable `workspace_context` and
+into `/workspace/api-feedback/<session_id>/` otherwise. It is delivered once
+and not retried, and no `feedback_delivery` block accompanies it.
 
 ## Free-form feedback
 

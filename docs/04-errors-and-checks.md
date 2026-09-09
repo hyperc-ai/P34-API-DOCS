@@ -98,7 +98,7 @@ billed — nothing is charged and no `session_id` exists. The `detail` is
 
 | reason | fix |
 | --- | --- |
-| `must be an object {project_id, run_id}` | send the field as an object, not a string or a list. |
+| `must be an object {project_id, run_id}` | send the field as an object. A value of the wrong JSON type is usually caught earlier still, by request validation, and comes back as the framework's standard field-validation error rather than this string. |
 | `missing project_id` | the object has no non-empty `project_id`. |
 | `missing run_id` | the object has no non-empty `run_id`. |
 | `bad id` | an id contains characters the service does not accept (`A-Z a-z 0-9 _ . : -`, up to 80 characters). Send the ids exactly as your workspace issued them. |
