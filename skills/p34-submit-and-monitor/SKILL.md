@@ -99,6 +99,15 @@ keyed on. Record it verbatim the moment you have it, together with the status
 the response carried. A session id you were not given does not exist, and
 nothing may be attributed to one.
 
+If you work inside a HyperC workspace, create the run first and send its ids as
+`workspace_context`
+([binding a fit to a workspace project](../../docs/02-endpoints.md#binding-a-fit-to-a-workspace-project));
+the service then writes its process feedback next to your files, in the
+project's own channel files and that run's report, instead of leaving it scoped
+to the API session. The ids have to be ones your own workspace issued: an
+unbindable pair is a 422 before the fit is accepted, so it costs nothing — but
+it also means there is no session, and nothing to record but the refusal.
+
 Read the acceptance response before you start polling — it is the only place
 some of this appears
 ([fit response fields](../../docs/04-errors-and-checks.md#fit-response-fields)):
@@ -116,6 +125,14 @@ interval — tens of seconds, not a tight loop — and record each status you
 observe. Large fits legitimately run for tens of minutes; `processing` for a
 long time is not a failure, and the session keeps computing whether or not you
 are watching.
+
+`feedback_delivery` in each poll says where the service put this session's
+process feedback and how much of it is still owed
+([where feedback is delivered](../../docs/02-endpoints.md#where-feedback-is-delivered)).
+Each poll retries a few of the owed entries, so a `pending` that falls to `0`
+means everything landed; a `pending` that does not fall means your workspace is
+unreachable — nothing is lost, the entries are still in `feedback_log`, and
+that is where you read them from.
 
 `POST /predict` is an instant sanity check on your payload from a small
 reference model. It is **not** P34's answer; `/result` is.
