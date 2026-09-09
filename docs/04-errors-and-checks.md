@@ -88,6 +88,25 @@ the plan's compute budget is exhausted for the current weekly or monthly
 window (see utilization in the
 [management console](https://api.hyperc.com/app/)).
 
+### `workspace_context` refusals
+
+A `/fit` that carried a
+[`workspace_context`](02-endpoints.md#binding-a-fit-to-a-workspace-project) the
+service could not bind is refused with 422 before the request is spooled or
+billed — nothing is charged and no `session_id` exists. The `detail` is
+`workspace_context: <reason>`:
+
+| reason | fix |
+| --- | --- |
+| `must be an object {project_id, run_id}` | send the field as an object. A value of the wrong JSON type is usually caught earlier still, by request validation, and comes back as the framework's standard field-validation error rather than this string. |
+| `missing project_id` | the object has no non-empty `project_id`. |
+| `missing run_id` | the object has no non-empty `run_id`. |
+| `bad id` | an id contains characters the service does not accept (`A-Z a-z 0-9 _ . : -`, up to 80 characters). Send the ids exactly as your workspace issued them. |
+| `this account has no live workspace to bind to` | this key has no workspace to resolve the ids against — submit without `workspace_context`, and the feedback stays scoped to the API session. |
+| `project_id is not registered in your workspace` | your workspace does not hold a project with that id (an id from another account's workspace reads the same way). Create the project there first, or correct the id. |
+| `run_id is not a run of that project` | the project exists but has no such run. Mint the run in that project before submitting. |
+| `your workspace could not be reached to verify project_id (...)` | the workspace did not answer, so the binding could not be checked — an unverifiable binding is never assumed. Retry, or submit without `workspace_context`. |
+
 ## Fit-time (cluster) failures
 
 `POST /fit` validates shape, not statistics: a request can pass intake and

@@ -102,6 +102,53 @@ to judge how sensitive the portfolio is to the confidence setting and to pick
 a correction for the next `/fit` without paying for exploratory runs. Absent
 on `r003-alpha-ray`.
 
+### Where feedback is delivered
+
+A [business-led](#grounding-modes) fit produces process feedback while it
+grounds: **channel entries** — blocking problems, defaulted assumptions,
+interpretations — and one **final report** at the end. `/result` carries a
+`feedback_delivery` block saying where the service is writing them in your
+workspace and how far it got. It is served while the session is `grounding`,
+when it `failed`, and on a published fit's `queued` / `processing` / `done`
+polls:
+
+```json
+"feedback_delivery": {
+  "target": "project",
+  "project_id": "prj_0a1b2c3d4e5f",
+  "run_id": "run_9f8e7d6c5b4a",
+  "path": "/workspace/260908-demo",
+  "delivered": 2,
+  "pending": 1,
+  "last_error": "GatewayError: append /workspace/260908-demo/ERROR.md: HTTP 502"
+}
+```
+
+| field | meaning |
+| --- | --- |
+| `target` | `project` when the fit was [bound to a project](#binding-a-fit-to-a-workspace-project), `session` when it was not. |
+| `project_id` / `run_id` | the bound pair; both `null` on a session-scoped fit. |
+| `path` | where these entries belong (it names the destination whether or not anything has been written yet): the project folder, or `/workspace/api-feedback/<session_id>/`. An unbound session's `REPORT.md` sits **in** that folder; a bound run's sits one level below, under `runs/<run_id>/`. `null` if the destination could not be determined. |
+| `delivered` / `pending` | how many entries have reached your workspace, and how many are still owed. |
+| `last_error` | why the owed entries have not moved; `null` when nothing is outstanding. |
+
+**How to read it.** Each poll re-attempts a few of the owed entries before
+reporting these counts, so a `pending` that falls to `0` as you poll means
+everything landed. A `pending` that does not fall is not a lost entry — it is
+still held for you and still retried — and `last_error` says why it has not
+moved: this account has no workspace to deliver to, or the workspace refused
+the write or could not be reached. Redelivery is deduplicated on the entry's
+own id, so a retry never doubles an entry that already arrived.
+
+While the session is `grounding` or `failed`, the response also carries
+`feedback_log`: a copy of the **channel** entries in the poll itself, so you
+can read them without going to the workspace at all. It is a recent-history
+window, not the archive — at most 50 entries, each body truncated to 2,000
+characters — and it never contains the final report, which is written to your
+workspace only. That is why a published fit's polls keep retrying delivery:
+its report is produced after the task reaches the compute queue, and the
+workspace is the only place it lands.
+
 ## Free workspace partner fits
 
 A website workspace's `free-` key can submit fits for configured partner markets
@@ -494,6 +541,69 @@ Every fit records which way the switch was set — in `parse_report.checks` and
 in the published task's metadata — so a fit that ran unchecked always says so.
 With the checks off, `parse_report` also carries no `volume_warnings` key,
 because nothing computed them.
+
+## Binding a fit to a workspace project
+
+If you drive the API from a HyperC agent workspace, `/fit` accepts an optional
+top-level `workspace_context` naming the project and the run this submission
+belongs to:
+
+```json
+{ "menus": [...], "sales": [...], "market_type": {...},
+  "workspace_context": {"project_id": "prj_0a1b2c3d4e5f",
+                        "run_id": "run_9f8e7d6c5b4a"} }
+```
+
+Both ids are issued by your own workspace — a **project** is the folder it
+created for one task, a **run** is one submission attempt within that project —
+and they are resolved through **your** workspace and nothing else. Sending them
+binds this fit's process feedback to that project: the service appends its
+entries to `ERROR.md`, `DISAMBIGUATION.md` and `THINKING.md` in the project
+folder, and writes that run's `REPORT.md` under `runs/<run_id>/`, next to the
+files you are already working in.
+
+Without the field nothing changes: the feedback stays scoped to the API session
+that produced it — returned in every `/result` poll as before and, when your
+account has a workspace, also written to
+`/workspace/api-feedback/<session_id>/`. There is no shared or global feedback
+directory in either case. Either way,
+[`feedback_delivery`](#where-feedback-is-delivered) on `/result` reports where
+the entries went.
+
+Entries from every run of a project share those three channel files, so each
+one carries its own attribution line and a reader can tell this run's error
+from an older run's:
+
+```
+## [2026-09-08 14:02 UTC] <title>
+<!-- event:<event_id> project:<project_id> run:<run_id> session:<session_id> producer:<producer> -->
+
+<body>
+```
+
+The `event:` marker is also how a redelivery is recognised, so an entry that
+already arrived is never appended twice.
+
+The binding is validated **before the request is spooled or billed**: a
+`workspace_context` that cannot be resolved is a 422 whose `detail` starts
+`workspace_context: ` (the reasons are listed under
+[`workspace_context` refusals](04-errors-and-checks.md#workspace_context-refusals)),
+and the fit costs you nothing. An id from another account's workspace is not
+"forbidden", it is simply not registered in yours, so a refusal tells you
+nothing about any other account. The acceptance response echoes the
+**validated** pair back as `workspace_context`, together with the resulting
+`feedback_target` (`"project"` when the fit is bound, `"session"` when it is
+not).
+
+A mock, `internal` or `client_grounded` fit echoes those two fields back so
+you can verify your integration, but produces no process feedback and so
+delivers nothing: only a [business-led](#grounding-modes) fit has a grounding
+phase to report on, and only it keeps the binding and retries delivery. A
+sponsored demonstration on a live demo market sits in between — it stores no
+binding either, but it does write its one explanatory report, into the bound
+run's folder when the request carried a resolvable `workspace_context` and
+into `/workspace/api-feedback/<session_id>/` otherwise. It is delivered once
+and not retried, and no `feedback_delivery` block accompanies it.
 
 ## Free-form feedback
 

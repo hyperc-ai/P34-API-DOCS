@@ -1,4 +1,53 @@
-# 7. Per-agent skills: notes for specific agent runtimes
+# 7. Agent skills and per-runtime notes
+
+## The four API skills
+
+[`skills/`](../skills/) holds four skills for any agent that calls this API,
+listed in the order a request passes through them. They carry the judgement
+this documentation cannot state as a field rule, and they link back here for
+every table rather than copying one.
+
+1. [p34-prepare-inputs](../skills/p34-prepare-inputs/SKILL.md) — map the
+   caller's recorded history and current option schedule into the Menus and
+   Sales tables with the record intact, and enumerate every executable T=0
+   quantity. Long form:
+   [references/history-contract.md](../skills/p34-prepare-inputs/references/history-contract.md).
+2. [p34-business-economics](../skills/p34-business-economics/SKILL.md) —
+   collect the caller's actual fees, costs, lead times and horizons, compute
+   the values their records support, and write the `business_description`
+   around them.
+3. [p34-submit-and-monitor](../skills/p34-submit-and-monitor/SKILL.md) — run
+   the client-side checks, mock first, submit, and follow the `session_id`
+   through the documented statuses.
+4. [p34-interpret-results](../skills/p34-interpret-results/SKILL.md) — turn a
+   `done` result into executable orders and refusals, and state how far the
+   predicted profit can be trusted.
+
+### Installing them
+
+The repository is laid out as a portable
+[Agent Plugins](https://agent-plugins.org/) package: a `plugin.json` at the
+root and one `skills/<skill-name>/SKILL.md` per skill, with a skill's own
+files beside it. A client that reads that layout can load the four straight
+from a checkout.
+
+- **Pin a commit.** The skills and the documentation anchors they link to move
+  together; skills from one revision against docs from another will link into
+  headings that have moved.
+- **Native discovery differs per agent, and is not verified here.** Search
+  paths, manifests and install commands belong to each client. What is tested
+  is the content of the skills, by injecting them into an agent's context —
+  which says nothing about whether a given product auto-discovers them. If
+  yours has no plugin mechanism, point it at the four `SKILL.md` paths or copy
+  `skills/` where it already looks.
+- **Nothing else is required.** No workspace VM, no membership and no bundle:
+  the four skills work from this repository and the caller's own records and
+  API key. The runtime notes below are about narrow *channels*, not about
+  these skills — a shell-less agent still uses the same four.
+
+---
+
+## Notes for specific agent runtimes
 
 P34 is driven by agents, and agents differ in what they can *do* rather than in
 what they understand. A coding agent with a shell, a hosted assistant with only
@@ -7,8 +56,8 @@ the same [membership workspace](../README.md#access--membership) — but the
 narrow ones meet limits that have nothing to do with P34 and are easy to
 misread as an outage.
 
-This page collects those runtime-specific notes. Everything here is about the
-**channel**: the API contract itself is in
+The rest of this page collects those runtime-specific notes. Everything below
+is about the **channel**: the API contract itself is in
 [docs/02-endpoints.md](02-endpoints.md), and the data rules in
 [docs/03-data-format.md](03-data-format.md).
 

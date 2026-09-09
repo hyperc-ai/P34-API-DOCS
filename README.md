@@ -218,10 +218,11 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    token wallet: monthly accruals that carry over (2,000 tokens a month, 4,000
    for founding members), transfers between accounts by email, and the full
    query-able ledger.
-7. [docs/07-agent-skills.md](docs/07-agent-skills.md) — notes for specific
-   agent runtimes, where the constraint is the channel rather than the API:
-   the measured URL-length ceiling that makes a healthy workspace answer
-   `502`, and what a fetch-only agent (ChatGPT and friends) should do instead.
+7. [docs/07-agent-skills.md](docs/07-agent-skills.md) — the four agent skills
+   in `skills/` and how to install them, then notes for specific agent
+   runtimes where the constraint is the channel rather than the API: the
+   measured URL-length ceiling that makes a healthy workspace answer `502`,
+   and what a fetch-only agent (ChatGPT and friends) should do instead.
 8. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
      (fit → poll → portfolio). `--grounding-mode client_grounded --checks off`
@@ -233,6 +234,52 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    - [examples/baseline_comparison/](examples/baseline_comparison/) — a demo
      that pits P34 against a gradient-boosting profit regressor on a synthetic
      market with known ground truth.
+9. [skills/](skills/) — four agent skills that carry the judgement calls this
+   documentation cannot state as a rule; see [Agent skills](#agent-skills)
+   below.
+
+## Agent skills
+
+`skills/` holds four skills for any agent calling this API, in the order a
+request goes through them. Each one links back into these docs for the field
+tables and restates none of them.
+
+1. [skills/p34-prepare-inputs/SKILL.md](skills/p34-prepare-inputs/SKILL.md) —
+   map recorded history and the current option schedule into the Menus and
+   Sales tables without altering the record, and enumerate the whole T=0 menu.
+   Long form in
+   [references/history-contract.md](skills/p34-prepare-inputs/references/history-contract.md).
+2. [skills/p34-business-economics/SKILL.md](skills/p34-business-economics/SKILL.md) —
+   get the caller's actual fees, costs, lead times and horizons, compute what
+   the records support, and write the `business_description` around them.
+3. [skills/p34-submit-and-monitor/SKILL.md](skills/p34-submit-and-monitor/SKILL.md) —
+   check the request against the documented rules, run the free mock, submit,
+   and follow the `session_id` through the documented statuses.
+4. [skills/p34-interpret-results/SKILL.md](skills/p34-interpret-results/SKILL.md) —
+   turn a `done` result into executable orders and refusals, and say how far
+   the predicted profit can be trusted.
+
+### Installing them
+
+The layout is the portable [Agent Plugins](https://agent-plugins.org/) one — a
+`plugin.json` at the root and one `skills/<skill-name>/SKILL.md` per skill — so
+a client that reads that layout can load the four directly from a checkout of
+this repository. **Pin a commit** rather than tracking a branch: the skills and
+the doc anchors they link to move together, and a skill pinned to one revision
+against docs from another will link into headings that no longer exist.
+
+How an agent *discovers* skills differs per product — search paths, manifests
+and install commands are each client's own, and the Agent Plugins layout is an
+interoperability floor rather than a guarantee. **Native discovery is not
+verified here.** What is tested is the content: the skills are exercised by
+injecting them into an agent's context. If your client has no plugin
+installation of its own, point it at the four `SKILL.md` paths, or copy
+`skills/` into wherever it already looks.
+
+The skills need nothing besides this repository — no workspace VM, no
+membership, no bundle to install first. An agent working inside a HyperC member
+workspace may find market playbooks there that shorten the research step;
+nothing above depends on them.
 
 ## Access & membership
 
