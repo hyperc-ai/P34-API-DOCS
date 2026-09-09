@@ -28,7 +28,9 @@ account with no active subscription and an empty wallet gets `429` with
 from the console's plans page. `GET /` and `GET /health` are open liveness
 endpoints. Exception: [mock requests](#mock-mode-free-integration-testing)
 (`"mock": true`) are free and need only a registered key, so you can build
-and test your integration before subscribing.
+and test your integration before subscribing. Website workspaces also receive a
+`free-` key for configured partner-market fits; see
+[Free workspace partner fits](#free-workspace-partner-fits).
 
 ## Endpoints
 
@@ -147,6 +149,33 @@ workspace only. That is why a published fit's polls keep retrying delivery:
 its report is produced after the task reaches the compute queue, and the
 workspace is the only place it lands.
 
+## Free workspace partner fits
+
+A website workspace's `free-` key can submit fits for configured partner markets
+such as t5market without activating a full VM. Send the normal `/fit` request,
+with `grounding_mode: "business_led"` and the partner identified in this request's
+`business_description`. **Omit `mock`**, including inside `market_type`.
+Free keys cannot fit non-partner markets (`403`); asking for generic `mock` mode
+with a free key returns `422`. Free-tier eligibility and request limits apply.
+
+Free and paid business-led clients use the same endpoints, input menu format,
+session/request/task identifiers, asynchronous acknowledgement and result-polling
+workflow. A free fit acknowledges `status: "grounding"` before preparing its
+answer; poll until `done` or `failed` and read the same output menu fields.
+Retries may return the existing session with `replayed: true`.
+
+The execution source remains explicit: free partner results are market-supplied
+and carry `execution.mode: "sponsored_simulation"`, `model_executed: false` in
+that execution object, and market provenance in `demo`. Paid partner fits run the
+model pipeline. Generic `mock: true` results below are placeholders, a separate
+integration-testing option for registered keys.
+
+A market-supplied nonzero portfolio can be submitted to the named partner under
+its validity, account, funding and authorization rules. The API does not place
+an order. An all-zero menu means no trade; a failed or expired result must not be
+submitted as a new order. Workflow compatibility does not imply identical
+execution time, model training or validation work between the free and paid paths.
+
 ## Mock mode (free integration testing)
 
 Add `"mock": true` to a `/fit` request — top-level field or `"mock": true`
@@ -159,7 +188,9 @@ spending compute budget.
 
 - A registered API key is still required (`401` otherwise), but mock requests
   work **without an active subscription** and with an exhausted budget — you
-  can finish and test your integration before subscribing.
+  can finish and test your integration before subscribing. Website workspaces also receive a
+`free-` key for configured partner-market fits; see
+[Free workspace partner fits](#free-workspace-partner-fits).
 - `/result` plays the real lifecycle (`queued` → `processing` → `done`) on a
   short timer, and the `done` payload has the full real shape shown above —
   `menu`, `n_selected`, `predicted_profit_sum`, `summary`, and the
@@ -370,15 +401,50 @@ If grounding cannot succeed, `/result` ends at `status: "failed"` with a
 `feedback` field describing what to fix in your data or your description —
 see [free-form feedback](#free-form-feedback).
 
+#### Reusing grounding code
+
+Business-led grounding automatically reuses validated Python code from a prior
+successful fit **on the same account** when both of these match:
+
+- The business description is exactly identical, including whitespace.
+- The parsed data schema is unchanged: column names, data types, optional tables
+  and market configuration. Row values and row counts may change.
+
+A cache hit runs the saved optimized adapter, when available, without launching
+agentic/Claude grounding or compiling it again. It still validates the code
+against the new submission, expands options, safely replays profits and builds
+features from the **current data**. Previous training rows, labels and predictions
+are not reused. The subsequent P34 model fit still runs normally.
+
+If saved code is unavailable, invalid, or fails validation/execution on the new
+input before publication, the service falls back to full agentic grounding.
+Schema, description or relevant runtime changes can require grounding again.
+A cache hit is an optimization, not a guarantee of latency or a free model run.
+
+No additional request field is required. Keep the description stable when the
+business rules are unchanged; update it when the economics change. For example,
+new sales records with the same columns and data types can reuse grounding code,
+while changing a fee in the market configuration requires another grounding pass.
+
+The submission acknowledgement exposes `grounding_cache_hit: true`,
+`orchestration_mode: "code_cache"` and initial `phase: "cache_queued"` on a hit.
+Continue polling the same `session_id` through `grounding`, `queued`, `processing`
+and a terminal result. Treat `phase` as informational; it can change if the
+pipeline falls back to agentic grounding. Acknowledged cache selection does not
+mean the remaining validation or model work has already succeeded.
+
 #### What it costs
 
 Grounding is metered and billed as its own line when the task is published —
 the LLM work of compiling your adapter plus the CPU of the replay — and
 appears in your [ledger](06-token-wallet.md) as a `service` entry. The fit's
 own compute is billed separately at settlement, exactly as for `internal`. A
-fit that fails during grounding is metered but **charged nothing**. Compiled
-adapters are cached per account and description, so only the first fit after
-you change your description pays the compile cost.
+fit can incur metered grounding work even if grounding fails. A successful
+[grounding code cache hit](#reusing-grounding-code) avoids agentic compilation
+work, but fresh-data validation/replay and the model's compute still incur their
+normal metered charges. If cached execution falls back to agentic grounding,
+that work is metered too; do not assume every repeat request has zero grounding
+cost.
 
 #### Bringing your own labels: `client_grounded`
 
