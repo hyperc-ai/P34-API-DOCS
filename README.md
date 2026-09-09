@@ -29,9 +29,16 @@ This repository is the complete user-facing documentation for the P34 API: how i
 | **Market simulator** | `https://api.hyperc.com/sim/` | Interactive browser simulator — play a synthetic market with P34 predictions |
 
 `GET https://api.hyperc.com/v1/` is open (liveness + capability listing); all
-other API calls require an API key from the management console, sent as
-`Authorization: Bearer <key>`, on an account with an **active subscription**
-(subscribe on the console's plans page — there is no free usage tier).
+API requests use `Authorization: Bearer <key>`. Paid model fits require an
+eligible funded account; website workspace `free-` keys support configured
+[partner-market fits](docs/02-endpoints.md#free-workspace-partner-fits).
+Registered keys also support generic mock integration tests. See
+[authentication](docs/02-endpoints.md#authentication) for the differences.
+
+Repeated business-led fits automatically reuse validated grounding code when
+the account, exact business description and parsed schema match. Fresh-data
+validation and the model fit still run; see
+[grounding caching](docs/02-endpoints.md#reusing-grounding-code).
 
 ## Is this for you?
 
