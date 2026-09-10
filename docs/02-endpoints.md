@@ -26,9 +26,10 @@ transfers and the ledger. Registration is free, but calling the API requires tok
 account with no active subscription and an empty wallet gets `429` with
 `"no active subscription — subscribe to a plan to use the API"`. Subscribe
 from the console's plans page. `GET /` and `GET /health` are open liveness
-endpoints. Exception: [mock requests](#mock-mode-free-integration-testing)
-(`"mock": true`) are free and need only a registered key, so you can build
-and test your integration before subscribing. Website workspaces also receive a
+endpoints. Exception: [input-test requests](#mock-mode-input-testing)
+(`"mock": true`) work on every tier, including a free key with a non-partner
+payload. They parse and validate the input without grounding, compute, or
+billing. Website workspaces also receive a
 `free-` key for configured partner-market fits; see
 [Free workspace partner fits](#free-workspace-partner-fits).
 
@@ -38,7 +39,7 @@ and test your integration before subscribing. Website workspaces also receive a
 | --- | --- |
 | `GET /` | Service info: protocol, available model versions, endpoint list. |
 | `GET /health` | Liveness probe. |
-| `POST /fit` | Submit Menus + Sales + market_type (+ a resolvable [business description](#business-description)). Validates, grounds the history, enqueues the calculation. Returns `session_id` immediately. Add `"mock": true` for a free simulated run (see [Mock mode](#mock-mode-free-integration-testing)). |
+| `POST /fit` | Submit Menus + Sales + market_type (+ a resolvable [business description](#business-description)). Validates, grounds the history, enqueues the calculation. Returns `session_id` immediately. Add `"mock": true` to test input parsing and validation only (see [Input-test mode](#mock-mode-input-testing)). |
 | `GET /result/{session_id}` | Poll the calculation: `grounding` → `queued` → `processing` → `done` / `failed`. `done` carries the predicted T=0 menu. |
 | `POST /predict` | Instant selection from a small in-process reference model — a payload sanity-checker while the real calculation runs. **Not** P34's answer; `/result` is. |
 | `DELETE /session/{id}` | Cancel a running fit you own (a grounding-phase fit is aborted; a queued/processing calculation is canceled within about a minute) and discard the session. Response: `{"ok": true, "canceled": {"grounding": bool, "calculation": bool}}`. |
@@ -151,12 +152,16 @@ workspace is the only place it lands.
 
 ## Free workspace partner fits
 
-A website workspace's `free-` key can submit fits for configured partner markets
-such as t5market without activating a full VM. Send the normal `/fit` request,
+A website workspace's `free-` key can submit actual fits for configured partner
+markets such as t5market.com without activating a full VM. Send the normal `/fit` request,
 with `grounding_mode: "business_led"` and the partner identified in this request's
 `business_description`. **Omit `mock`**, including inside `market_type`.
-Free keys cannot fit non-partner markets (`403`); asking for generic `mock` mode
-with a free key returns `422`. Free-tier eligibility and request limits apply.
+An actual free-key fit for another market is refused with HTTP 403,
+`code: "free_partner_required"`, and the exact message `free tier only supports
+select markets, including t5market.com.` The eligibility rule in this section
+and the API's returned error are the canonical public contract. A separate
+`mock: true` input test still works for that non-partner payload, but does not
+make a later actual fit eligible.
 
 Free and paid business-led clients use the same endpoints, input menu format,
 session/request/task identifiers, asynchronous acknowledgement and result-polling
@@ -164,11 +169,9 @@ workflow. A free fit acknowledges `status: "grounding"` before preparing its
 answer; poll until `done` or `failed` and read the same output menu fields.
 Retries may return the existing session with `replayed: true`.
 
-The execution source remains explicit: free partner results are market-supplied
-and carry `execution.mode: "sponsored_simulation"`, `model_executed: false` in
-that execution object, and market provenance in `demo`. Paid partner fits run the
-model pipeline. Generic `mock: true` results below are placeholders, a separate
-integration-testing option for registered keys.
+Free partner results are actual partner-supplied calculations. They are not P34
+model training or prediction output. `mock: true` results below are placeholders
+from a separate input-test attempt.
 
 A market-supplied nonzero portfolio can be submitted to the named partner under
 its validity, account, funding and authorization rules. The API does not place
@@ -176,21 +179,17 @@ an order. An all-zero menu means no trade; a failed or expired result must not b
 submitted as a new order. Workflow compatibility does not imply identical
 execution time, model training or validation work between the free and paid paths.
 
-## Mock mode (free integration testing)
+## Mock mode: input testing
 
 Add `"mock": true` to a `/fit` request — top-level field or `"mock": true`
-inside `market_type` — to run it as a **simulation**: the request goes through
-the exact same validation as a real fit (sheet parsing, menu-0 rules,
-grounding, model-version and confidence checks — every 422 behaves
-identically), but **no calculation runs and no tokens are charged**. Use it to
-verify your request format and exercise your polling/response handling before
-spending compute budget.
+inside `market_type` — to test fit input parsing and validation before a
+separate real fit or prediction. The service performs no grounding, compute,
+or billing. It can therefore catch structural input errors, but it does not
+prove that grounding or a real fit will succeed.
 
-- A registered API key is still required (`401` otherwise), but mock requests
-  work **without an active subscription** and with an exhausted budget — you
-  can finish and test your integration before subscribing. Website workspaces also receive a
-`free-` key for configured partner-market fits; see
-[Free workspace partner fits](#free-workspace-partner-fits).
+- An API key is still required (`401` otherwise). Input tests work on every
+  tier, without an active subscription and with an exhausted budget. This
+  includes a free key testing a non-partner payload.
 - `/result` plays the real lifecycle (`queued` → `processing` → `done`) on a
   short timer, and the `done` payload has the full real shape shown above —
   `menu`, `n_selected`, `predicted_profit_sum`, `summary`, and the
@@ -201,12 +200,6 @@ spending compute budget.
 - The fit response's `billing` block reports the `input_cells` and `effort`
   the request *would* have cost, with `"tokens_charged": 0` (and
   `"tokens_charged_units": 0`).
-- `"mock": "failed"` simulates a **failing** fit instead — `/result` ends at
-  `status: "failed"` with an `error` field — so you can test your error path.
-- `"mock_result_seconds": <n>` (default 6, max 600) sets how long the
-  simulated calculation takes; `0` makes the terminal status available on the
-  first poll. The first third of the interval reports `queued`, the rest
-  `processing`.
 
 ```json
 { "menus": [...], "sales": [...], "market_type": {...},
@@ -290,24 +283,16 @@ Resolution order when the field is absent or empty:
    dashboard (**Business profile → Business description**);
 3. the description this account **last sent** on a previous `/fit` (the
    service records it every time one is sent — mock fits included);
-4. **simulator-style payloads only**: requests with the simple sample-sheet
-   column setup (`synthetic_inventory` + `synthetic_full` grounding, at most
-   a few feature columns — what the [market simulator](https://api.hyperc.com/sim/)
-   and the synthetic examples emit) fall back to a built-in default
-   description, so legacy simulator clients keep working. Real business
-   integrations (richer features or `business_observed` grounding) are not
-   exempted;
-5. none of the above exists → the request is rejected with **422**.
+4. none of the above exists → the request is rejected with **422**.
 
 The fit response reports which source was used in
-`business_description_source` (`request` / `account_profile` / `last_sent` /
-`simulator_default`), and the resolved text is recorded with the fit task.
+`business_description_source` (`request` / `account_profile` / `last_sent`),
+and the resolved text is recorded with the fit task.
 
 Under the default [`business_led` grounding mode](#grounding-modes) this
 description is **executable input, not metadata**: it is compiled into the
 economics adapter that reconstructs your labels, so its accuracy directly
-determines result quality. (Under legacy `internal` grounding it is only
-recorded, and the fixed replay formula is used instead.)
+determines result quality.
 
 Note that step 2 makes the console description a first-class way to drive
 fits: save it once in the dashboard, then send `/fit` requests with **no**
@@ -342,38 +327,27 @@ quality.
 | value | what it does | use it when |
 | --- | --- | --- |
 | *omitted* | **The default: `business_led`.** Description-driven grounding is what you get when you express no preference. | you have nothing special to say |
-| `default` (or `auto`) | Identical to omitting it — whatever grounding this deployment considers best. Spells the intent out for readers of your code. | you prefer to be explicit |
-| `business_led` | Pins description-driven grounding by name. | you want the request to fail loudly on a server that cannot do it, instead of quietly getting the fallback |
-| `internal` | The original fixed replay formula: a synthetic-inventory economics model whose cost structure crosses the API as a handful of scalars. | simulator-style payloads and the quickstart |
+| `default` (or `auto`) | Identical to omitting it: `business_led`. Spells the intent out for readers of your code. | you prefer to be explicit |
+| `business_led` | Pins description-driven grounding by name. If that execution path is unavailable, the request fails. | you want to name the mode explicitly |
 | `client_grounded` | **You** ground the history. Every historical option row carrying a `profit` is published with that value verbatim; P34 derives nothing — no replay, no adapter, no LLM, no grounding charge. | your own systems already value the options you *did not* take |
 
-> **Changed:** an omitted `grounding_mode` used to mean `internal`. It now
-> means `business_led`. If you send no `grounding_mode` today, your fits
+> **Changed:** the legacy `internal` mode is retired. If you send no
+> `grounding_mode` today, your fits use `business_led` and
 > become **asynchronous** (`status: "grounding"` — see
 > [below](#it-runs-asynchronously)) and carry a
-> [grounding charge](#what-it-costs). To keep the old behaviour exactly, send
-> `"grounding_mode": "internal"` — the legacy path did not change, it just
-> has to be asked for by name.
+> [grounding charge](#what-it-costs). Use `client_grounded` when you supply
+> the historical option values yourself.
 
 The applied mode is echoed back in the fit response's `grounding_mode`, and
-it always names a concrete mode (`internal` / `business_led`) — never the
-alias you sent. On a deployment that does not run the business-led pipeline,
-omitting the field still resolves to `internal`, so nothing there changes.
+it always names a concrete mode — never the alias you sent.
 
 One thing the new default *relaxes*: `/fit` refuses a history that is too
 thin to fit ([volume floors](04-errors-and-checks.md#common-422-errors)), but
 a business-led fit is only held to the structural checks — grounding is what
 produces the rows the model trains on, so the intake counts are not the ones
-it will see. Histories that a bare `internal` fit rejects at intake are
-accepted here.
+it will see.
 
 #### Why business-led grounding is recommended
-
-`internal` can only express economics that fit its fixed formula. Real cost
-structures — tiered and per-channel fees, accumulated and holding costs,
-write-off schedules, minimum order quantities — have nowhere to go in it, so
-they get approximated away, and the model learns from labels that do not
-match your P&L.
 
 Business-led grounding instead **compiles your
 [business description](#business-description) into an economics adapter for
@@ -438,7 +412,7 @@ mean the remaining validation or model work has already succeeded.
 Grounding is metered and billed as its own line when the task is published —
 the LLM work of compiling your adapter plus the CPU of the replay — and
 appears in your [ledger](06-token-wallet.md) as a `service` entry. The fit's
-own compute is billed separately at settlement, exactly as for `internal`. A
+own compute is billed separately at settlement. A
 fit can incur metered grounding work even if grounding fails. A successful
 [grounding code cache hit](#reusing-grounding-code) avoids agentic compilation
 work, but fresh-data validation/replay and the model's compute still incur their
@@ -448,8 +422,8 @@ cost.
 
 #### Bringing your own labels: `client_grounded`
 
-Both modes above exist to **derive** a profit for every option row, and both
-deliberately discard whatever `profit` you sent on the rows you did not choose
+Business-led grounding exists to **derive** a profit for every option row and
+deliberately discards whatever `profit` you sent on the rows you did not choose
 — they are about to recompute it. If your own systems already value the
 options you declined, that rule is backwards: the labels are the input, not
 something to be reconstructed.
@@ -459,15 +433,14 @@ carrying a finite `profit` is published as a **labeled** row with that value
 verbatim; every row without one is published as **unlabeled** context. No
 replay, no compiled adapter, no LLM, no workspace VM, and no
 [grounding charge](#what-it-costs). It is synchronous — `/fit` answers
-`"status": "queued"` exactly as `internal` does.
+`"status": "queued"` directly.
 
-One 48-row history (12 keys × 4 quantities), submitted three ways:
+One 48-row history (12 keys × 4 quantities), submitted two ways:
 
 | you send | mode | `labeled_rows` | `unlabeled_rows` | what happened |
 | --- | --- | ---: | ---: | --- |
 | `profit` on all 48 rows | `client_grounded` | 48 | 0 | all 48 of your labels published as sent |
 | `profit` on the 12 rows the desk took only | `client_grounded` | 12 | 36 | the other 36 became unlabeled context |
-| `profit` on all 48 rows | `internal` | 48 | 0 | the 36 values off the flagged rows were **discarded** and recomputed — `parse_report.profit_values_ignored_on_non_chosen` reads `36` |
 
 `parse_report.client_labeled_rows` counts the labels this mode accepted. It is
 the field to assert on in CI: if it is lower than you expect, some rows you
@@ -595,15 +568,10 @@ nothing about any other account. The acceptance response echoes the
 `feedback_target` (`"project"` when the fit is bound, `"session"` when it is
 not).
 
-A mock, `internal` or `client_grounded` fit echoes those two fields back so
+A mock or `client_grounded` fit echoes those two fields back so
 you can verify your integration, but produces no process feedback and so
 delivers nothing: only a [business-led](#grounding-modes) fit has a grounding
-phase to report on, and only it keeps the binding and retries delivery. A
-sponsored demonstration on a live demo market sits in between — it stores no
-binding either, but it does write its one explanatory report, into the bound
-run's folder when the request carried a resolvable `workspace_context` and
-into `/workspace/api-feedback/<session_id>/` otherwise. It is delivered once
-and not retried, and no `feedback_delivery` block accompanies it.
+phase to report on, and only it keeps the binding and retries delivery.
 
 ## Free-form feedback
 

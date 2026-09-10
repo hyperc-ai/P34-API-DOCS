@@ -201,5 +201,5 @@ its `billing` block (`tokens_charged` + `tokens_charged_units`).
 | weekly burst bound hit | `429` `"token budget exhausted (weekly window) — it resets automatically …"` |
 
 A `429` never loses data: nothing is enqueued or charged for the rejected
-call. [Mock requests](02-endpoints.md#mock-mode-free-integration-testing)
-remain free and work with an empty wallet.
+call. [`mock: true` input tests](02-endpoints.md#mock-mode-input-testing)
+remain free and work with an empty wallet on every tier.

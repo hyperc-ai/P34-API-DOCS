@@ -17,7 +17,7 @@ every table rather than copying one.
    the values their records support, and write the `business_description`
    around them.
 3. [p34-submit-and-monitor](../skills/p34-submit-and-monitor/SKILL.md) — run
-   the client-side checks, mock first, submit, and follow the `session_id`
+   the client-side checks, test inputs, submit a separate actual fit, and follow the `session_id`
    through the documented statuses.
 4. [p34-interpret-results](../skills/p34-interpret-results/SKILL.md) — turn a
    `done` result into executable orders and refusals, and state how far the

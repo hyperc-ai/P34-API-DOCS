@@ -1,6 +1,6 @@
 ---
 name: p34-submit-and-monitor
-description: Use when a prepared P34 request has to reach `/fit` and be followed to a result — validating it against the documented rules first, taking authorization from the caller's own key source, running the free mock, tracking the accepted `session_id` through the documented statuses, and reading the diagnostics and feedback that come back. Load before the first call, and whenever the environment cannot actually make the call and the request has to be written down instead.
+description: Use when a prepared P34 request has to reach `/fit` and be followed to a result — validating it against the documented rules first, taking authorization from the caller's own key source, testing the inputs, tracking the accepted `session_id` through the documented statuses, and reading the diagnostics and feedback that come back. Load before the first call, and whenever the environment cannot actually make the call and the request has to be written down instead.
 ---
 
 # Submit a P34 fit and follow it to a result
@@ -73,13 +73,12 @@ Tables cross as JSON records or base64 Parquet
 `null`. A blank coerced to `0` on the way out is a fabricated observation, and
 no error will tell you.
 
-### 4. Mock first — it is free and it validates identically
+### 4. Test the inputs before a separate actual fit
 
 Send the same body with `"mock": true`
-([Mock mode](../../docs/02-endpoints.md#mock-mode-free-integration-testing)).
-It runs the exact same validation, charges nothing, and needs no subscription,
-so every format error surfaces before any budget is spent. `"mock": "failed"`
-exercises your error path.
+([Input-test mode](../../docs/02-endpoints.md#mock-mode-input-testing)).
+This works on every tier, including a free key with a non-partner payload. It
+tests input parsing and validation without grounding, compute, or billing.
 
 **A mock result is not a prediction.** The `done` payload has the full real
 shape, and its numbers are deterministic placeholders derived from your own
@@ -89,8 +88,9 @@ reaches a report, an order, or a profit figure is a fabricated result no
 matter how it got there, so check for those markers before you read any number
 out of a response, and label the run as validation wherever you write it down.
 
-A clean mock proves the request is acceptable. It does not tell you anything
-about the market.
+A clean input test does not prove that grounding or an actual fit will succeed,
+and it does not change free-tier eligibility. Treat the later actual fit as a
+new attempt with its own record and authorization decision.
 
 ### 5. Submit the real fit and keep the session id it returns
 
@@ -108,8 +108,15 @@ to the API session. The ids have to be ones your own workspace issued: an
 unbindable pair is a 422 before the fit is accepted, so it costs nothing — but
 it also means there is no session, and nothing to record but the refusal.
 
-Read the acceptance response before you start polling — it is the only place
-some of this appears
+For a free key, follow the canonical
+[eligibility contract](../../docs/02-endpoints.md#free-workspace-partner-fits)
+rather than maintaining your own partner list. An actual non-partner request is refused with
+HTTP 403, `free_partner_required`, and `free tier only supports select markets,
+including t5market.com.` It has no session to poll. A configured partner result
+is an actual partner-supplied calculation, not P34 model training or prediction.
+
+Read the acceptance response before you start polling. For ordinary P34 fits,
+some of this appears only there
 ([fit response fields](../../docs/04-errors-and-checks.md#fit-response-fields)):
 `parse_report`, `labeled_rows` / `unlabeled_rows` / `task_menu_rows`, `model`,
 `business_description_source` and `grounding_mode`. A fit that resolved a
@@ -164,10 +171,15 @@ detail, never the failure, the counters or the feedback.
 
 ### 8. When there is no way to execute the call
 
-A chat client with no shell, a machine with no network, no key on this host:
-then the deliverable is the plan, not a result. Write down the exact request
-body you would send, the sequence (`POST /fit` with `"mock": true`, poll
-`GET /result/{session_id}`, then the real `POST /fit` and the same polling,
+A client with no supported external HTTP transport, or no usable key in the
+environment that can make the call: then the deliverable is the plan, not a
+result. A file-only workspace does not by itself remove the client or harness's
+external HTTP access. Workspace URLs under `https://api.hyperc.com/s/.../`
+serve workspace files and capabilities; P34 calls use the separate API base
+`https://api.hyperc.com/v1` and must never append `/fit` or `/result` to a
+workspace URL. Write down the exact request
+body you would send, the sequence (a `POST /fit` input test with `"mock": true`,
+then a separately authorized real `POST /fit`, polling each returned session,
 `DELETE /session/{id}` to cancel), where the key comes from on the host that
 will run it, and an explicit **not executed** status against that request.
 

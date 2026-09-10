@@ -32,7 +32,9 @@ This repository is the complete user-facing documentation for the P34 API: how i
 API requests use `Authorization: Bearer <key>`. Paid model fits require an
 eligible funded account; website workspace `free-` keys support configured
 [partner-market fits](docs/02-endpoints.md#free-workspace-partner-fits).
-Registered keys also support generic mock integration tests. See
+Every key class, including free keys for non-partner markets, supports
+`mock: true` input testing. It parses and validates inputs without grounding,
+compute, or billing. See
 [authentication](docs/02-endpoints.md#authentication) for the differences.
 
 Repeated business-led fits automatically reuse validated grounding code when
@@ -183,8 +185,7 @@ r = requests.post("https://api.hyperc.com/v1/fit",
                         # and omit this field entirely
                         "business_description": "..."})
                         # grounding is compiled from that description by
-                        # default; send "grounding_mode": "internal" for the
-                        # legacy fixed formula, or "client_grounded" to
+                        # default; send "grounding_mode": "client_grounded" to
                         # publish profits you have already computed yourself
 session = r.json()["session_id"]
 # poll until done (business-led fits pass through "grounding" first):
@@ -253,7 +254,7 @@ tables and restates none of them.
    get the caller's actual fees, costs, lead times and horizons, compute what
    the records support, and write the `business_description` around them.
 3. [skills/p34-submit-and-monitor/SKILL.md](skills/p34-submit-and-monitor/SKILL.md) —
-   check the request against the documented rules, run the free mock, submit,
+   check the request against the documented rules, run an input test, submit,
    and follow the `session_id` through the documented statuses.
 4. [skills/p34-interpret-results/SKILL.md](skills/p34-interpret-results/SKILL.md) —
    turn a `done` result into executable orders and refusals, and say how far

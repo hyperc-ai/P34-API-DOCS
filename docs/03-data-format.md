@@ -392,7 +392,7 @@ the replayed economics are only as honest as this tape.
 | `menu` | no | the menu the sale belongs to (informational). |
 | `T` | yes | when the sale happened, same axis as Menus. **Must be ≤ 0** — future-dated sales are rejected. |
 | `T_signal_delay` | no | reporting delay of the sales reading vs. when the sale actually happened. Zero delay is assumed when the column is omitted. |
-| `qty` | yes | units sold. `0`/blank rows are ignored (they may still carry per-key columns). Whole numbers are the usual case and the only thing some market types accept (`synthetic_inventory` rejects fractions), but the wire itself only requires `qty > 0` — so **if your `profit` was computed from a fractional quantity, send the fraction**. See [The tape and the profit must agree](#the-tape-and-the-profit-must-agree). |
+| `qty` | yes | units sold. `0`/blank rows are ignored (they may still carry per-key columns). Whole numbers are the usual case and the only thing some market types accept, but the wire itself only requires `qty > 0` — so **if your `profit` was computed from a fractional quantity, send the fraction**. See [The tape and the profit must agree](#the-tape-and-the-profit-must-agree). |
 | `price` | format: yes | realized price at sale. The format spec treats it as required for the sales log — it is what lets the model infer price sensitivity on compatible markets and advise price behaviour — though the current wire validator only enforces `key`/`T`/`qty`. Send it. |
 | `unit_holding_cost` | no | per-unit storage/holding cost as incurred at that date. If holding costs have changed over time, recalculate historical rows to **current** holding costs. An entire column holding a single constant value is fine. |
 | `unit_fee` | no | per-unit extra fee, defined by the identity `price − unit_fee − unit_cost − unit_holding_cost` = net profit per unit. |
@@ -435,8 +435,8 @@ the tape is the problem.
 
 1. **Send the quantity your `profit` was computed from**, fractional if that is
    what it was. The wire accepts it (`qty > 0` is the only rule). Check your
-   `market_type` first — `synthetic_inventory` requires whole units, so a
-   fractional tape needs a business-led fit with a compiled adapter.
+   market type first; if it requires whole units, a fractional tape needs a
+   business-led fit with a compatible compiled adapter.
 2. **Or recompute `profit` from the tape you can actually export.** If whole
    units are a hard constraint, make the label agree with the tape rather than
    the other way round. Consistency matters more than which of the two is more
@@ -454,28 +454,21 @@ fit: the gate is arithmetic on your numbers, not a reading of your prose.
 
 ## market_type
 
+Send the market identifier and parameters documented for the market you
+actually operate. For a business-led request without fixed market parameters,
+send an empty object and put the real operating rules and unit economics in
+the business description:
+
 ```json
 {
-  "market_type": "synthetic_inventory",
-  "parameters": {
-    "qty_ordered_range": 40,
-    "inventory_holding_weeks_before_writeoff": 8,
-    "holding_cost_per_unit": 0.5,
-    "leftover_writeoff_fraction": 1.0,
-    "grounding_labelling_mode": "synthetic_full"
-  }
+  "market_type": {},
+  "business_description": "Small wholesale reseller buying supplier lots weekly. Net profit subtracts purchase cost, marketplace fees, fulfillment, returns, holding cost, and write-offs."
 }
 ```
 
-`inventory_holding_weeks_before_writeoff` is the replay horizon: how many T
-units inventory may sell before the leftovers are written off. It also bounds
-how far after its menu a sale row may be dated.
-
-`grounding_labelling_mode` is optional. Omitted, it becomes
-`business_observed` when your history carries `historically_chosen` on every
-historical group (a previous business policy on record), else
-`synthetic_full`; `parse_report.grounding_labelling_mode` echoes `provided` or
-`defaulted:<mode>` so you can see which applied.
+The generated files under `examples/data/` are explicitly sample data for
+`mock: true` input testing. They are not recorded customer history and must be
+replaced before an actual fit.
 
 ## Start small, iterate
 

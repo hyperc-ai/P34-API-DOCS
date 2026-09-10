@@ -1,4 +1,4 @@
-"""Complete sample client for the P34 API.
+"""Input-test sample client for the P34 API.
 
     export P34_API_KEY=...        # from https://api.hyperc.com/app/
     python example_client.py --url https://api.hyperc.com/v1
@@ -6,11 +6,11 @@
     # publish profits you computed yourself, and skip the plausibility checks
     python example_client.py --grounding-mode client_grounded --checks off
 
-Builds a small Menus/Sales payload in the documented format
+Builds generated sample Menus/Sales in the documented format
 (T < 0 history, T = 0 current menu — see docs/03-data-format.md and
-examples/data/menu_api_sample.xlsx), submits it with POST /fit, sanity-checks
-the payload with POST /predict, and polls GET /result until the cluster
-calculation lands, then prints the returned portfolio.
+examples/data/menu_api_sample.xlsx), submits it with ``mock: true``, and polls
+GET /result. The generated rows are sample data for input testing only; replace
+them with recorded business data before an actual fit.
 """
 from __future__ import annotations
 
@@ -24,18 +24,9 @@ import pandas as pd
 import requests
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from wire import b64_to_df, records  # noqa: E402
+from wire import records  # noqa: E402
 
-MARKET_TYPE = {
-    "market_type": "synthetic_inventory",
-    "parameters": {
-        "qty_ordered_range": 4,
-        "inventory_holding_weeks_before_writeoff": 8,
-        "holding_cost_per_unit": 0.1,
-        "leftover_writeoff_fraction": 1.0,
-        "grounding_labelling_mode": "synthetic_full",
-    },
-}
+MARKET_TYPE = {}
 
 # Every fit must resolve to a business description: this field, or the one
 # saved in the console's Business profile, or the one last sent by the
@@ -43,11 +34,12 @@ MARKET_TYPE = {
 # is computed — fees, accumulated costs, holding costs; approximations OK.
 # See docs/02-endpoints.md#business-description.
 BUSINESS_DESCRIPTION = (
-    "Synthetic inventory reseller (demo): buys SKU lots at weekly decision "
+    "Sample small wholesale reseller: buys SKU lots at weekly decision "
     "moments, sells over an 8-week horizon. Unit economics: net profit = "
     "unit_price - unit_cost - 0.1/unit/week holding cost; unsold leftovers "
     "are written off in full after 8 weeks; no marketplace or referral fees "
-    "in this toy market."
+    "in this sample business. The rows in this example are generated sample "
+    "data for input testing, not recorded customer history."
 )
 
 
@@ -149,7 +141,7 @@ def main() -> None:
                          "fewer, higher-confidence selections (default: "
                          "service default -0.1)")
     ap.add_argument("--grounding-mode", default=None,
-                    choices=["default", "auto", "business_led", "internal", "client_grounded"],
+                    choices=["default", "auto", "business_led", "client_grounded"],
                     help="how your history becomes labels (see docs/02-endpoints.md). "
                          "client_grounded publishes the profits in your Menus verbatim "
                          "and derives nothing; default: the server's recommended mode")
@@ -170,7 +162,7 @@ def main() -> None:
     # a client_grounded fit ships a profit on every option row it valued
     menus, sales = build_sheets(ground_all=client_grounded)
     body = {"menus": records(menus), "sales": records(sales), "market_type": MARKET_TYPE,
-            "business_description": BUSINESS_DESCRIPTION}
+            "business_description": BUSINESS_DESCRIPTION, "mock": True}
     if args.grounding_mode:
         body["grounding_mode"] = args.grounding_mode
     if args.checks:
@@ -182,26 +174,10 @@ def main() -> None:
     r = requests.post(f"{url}/fit", json=body, headers=headers, timeout=120)
     r.raise_for_status()
     out = r.json()
-    print(f"fit ok — session {out['session_id'][:8]} ({out['status']}, model {out.get('model', 'default')})")
-    print(f"  grounded: {out['labeled_rows']} labeled / {out['unlabeled_rows']} unlabeled rows"
-          f" (mode {out.get('grounding_mode')})")
-    print(f"  report:   {out['parse_report']}")
-    if client_grounded:
-        # the labels P34 took from you verbatim — assert on this in CI
-        print(f"  your labels published: {out['parse_report'].get('client_labeled_rows')}")
+    print(f"input accepted — session {out['session_id'][:8]} ({out['status']})")
 
-    # instant sanity check from the in-process reference model (NOT P34's answer)
-    now_menu = menus[menus["T"] == 0]
-    r = requests.post(
-        f"{url}/predict",
-        json={"session_id": out["session_id"], "menus": records(now_menu), "market_type": MARKET_TYPE},
-        headers=headers, timeout=120,
-    )
-    r.raise_for_status()
-    selection = b64_to_df(r.json()["selection"])
-    print(f"payload sanity-check ok — reference model selected {len(selection)} deals")
-
-    # the real predictions come from the cluster — poll /result until done
+    # Poll only to record the input-test terminal response. Its values are
+    # placeholders and must not be presented as predictions or orders.
     deadline = time.time() + args.timeout_min * 60
     while True:
         res = requests.get(f"{url}/result/{out['session_id']}", headers=headers, timeout=30).json()
@@ -217,16 +193,8 @@ def main() -> None:
     if res["status"] == "failed":
         print("FAILED:", res.get("error"))
         return
-    portfolio = pd.DataFrame(res["menu"])
-    trades = portfolio[portfolio["qty"] > 0] if len(portfolio) else portfolio
-    print(f"done — {len(portfolio)} keys predicted, {len(trades)} trades recommended, "
-          f"predicted profit {res['predicted_profit_sum']:.2f}")
-    if len(trades):
-        print(trades.to_string(index=False))
-    else:
-        # an empty (or all-qty-0) menu is a valid answer: the model judged
-        # that no deal on this menu is worth taking
-        print("the model recommends taking no trades on this menu")
+    print("input test complete — no grounding, prediction, order, or billing")
+    print("note:", res.get("mock_note", "mock response contains placeholders"))
 
 
 if __name__ == "__main__":
