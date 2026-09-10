@@ -158,10 +158,8 @@ A history without the column therefore loses nothing structurally. What it
 gives up is the calibration real policy data brings: the replay can use the
 quantity you actually held (a sold-out batch censors demand above it), and the
 fit calibrates to your risk appetite and selection behaviour. The one place the
-column is **required** is `grounding_labelling_mode: "business_observed"` —
-that mode's sold-out rule is defined by the quantity you held, so it refuses a
-history with unflagged groups (422); use `synthetic_full` when there is no
-policy on record.
+column becomes required is when the market-specific rules documented for your
+market say that its grounding depends on the quantity the business held.
 
 The response says which way it went: `parse_report.historically_chosen` is
 `"provided"` or `"absent"`, and `parse_report.menus_groups_without_choice`

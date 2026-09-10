@@ -483,9 +483,9 @@ policy](03-data-format.md#your-previous-business-policy-what-historically_chosen
 `/fit` forms two different kinds of opinion about a submission.
 **Structural** checks establish that the request can be fitted at all:
 required columns present, T=0 rows agreeing with menu `0`, at most one
-`historically_chosen` row per group (and one on every group under
-`business_observed`), frames that line up, train and eval carrying the same
-feature columns. **Plausibility** checks are advisory
+`historically_chosen` row per group, any additional choice requirements
+documented for the selected market, frames that line up, and train and eval
+carrying the same feature columns. **Plausibility** checks are advisory
 economics: the [volume floors](04-errors-and-checks.md#common-422-errors), the
 `historically_available` / `historically_chosen` consistency pair, and the
 replay-horizon bound on Sales.

@@ -6,7 +6,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_TEXT = [ROOT / "README.md", *sorted((ROOT / "docs").glob("*.md")),
-               *sorted((ROOT / "skills").glob("*/SKILL.md"))]
+               *sorted((ROOT / "skills").glob("**/*.md"))]
 API_EXAMPLES = [ROOT / "examples" / "client" / "example_client.py",
                 ROOT / "examples" / "data" / "make_samples.py",
                 *sorted((ROOT / "examples" / "data").glob("*.json")),
@@ -17,7 +17,11 @@ class PublicContractLanguageTest(unittest.TestCase):
 
     def test_retired_metadata_is_absent(self):
         for path in PUBLIC_TEXT:
-            self.assertNotIn("sponsored_simulation", path.read_text(), path)
+            text = path.read_text()
+            self.assertNotIn("sponsored_simulation", text, path)
+            self.assertNotIn("business_observed", text, path)
+            self.assertNotIn("synthetic_full", text, path)
+            self.assertNotIn("grounding_labelling_mode", text, path)
 
     def test_api_examples_do_not_use_retired_synthetic_market(self):
         for path in API_EXAMPLES:
