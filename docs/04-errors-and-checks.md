@@ -78,10 +78,9 @@
 
 Other statuses you may meet: **401/403** — missing/invalid API key, or a
 feature your account isn't flagged for; **413** — request over your plan's
-size cap; **501** — you asked for `business_led`
+size cap. Reduce the payload (for example, provide fewer menus or historical rows) and retry; **501** — you asked for `business_led`
 [grounding](02-endpoints.md#grounding-modes) on a deployment that does not
-run that pipeline (send `default` instead and you get that server's best
-available grounding rather than an error); **429** — no active subscription (subscribe in the console), or
+run that pipeline (`default` and `auto` also resolve to `business_led`; they do not bypass this refusal); **429** — no active subscription (subscribe in the console), or
 the plan's compute budget is exhausted for the current weekly or monthly
 window (see utilization in the
 [management console](https://api.hyperc.com/app/)).
@@ -177,3 +176,20 @@ of pandas.
 5. The pytest workflow in
    [`examples/pytest/`](../examples/pytest/) automates 1–3; run it with your
    key in CI so integration regressions surface before your traders do.
+
+## Current-market freshness and limits
+
+If result feedback says the market moved to a newer state, fetch its latest
+current-menu data and resubmit `/fit`. Reordering old rows does not refresh
+quotes. Use `T=0` and `menu=0` for the current options; there is no public
+top-level `tick` request field. Historical `T` values remain relative periods.
+
+A request may be accepted initially and later fail during preparation because
+the market-facing payload is too large. Follow `/result` feedback: reduce menu
+or history rows and submit a fresh current menu. The plan's HTTP request cap
+and downstream preparation limits are separate; an initial HTTP 200 does not
+guarantee the latter was satisfied.
+
+Free-market fits currently default to 4 requests per hour and 100 per day.
+These are configurable limits; follow the API's returned rate-limit feedback.
+Input-test mode does not grant eligibility for an actual free-market fit.
