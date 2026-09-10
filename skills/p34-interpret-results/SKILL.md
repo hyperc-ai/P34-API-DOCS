@@ -31,7 +31,15 @@ carried the request to a result.
 
 ## Workflow
 
-### 1. Read `parse_report` before you read the menu
+### 1. Read the provenance and the fields the response actually carries
+
+A free-tier supported-market result follows the normal fit/result workflow.
+Interpret its returned menu and provenance as supplied. Do not invent missing
+prediction, training, calibration, confidence, runner-model, or row-count
+fields, and do not treat their absence as an error unless the response contract
+requires them.
+
+For a P34 model result, read `parse_report` before you read the menu.
 
 The counters say what the fit was actually given, and that changes what its
 answer means. Take them from the response, not from what you believe you sent:
@@ -52,9 +60,11 @@ answer means. Take them from the response, not from what you believe you sent:
 
 ### 2. The `qty > 0` rows together are the portfolio
 
-`predicted_profit_sum` is the expectation for that **set**, and `n_selected`
-counts it. It is not a promise on any single line, and a line pulled out of
-the set on its own is no longer the thing the model scored.
+Read `predicted_profit_sum` as the portfolio total with the profit basis
+reported by the response; `n_selected` counts the selected positions. A line
+pulled out of the set on its own is no longer the portfolio the response
+scored. Report the meaning supplied by the response, and do not infer model
+prediction provenance from the field name alone.
 
 ### 3. The refusals are the product, so write them down
 
@@ -142,9 +152,10 @@ improve the next request
 - every line names the offer that will be executed, with the cost and terms
   that apply at that size;
 - both kinds of refusal are listed — explicit zeros and absent keys;
-- the portfolio figure is the returned `predicted_profit_sum`, described as
-  the expectation for the set;
-- the parse-report omissions and the calibration context are stated;
+- any portfolio figure is reproduced only when returned and described using
+  the response's own profit basis; field names alone do not establish prediction
+  provenance;
+- the parse-report and calibration context are stated when the response carries them;
 - every number that is yours is labelled as yours.
 
 ## A result that is not `done`

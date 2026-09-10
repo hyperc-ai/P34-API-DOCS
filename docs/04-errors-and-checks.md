@@ -45,11 +45,11 @@
 - `model` — the model version this fit will run on.
 - `business_description_source` — where the fit's
   [business description](02-endpoints.md#business-description) came from:
-  `request`, `account_profile` (console Business profile), `last_sent`
+  `request`, `account_profile` (console Business profile), or `last_sent`
   (reused from the account's previous fit).
 - `grounding_mode` — the applied
   [grounding mode](02-endpoints.md#grounding-modes): `business_led` (what an
-  omitted field means), or `client_grounded` (asked for by name). Always a concrete mode, so this is where you confirm
+  omitted field means) or `client_grounded`. Always a concrete mode, so this is where you confirm
   what an omitted field or a `default`/`auto` alias resolved to.
 - `parse_report.client_labeled_rows` — under
   [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded),
@@ -85,6 +85,13 @@ available grounding rather than an error); **429** — no active subscription (s
 the plan's compute budget is exhausted for the current weekly or monthly
 window (see utilization in the
 [management console](https://api.hyperc.com/app/)).
+
+A real free-key request for a market outside the supported set returns HTTP
+**403** with `detail.code: "free_markets_only"` and the exact message
+`free tier only supports select markets, including t5market.com.` The request
+is not accepted and has no `session_id`. See [Free workspace fits](02-endpoints.md#free-workspace-fits)
+for the canonical eligibility contract. A separate `mock: true` input test can validate the
+same input, but it does not change eligibility for an actual fit.
 
 ### `workspace_context` refusals
 

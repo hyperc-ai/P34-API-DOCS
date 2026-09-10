@@ -157,7 +157,9 @@ formed** — not at intake, and not inside the replay:
 A history without the column therefore loses nothing structurally. What it
 gives up is the calibration real policy data brings: the replay can use the
 quantity you actually held (a sold-out batch censors demand above it), and the
-fit calibrates to your risk appetite and selection behaviour. Describe stock limits and sold-out observations in the business description; do not invent historical choices.
+fit calibrates to your risk appetite and selection behaviour. The one place the
+column becomes required is when the market-specific rules documented for your
+market say that its grounding depends on the quantity the business held.
 
 The response says which way it went: `parse_report.historically_chosen` is
 `"provided"` or `"absent"`, and `parse_report.menus_groups_without_choice`
@@ -388,7 +390,7 @@ the replayed economics are only as honest as this tape.
 | `menu` | no | the menu the sale belongs to (informational). |
 | `T` | yes | when the sale happened, same axis as Menus. **Must be ≤ 0** — future-dated sales are rejected. |
 | `T_signal_delay` | no | reporting delay of the sales reading vs. when the sale actually happened. Zero delay is assumed when the column is omitted. |
-| `qty` | yes | units sold. `0`/blank rows are ignored (they may still carry per-key columns). The wire requires `qty > 0` — so **if your `profit` was computed from a fractional quantity, send the fraction**. See [The tape and the profit must agree](#the-tape-and-the-profit-must-agree). |
+| `qty` | yes | units sold. `0`/blank rows are ignored (they may still carry per-key columns). Whole numbers are the usual case and the only thing some market types accept, but the wire itself only requires `qty > 0` — so **if your `profit` was computed from a fractional quantity, send the fraction**. See [The tape and the profit must agree](#the-tape-and-the-profit-must-agree). |
 | `price` | format: yes | realized price at sale. The format spec treats it as required for the sales log — it is what lets the model infer price sensitivity on compatible markets and advise price behaviour — though the current wire validator only enforces `key`/`T`/`qty`. Send it. |
 | `unit_holding_cost` | no | per-unit storage/holding cost as incurred at that date. If holding costs have changed over time, recalculate historical rows to **current** holding costs. An entire column holding a single constant value is fine. |
 | `unit_fee` | no | per-unit extra fee, defined by the identity `price − unit_fee − unit_cost − unit_holding_cost` = net profit per unit. |
@@ -430,7 +432,9 @@ the tape is the problem.
 **Fixing it.** In order of preference:
 
 1. **Send the quantity your `profit` was computed from**, fractional if that is
-   what it was. The wire accepts it (`qty > 0` is the only rule). Describe any whole-unit constraints in your business description.
+   what it was. The wire accepts it (`qty > 0` is the only rule). Check your
+   market type first; if it requires whole units, a fractional tape needs a
+   business-led fit with a compatible compiled adapter.
 2. **Or recompute `profit` from the tape you can actually export.** If whole
    units are a hard constraint, make the label agree with the tape rather than
    the other way round. Consistency matters more than which of the two is more
@@ -448,11 +452,21 @@ fit: the gate is arithmetic on your numbers, not a reading of your prose.
 
 ## market_type
 
-An optional object for market-specific context. Use `{}` when no additional
-context is needed. Describe market economics, quantity constraints, fees,
-holding costs and write-off horizon in `business_description`; `business_led`
-grounding compiles those facts into an adapter. For `client_grounded`, supply
-your own historical profit labels.
+Send the market identifier and parameters documented for the market you
+actually operate. For a business-led request without fixed market parameters,
+send an empty object and put the real operating rules and unit economics in
+the business description:
+
+```json
+{
+  "market_type": {},
+  "business_description": "Small wholesale reseller buying supplier lots weekly. Net profit subtracts purchase cost, marketplace fees, fulfillment, returns, holding cost, and write-offs."
+}
+```
+
+The generated files under `examples/data/` are explicitly sample data for
+`mock: true` input testing. They are not recorded customer history and must be
+replaced before an actual fit.
 
 ## Start small, iterate
 
