@@ -23,10 +23,24 @@ class PublicContractLanguageTest(unittest.TestCase):
         for path in API_EXAMPLES:
             self.assertNotIn("synthetic_inventory", path.read_text(), path)
 
-    def test_exact_free_nonpartner_refusal_is_documented(self):
+    def test_exact_free_market_refusal_is_documented(self):
         text = (ROOT / "docs" / "04-errors-and-checks.md").read_text()
+        self.assertIn('detail.code: "free_markets_only"', text)
         self.assertIn(
             "free tier only supports select markets, including t5market.com.", text)
+        self.assertNotIn("free_partner_required", text)
+
+    def test_free_tier_client_language_is_market_neutral(self):
+        paths = [ROOT / "README.md", ROOT / "docs" / "02-endpoints.md",
+                 ROOT / "docs" / "04-errors-and-checks.md",
+                 ROOT / "skills" / "p34-submit-and-monitor" / "SKILL.md",
+                 ROOT / "skills" / "p34-interpret-results" / "SKILL.md"]
+        forbidden = ("free-partner", "partner-market", "partner-supplied",
+                     "non-partner")
+        for path in paths:
+            text = path.read_text().lower()
+            for phrase in forbidden:
+                self.assertNotIn(phrase, text, path)
 
     def test_input_test_contract_is_explicit(self):
         text = (ROOT / "docs" / "02-endpoints.md").read_text()

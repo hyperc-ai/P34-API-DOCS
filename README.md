@@ -30,9 +30,9 @@ This repository is the complete user-facing documentation for the P34 API: how i
 
 `GET https://api.hyperc.com/v1/` is open (liveness + capability listing); all
 API requests use `Authorization: Bearer <key>`. Paid model fits require an
-eligible funded account; website workspace `free-` keys support configured
-[partner-market fits](docs/02-endpoints.md#free-workspace-partner-fits).
-Every key class, including free keys for non-partner markets, supports
+eligible funded account; website workspace `free-` keys support fits for
+[select markets](docs/02-endpoints.md#free-workspace-fits).
+Every key class, including free keys testing markets outside that set, supports
 `mock: true` input testing. It parses and validates inputs without grounding,
 compute, or billing. See
 [authentication](docs/02-endpoints.md#authentication) for the differences.

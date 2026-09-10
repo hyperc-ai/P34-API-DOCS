@@ -27,11 +27,11 @@ account with no active subscription and an empty wallet gets `429` with
 `"no active subscription — subscribe to a plan to use the API"`. Subscribe
 from the console's plans page. `GET /` and `GET /health` are open liveness
 endpoints. Exception: [input-test requests](#mock-mode-input-testing)
-(`"mock": true`) work on every tier, including a free key with a non-partner
-payload. They parse and validate the input without grounding, compute, or
-billing. Website workspaces also receive a
-`free-` key for configured partner-market fits; see
-[Free workspace partner fits](#free-workspace-partner-fits).
+(`"mock": true`) work on every tier, including a free key testing a market
+that is not available for an actual free fit. They parse and validate the
+input without grounding, compute, or billing. Website workspaces also receive a
+`free-` key for fits in select markets; see
+[Free workspace fits](#free-workspace-fits).
 
 ## Endpoints
 
@@ -150,17 +150,19 @@ workspace only. That is why a published fit's polls keep retrying delivery:
 its report is produced after the task reaches the compute queue, and the
 workspace is the only place it lands.
 
-## Free workspace partner fits
+## Free workspace fits
 
-A website workspace's `free-` key can submit actual fits for configured partner
-markets such as t5market.com without activating a full VM. Send the normal `/fit` request,
-with `grounding_mode: "business_led"` and the partner identified in this request's
+A website workspace's `free-` key can submit actual fits for markets supported by the free tier,
+without activating a full VM. Send the normal
+`/fit` request,
+with `grounding_mode: "business_led"` and the market identified in this request's
 `business_description`. **Omit `mock`**, including inside `market_type`.
-An actual free-key fit for another market is refused with HTTP 403,
-`code: "free_partner_required"`, and the exact message `free tier only supports
+An actual free-key fit for a market outside the supported set is refused
+with HTTP 403,
+`code: "free_markets_only"`, and the exact message `free tier only supports
 select markets, including t5market.com.` The eligibility rule in this section
 and the API's returned error are the canonical public contract. A separate
-`mock: true` input test still works for that non-partner payload, but does not
+`mock: true` input test still works for that payload, but does not
 make a later actual fit eligible.
 
 Free and paid business-led clients use the same endpoints, input menu format,
@@ -169,15 +171,16 @@ workflow. A free fit acknowledges `status: "grounding"` before preparing its
 answer; poll until `done` or `failed` and read the same output menu fields.
 Retries may return the existing session with `replayed: true`.
 
-Free partner results are actual partner-supplied calculations. They are not P34
-model training or prediction output. `mock: true` results below are placeholders
+Free-tier results are portfolios returned through the normal fit/result workflow.
+Interpret the fields and provenance the response supplies; do not invent missing
+prediction, training, calibration, or model provenance. `mock: true` results
+below are placeholders
 from a separate input-test attempt.
 
-A market-supplied nonzero portfolio can be submitted to the named partner under
+A nonzero portfolio can be submitted to the named market under
 its validity, account, funding and authorization rules. The API does not place
 an order. An all-zero menu means no trade; a failed or expired result must not be
-submitted as a new order. Workflow compatibility does not imply identical
-execution time, model training or validation work between the free and paid paths.
+submitted as a new order.
 
 ## Mock mode: input testing
 
@@ -189,7 +192,7 @@ prove that grounding or a real fit will succeed.
 
 - An API key is still required (`401` otherwise). Input tests work on every
   tier, without an active subscription and with an exhausted budget. This
-  includes a free key testing a non-partner payload.
+  includes a free key testing a market outside the free-tier supported set.
 - `/result` plays the real lifecycle (`queued` → `processing` → `done`) on a
   short timer, and the `done` payload has the full real shape shown above —
   `menu`, `n_selected`, `predicted_profit_sum`, `summary`, and the

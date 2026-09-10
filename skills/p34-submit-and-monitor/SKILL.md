@@ -77,7 +77,8 @@ no error will tell you.
 
 Send the same body with `"mock": true`
 ([Input-test mode](../../docs/02-endpoints.md#mock-mode-input-testing)).
-This works on every tier, including a free key with a non-partner payload. It
+This works on every tier, including a free key testing a market outside the
+free-tier supported set. It
 tests input parsing and validation without grounding, compute, or billing.
 
 **A mock result is not a prediction.** The `done` payload has the full real
@@ -109,11 +110,12 @@ unbindable pair is a 422 before the fit is accepted, so it costs nothing — but
 it also means there is no session, and nothing to record but the refusal.
 
 For a free key, follow the canonical
-[eligibility contract](../../docs/02-endpoints.md#free-workspace-partner-fits)
-rather than maintaining your own partner list. An actual non-partner request is refused with
-HTTP 403, `free_partner_required`, and `free tier only supports select markets,
-including t5market.com.` It has no session to poll. A configured partner result
-is an actual partner-supplied calculation, not P34 model training or prediction.
+[eligibility contract](../../docs/02-endpoints.md#free-workspace-fits)
+rather than maintaining your own market list. An actual request outside the
+supported set is refused with HTTP 403, `free_markets_only`, and `free tier only supports select markets, including t5market.com.` It has no session to poll.
+A supported-market request follows the normal fit/result workflow. Report only
+the result fields and provenance the response supplies; do not invent missing
+prediction, training, calibration, or model provenance.
 
 Read the acceptance response before you start polling. For ordinary P34 fits,
 some of this appears only there
