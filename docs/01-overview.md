@@ -272,8 +272,7 @@ POST /fit  ──►  validation  ──►  grounding (minutes, asynchronous)  
 GET /result/{session_id}  ◄──  grounding → queued → processing → done | failed
 ```
 
-Two grounding modes skip that phase and return `queued` from `/fit` directly:
-`internal`, the legacy fixed formula, and
+The following mode skips that phase and returns `queued` from `/fit` directly:
 [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded),
 where you supply the labels yourself so there is nothing left to derive.
 

@@ -290,24 +290,15 @@ Resolution order when the field is absent or empty:
    dashboard (**Business profile → Business description**);
 3. the description this account **last sent** on a previous `/fit` (the
    service records it every time one is sent — mock fits included);
-4. **simulator-style payloads only**: requests with the simple sample-sheet
-   column setup (`synthetic_inventory` + `synthetic_full` grounding, at most
-   a few feature columns — what the [market simulator](https://api.hyperc.com/sim/)
-   and the synthetic examples emit) fall back to a built-in default
-   description, so legacy simulator clients keep working. Real business
-   integrations (richer features or `business_observed` grounding) are not
-   exempted;
-5. none of the above exists → the request is rejected with **422**.
+4. none of the above exists → the request is rejected with **422**.
 
-The fit response reports which source was used in
-`business_description_source` (`request` / `account_profile` / `last_sent` /
-`simulator_default`), and the resolved text is recorded with the fit task.
+The fit response reports the resolved `business_description_source` and records
+the description with the fit task.
 
 Under the default [`business_led` grounding mode](#grounding-modes) this
 description is **executable input, not metadata**: it is compiled into the
 economics adapter that reconstructs your labels, so its accuracy directly
-determines result quality. (Under legacy `internal` grounding it is only
-recorded, and the fixed replay formula is used instead.)
+determines result quality.
 
 Note that step 2 makes the console description a first-class way to drive
 fits: save it once in the dashboard, then send `/fit` requests with **no**
@@ -344,38 +335,15 @@ quality.
 | *omitted* | **The default: `business_led`.** Description-driven grounding is what you get when you express no preference. | you have nothing special to say |
 | `default` (or `auto`) | Identical to omitting it — whatever grounding this deployment considers best. Spells the intent out for readers of your code. | you prefer to be explicit |
 | `business_led` | Pins description-driven grounding by name. | you want the request to fail loudly on a server that cannot do it, instead of quietly getting the fallback |
-| `internal` | The original fixed replay formula: a synthetic-inventory economics model whose cost structure crosses the API as a handful of scalars. | simulator-style payloads and the quickstart |
 | `client_grounded` | **You** ground the history. Every historical option row carrying a `profit` is published with that value verbatim; P34 derives nothing — no replay, no adapter, no LLM, no grounding charge. | your own systems already value the options you *did not* take |
 
-> **Changed:** an omitted `grounding_mode` used to mean `internal`. It now
-> means `business_led`. If you send no `grounding_mode` today, your fits
-> become **asynchronous** (`status: "grounding"` — see
-> [below](#it-runs-asynchronously)) and carry a
-> [grounding charge](#what-it-costs). To keep the old behaviour exactly, send
-> `"grounding_mode": "internal"` — the legacy path did not change, it just
-> has to be asked for by name.
-
-The applied mode is echoed back in the fit response's `grounding_mode`, and
-it always names a concrete mode (`internal` / `business_led`) — never the
-alias you sent. On a deployment that does not run the business-led pipeline,
-omitting the field still resolves to `internal`, so nothing there changes.
-
-One thing the new default *relaxes*: `/fit` refuses a history that is too
-thin to fit ([volume floors](04-errors-and-checks.md#common-422-errors)), but
-a business-led fit is only held to the structural checks — grounding is what
-produces the rows the model trains on, so the intake counts are not the ones
-it will see. Histories that a bare `internal` fit rejects at intake are
-accepted here.
+The applied mode is echoed in `grounding_mode`. Business-led fits run
+asynchronously and can incur a grounding charge. Intake checks the supplied
+structure before grounding creates additional labelled rows for fitting.
 
 #### Why business-led grounding is recommended
 
-`internal` can only express economics that fit its fixed formula. Real cost
-structures — tiered and per-channel fees, accumulated and holding costs,
-write-off schedules, minimum order quantities — have nowhere to go in it, so
-they get approximated away, and the model learns from labels that do not
-match your P&L.
-
-Business-led grounding instead **compiles your
+Business-led grounding **compiles your
 [business description](#business-description) into an economics adapter for
 your account** (and, where your account has a workspace VM, reads your own
 profit-calculation code from it). Your history is expanded into a grounded
@@ -438,7 +406,7 @@ mean the remaining validation or model work has already succeeded.
 Grounding is metered and billed as its own line when the task is published —
 the LLM work of compiling your adapter plus the CPU of the replay — and
 appears in your [ledger](06-token-wallet.md) as a `service` entry. The fit's
-own compute is billed separately at settlement, exactly as for `internal`. A
+own compute is billed separately at settlement, as for other model fits. A
 fit can incur metered grounding work even if grounding fails. A successful
 [grounding code cache hit](#reusing-grounding-code) avoids agentic compilation
 work, but fresh-data validation/replay and the model's compute still incur their
@@ -459,7 +427,7 @@ carrying a finite `profit` is published as a **labeled** row with that value
 verbatim; every row without one is published as **unlabeled** context. No
 replay, no compiled adapter, no LLM, no workspace VM, and no
 [grounding charge](#what-it-costs). It is synchronous — `/fit` answers
-`"status": "queued"` exactly as `internal` does.
+`"status": "queued"` after validation.
 
 One 48-row history (12 keys × 4 quantities), submitted three ways:
 
@@ -467,7 +435,6 @@ One 48-row history (12 keys × 4 quantities), submitted three ways:
 | --- | --- | ---: | ---: | --- |
 | `profit` on all 48 rows | `client_grounded` | 48 | 0 | all 48 of your labels published as sent |
 | `profit` on the 12 rows the desk took only | `client_grounded` | 12 | 36 | the other 36 became unlabeled context |
-| `profit` on all 48 rows | `internal` | 48 | 0 | the 36 values off the flagged rows were **discarded** and recomputed — `parse_report.profit_values_ignored_on_non_chosen` reads `36` |
 
 `parse_report.client_labeled_rows` counts the labels this mode accepted. It is
 the field to assert on in CI: if it is lower than you expect, some rows you
@@ -595,7 +562,7 @@ nothing about any other account. The acceptance response echoes the
 `feedback_target` (`"project"` when the fit is bound, `"session"` when it is
 not).
 
-A mock, `internal` or `client_grounded` fit echoes those two fields back so
+A mock or `client_grounded` fit echoes those two fields back so
 you can verify your integration, but produces no process feedback and so
 delivers nothing: only a [business-led](#grounding-modes) fit has a grounding
 phase to report on, and only it keeps the binding and retries delivery. A

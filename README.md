@@ -183,8 +183,7 @@ r = requests.post("https://api.hyperc.com/v1/fit",
                         # and omit this field entirely
                         "business_description": "..."})
                         # grounding is compiled from that description by
-                        # default; send "grounding_mode": "internal" for the
-                        # legacy fixed formula, or "client_grounded" to
+                        # default; send "grounding_mode": "client_grounded" to
                         # publish profits you have already computed yourself
 session = r.json()["session_id"]
 # poll until done (business-led fits pass through "grounding" first):

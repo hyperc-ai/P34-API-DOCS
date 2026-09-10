@@ -49,16 +49,7 @@ HOLD_WEEKS = 8          # write-off horizon
 HOLD_COST = 0.15        # per unit per market: holding cost baked into unit economics
 QTYS = (1, 2, 4, 8)     # deal-size options on every menu
 
-MARKET_TYPE = {
-    "market_type": "synthetic_inventory",
-    "parameters": {
-        "qty_ordered_range": max(QTYS),
-        "inventory_holding_weeks_before_writeoff": HOLD_WEEKS,
-        "holding_cost_per_unit": HOLD_COST,
-        "leftover_writeoff_fraction": 1.0,
-        "grounding_labelling_mode": "synthetic_full",
-    },
-}
+MARKET_TYPE = {}
 
 
 # ---------------------------------------------------------------------------

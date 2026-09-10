@@ -26,16 +26,7 @@ import requests
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wire import b64_to_df, records  # noqa: E402
 
-MARKET_TYPE = {
-    "market_type": "synthetic_inventory",
-    "parameters": {
-        "qty_ordered_range": 4,
-        "inventory_holding_weeks_before_writeoff": 8,
-        "holding_cost_per_unit": 0.1,
-        "leftover_writeoff_fraction": 1.0,
-        "grounding_labelling_mode": "synthetic_full",
-    },
-}
+MARKET_TYPE = {}
 
 # Every fit must resolve to a business description: this field, or the one
 # saved in the console's Business profile, or the one last sent by the

@@ -1139,15 +1139,6 @@
    "unit_fee": null
   }
  ],
- "market_type": {
-  "market_type": "synthetic_inventory",
-  "parameters": {
-   "qty_ordered_range": 4,
-   "inventory_holding_weeks_before_writeoff": 8,
-   "holding_cost_per_unit": 0.1,
-   "leftover_writeoff_fraction": 1.0,
-   "grounding_labelling_mode": "synthetic_full"
-  }
- },
+ "market_type": {},
  "business_description": "Synthetic inventory reseller (demo): buys SKU lots at weekly decision moments, sells over an 8-week horizon. Unit economics: net profit = unit_price - unit_cost - 0.1/unit/week holding cost; unsold leftovers are written off in full after 8 weeks; no marketplace or referral fees in this toy market."
 }

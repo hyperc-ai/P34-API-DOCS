@@ -152,23 +152,14 @@ a row on inference.
 can warn the caller about the consequences of its absence in the mode they are
 about to use — not to turn it into a requirement, and never as a reason to
 manufacture a flag. The modes are named in
-[Grounding modes](../../../docs/02-endpoints.md#grounding-modes);
-`grounding_labelling_mode` is a `market_type` parameter documented in
-[market_type](../../../docs/03-data-format.md#market_type). Treat all of it as
+[Grounding modes](../../../docs/02-endpoints.md#grounding-modes). Treat all of it as
 the service's own processing: your job is to supply truthful records and the
 facts it asks for.
 
 | Mode / path | Consequence of a missing flag, and what to do |
 | --- | --- |
-| `grounding_mode: "internal"` with `grounding_labelling_mode: "synthetic_full"` | The service labels every accepted quantity from the sales tape, without the sold-out censoring `business_observed` applies. A missing flag therefore does **not** establish that demand above the executed scale was observed. Stock-limited sell-through can make a larger calculated quantity carry a write-off that was never actually tested. Warn the caller about that reading; do not manufacture a flag and do not refuse the fit merely because the flag is absent. |
-| `grounding_mode: "internal"` with `grounding_labelling_mode: "business_observed"` | This mode's sold-out rule is defined by the quantity the business held, so it needs a truthful flagged row in **every** historical `(menu, key)` group. A group without one is a documented validation error (422, naming the count of unflagged groups). Do not select this mode unless the real records satisfy it; `synthetic_full` is the mode for a history with no policy on record. Note the default: with the flag on every group the service defaults to `business_observed`, otherwise to `synthetic_full`, and echoes which in `parse_report.grounding_labelling_mode`. |
 | `business_led` (the default when `grounding_mode` is omitted) | Where a group carries no flag there is no executed batch to reason from, and how much of that group the service can label then turns on facts only you hold. Supply them in the business description: what stock was held, whether it sold out, and what your sales figures actually measure. Omitting them is what limits the labels you get back; manufacturing a flag is not the remedy. |
 | `grounding_mode: "client_grounded"` | Historical outcome values are yours and are published verbatim; the service derives nothing. The requirements that exist for replay — a Sales tape that reconciles, a replay horizon, a business description — do not apply here. Send `profit` on every historical option row you have valued and leave the rest blank; the blanks become the unlabeled context. See [Bringing your own labels](../../../docs/02-endpoints.md#bringing-your-own-labels-client_grounded). |
 
-A validator that checks this has to look at **both** the top-level
-`grounding_mode` and the labelling parameter: a rule written for one of them
-alone will be wrong in some of the four paths above. The server is the final
-authority — check the response's echoed `grounding_mode`,
-`parse_report.grounding_labelling_mode`,
-`parse_report.historically_chosen` and
-`parse_report.menus_groups_without_choice` against what you intended.
+Check the response's echoed `grounding_mode`, `parse_report.historically_chosen`
+and `parse_report.menus_groups_without_choice` against what you intended.

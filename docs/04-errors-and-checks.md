@@ -46,12 +46,10 @@
 - `business_description_source` — where the fit's
   [business description](02-endpoints.md#business-description) came from:
   `request`, `account_profile` (console Business profile), `last_sent`
-  (reused from the account's previous fit), or `simulator_default` (the
-  built-in fallback for simulator-style payloads).
+  (reused from the account's previous fit).
 - `grounding_mode` — the applied
   [grounding mode](02-endpoints.md#grounding-modes): `business_led` (what an
-  omitted field now means), `internal`, or `client_grounded` (the latter two
-  asked for by name). Always a concrete mode, so this is where you confirm
+  omitted field means), or `client_grounded` (asked for by name). Always a concrete mode, so this is where you confirm
   what an omitted field or a `default`/`auto` alias resolved to.
 - `parse_report.client_labeled_rows` — under
   [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded),
@@ -74,7 +72,7 @@
 | `keys appear in historical menus at multiple T values` | split those into distinct keys or separate requests. |
 | `grounding failed: ...` | economics couldn't replay — the message names the failing constraint (e.g. non-integer sales qty). |
 | unknown `model` version | check `GET /` for the versions this server offers. |
-| `client_grounded: no historical row carries a profit` | you asked P34 to publish your labels but sent none. Put a `profit` on the historical rows you have valued, or switch to `internal` / `business_led` to have them derived. |
+| `client_grounded: no historical row carries a profit` | you asked P34 to publish your labels but sent none. Put a `profit` on the historical rows you have valued, or switch to `business_led` to have them derived. |
 | `unknown checks value ...; expected 'on' or 'off'` | the [`checks`](02-endpoints.md#turning-the-plausibility-checks-off) switch takes only `"on"` and `"off"`. |
 | `business_description could not be resolved` | none of the three sources exists: send `business_description` in the request (the business **and** its unit economics — fees, accumulated/holding costs, approximations OK), or save one in the console's Business profile — see [Business description](02-endpoints.md#business-description). |
 
