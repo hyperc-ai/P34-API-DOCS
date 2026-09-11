@@ -184,11 +184,15 @@ current-menu data and resubmit `/fit`. Reordering old rows does not refresh
 quotes. Use `T=0` and `menu=0` for the current options; there is no public
 top-level `tick` request field. Historical `T` values remain relative periods.
 
-A request may be accepted initially and later fail during preparation because
-the market-facing payload is too large. Follow `/result` feedback: reduce menu
-or history rows and submit a fresh current menu. The plan's HTTP request cap
-and downstream preparation limits are separate; an initial HTTP 200 does not
-guarantee the latter was satisfied.
+A request may carry at most 100,000 menu rows, current and historical rows
+together; a larger request is refused at submission with the size feedback.
+The history you send is labeled and expanded by the market within a fixed row
+budget: when every quantity of every settled deal does not fit, each deal
+receives the same evenly spaced subset of quantities instead, so more history
+is served more coarsely rather than refused. If `/result` feedback still names
+the payload size, reduce menu or history rows and submit a fresh current menu.
+The plan's HTTP request cap and downstream preparation limits are separate; an
+initial HTTP 200 does not guarantee the latter was satisfied.
 
 Free-market fits currently default to 4 requests per hour and 100 per day.
 These are configurable limits; follow the API's returned rate-limit feedback.
