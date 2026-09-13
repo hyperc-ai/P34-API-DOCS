@@ -216,8 +216,8 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    markets catalogue: every market, its tier, its support state, its menu
    shape and the data it runs on.
 6. [docs/06-token-wallet.md](docs/06-token-wallet.md) — the accumulating
-   token wallet: monthly accruals that carry over (2,000 tokens a month, 4,000
-   for founding members), transfers between accounts by email, and the full
+   token wallet: monthly accruals that carry over (doubled for founding
+   members), transfers between accounts by email, and the full
    query-able ledger.
 7. [docs/07-agent-skills.md](docs/07-agent-skills.md) — the four agent skills
    in `skills/` and how to install them, then notes for specific agent
@@ -284,16 +284,19 @@ nothing above depends on them.
 
 ## Access & membership
 
-API access comes with the **P34 Membership** — **$2,000/month**: a
-**24/7 virtual machine** for your agent — an always-on workspace preloaded with
+API access comes with the **P34 Membership**: a **24/7 virtual machine**
+for your agent — an always-on workspace preloaded with
 market-access tools, curated data sources and web scraping, so the agent can
 collect data and operate the business continuously rather than only while you
 are at the keyboard — plus the API, console and simulator, a weekly compute
 allowance (shown as % used), access to computable markets — **the market you
 already operate in** first, plus supported workflows where we have coverage
-(Amazon wholesale, US & EU) — agent skills and examples, and a community of operators. Early paid accounts lock the
-introductory **10% success-fee rate** where profit-share pricing applies —
-assigned by paid-registration order and shown in your account.
+(Amazon wholesale, US & EU) — agent skills and examples, and a community of operators. Early paid accounts lock an
+introductory success-fee rate where profit-share pricing applies —
+assigned by paid-registration order and shown in your account. The current
+fee, token allocation and success-fee rate are stated on the membership page
+and in your account — this documentation does not restate them, because they
+change.
 
 **[Explore membership →](https://hyperc.com/membership.html)** ·
 **[Join at the console →](https://api.hyperc.com/app/)** ·

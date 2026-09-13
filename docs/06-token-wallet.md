@@ -4,10 +4,11 @@ Since **2026-08-21** P34 token budgets are an **accumulating wallet**, not a
 window that resets:
 
 * Every monthly window, an account with an active paid plan is **credited its
-  plan's monthly token amount** — **2,000 tokens** on the $2,000 plan currently
-  sold, and **4,000** while your account holds the [founding
-  membership](#founding-membership-2-tokens) — automatically, as a normal
-  ledger entry.
+  plan's monthly token amount** — doubled while your account holds the
+  [founding membership](#founding-membership-2-tokens) — automatically, as a
+  normal ledger entry. What your plan grants is stated on the plans page and
+  returned by `GET /account/balance` as `monthly_grant`; it is not restated
+  here, because it changes.
 * **Unused tokens carry over.** Nothing expires at the end of the month; a
   quiet month simply leaves the balance higher (missed months are
   back-credited when the account is next seen, up to 12 windows).
@@ -29,10 +30,10 @@ sum; there is no hidden state.
 
 ## Founding membership: 2× tokens
 
-Founding members are credited **twice** their plan's monthly tokens — 400
-instead of 200 on the base plan — for as long as they hold the plan. Founding
-status is assigned by **paid-registration order**: the first 1,000 paying
-accounts, the same ladder that locks their introductory 10% success-fee rate.
+Founding members are credited **twice** their plan's monthly tokens for as
+long as they hold the plan. Founding status is assigned by
+**paid-registration order**: the first 1,000 paying accounts, the same ladder
+that locks their introductory success-fee rate.
 It is a property of the account, so it does not lapse while your subscription
 runs, and every wallet response tells you where you stand:
 
@@ -115,7 +116,7 @@ curl -s "https://api.hyperc.com/v1/account/ledger?limit=50" \
     { "id": 811, "time": "2026-08-21T00:00:03+00:00", "kind": "accrual",
       "from": "plan:base", "to": "you@example.com",
       "amount": 400.0, "amount_units": 3200000,
-      "msg": "monthly token accrual (base plan: 400 tokens, founding 2x)",
+      "msg": "monthly token accrual (plan grant, founding 2x)",
       "direction": "in", "session_id": null }
   ],
   "next_before": 811
@@ -184,13 +185,13 @@ transfer form under *Token wallet*.
 ## How charges are computed (unchanged)
 
 `units = cells × direction_price × effort_mult × key_mult`, rounded up to a
-whole unit — inputs cheaper than outputs (0.1 / 0.4 units per cell),
-`market_type.effort` on an exponential grid (Low … Unfair), `profit-` keys 10×
-`test-` keys. Divide by 8,000 for the token figure: a 12,345-cell input at
-High effort on a `test-` key costs 4,938 units = **0.61725 tokens**, so a
-400-token month buys a lot of calculations. Every charge's arithmetic is
-spelled out in its ledger entry's `msg`, and `/fit` reports what it charged in
-its `billing` block (`tokens_charged` + `tokens_charged_units`).
+whole unit — inputs are cheaper than outputs, `market_type.effort` scales on
+an exponential grid (Low … Unfair), and `profit-` keys carry a higher
+multiplier than `test-` keys. The rates themselves are deliberately not
+restated here, because they change: every charge's arithmetic is spelled out
+in its ledger entry's `msg`, `/fit` reports what it charged in its `billing`
+block (`tokens_charged` + `tokens_charged_units`), and dividing units by
+`units_per_token` gives the token figure.
 
 ## What changed for budget errors
 
