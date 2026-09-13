@@ -282,6 +282,7 @@ Fits are **asynchronous**: `POST /fit` returns in seconds with a
 session live in the [management console](https://api.hyperc.com/app/), which
 shows progress and lets you cancel.
 
+<!-- simulator temporarily disabled 2026-09-13 — restore when /sim/ is back:
 ## Try it without code
 
 The **market simulator** at [https://api.hyperc.com/sim/](https://api.hyperc.com/sim/)
@@ -290,3 +291,4 @@ sliders (or load a pre-built scenario), step through decision weeks, and watch
 capital evolve when trades follow P34's predictions. It speaks to the same
 `/v1` API — a good way to build intuition for menus, grounding, and portfolio
 behaviour before wiring your own data.
+-->

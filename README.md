@@ -6,7 +6,7 @@
 
 **Your AI can talk. P34 lets it do business.**
 
-[Website](https://hyperc.com) · [Markets catalogue](docs/05-market-catalog.md) · [Membership](https://hyperc.com/membership.html) · [Console](https://api.hyperc.com/app/) · [Simulator](https://api.hyperc.com/sim/) · [Research](https://hyperc.com/research.html) · [Technical report](https://github.com/hyperc-ai/p34-technical-report)
+[Website](https://hyperc.com) · [Markets catalogue](docs/05-market-catalog.md) · [Membership](https://hyperc.com/membership.html) · [Console](https://api.hyperc.com/app/) <!-- simulator temporarily disabled 2026-09-13 — restore when /sim/ is back: · [Simulator](https://api.hyperc.com/sim/) --> · [Research](https://hyperc.com/research.html) · [Technical report](https://github.com/hyperc-ai/p34-technical-report)
 
 </div>
 
@@ -26,7 +26,9 @@ This repository is the complete user-facing documentation for the P34 API: how i
 | --- | --- | --- |
 | **API** | `https://api.hyperc.com/v1/` | The P34 model API (`POST /fit`, `GET /result/...`) |
 | **Management console** | `https://api.hyperc.com/app/` | Account, API keys, plans/billing, session status & cancel |
+<!-- simulator temporarily disabled 2026-09-13 — restore when /sim/ is back:
 | **Market simulator** | `https://api.hyperc.com/sim/` | Interactive browser simulator — play a synthetic market with P34 predictions |
+-->
 
 `GET https://api.hyperc.com/v1/` is open (liveness + capability listing); all
 API requests use `Authorization: Bearer <key>`. Paid model fits require an
@@ -193,9 +195,11 @@ requests.get(f"https://api.hyperc.com/v1/result/{session}",
              headers={"Authorization": "Bearer <key>"}).json()
 ```
 
+<!-- simulator temporarily disabled 2026-09-13 — restore when /sim/ is back:
 No code? The [simulator](https://api.hyperc.com/sim/) runs a synthetic market
 in your browser against this same `/v1` API — a good way to build intuition
 for menus, grounding and portfolio behaviour before wiring your own data.
+-->
 
 ## Documentation map
 
@@ -288,7 +292,7 @@ API access comes with the **P34 Membership**: a **24/7 virtual machine**
 for your agent — an always-on workspace preloaded with
 market-access tools, curated data sources and web scraping, so the agent can
 collect data and operate the business continuously rather than only while you
-are at the keyboard — plus the API, console and simulator, a weekly compute
+are at the keyboard — plus the API and console, a weekly compute
 allowance (shown as % used), access to computable markets — **the market you
 already operate in** first, plus supported workflows where we have coverage
 (Amazon wholesale, US & EU) — agent skills and examples, and a community of operators. Early paid accounts lock an
@@ -324,10 +328,10 @@ since 2023), **6 pilot-ready** (validated or in enterprise discovery — micro-l
 credit, bank onboarding, manager underwriting, online arbitrage), **53 research** candidates,
 **9 not currently supported** (regulated perimeter or declined by policy).
 
-Synthetic markets are open to every member through the [simulator](https://api.hyperc.com/sim/)
-and this API. **Listing a market is not a claim of support** — check the state before you plan
-around it, and run the [market-fit check](https://hyperc.com/markets.html#fit) on your own
-market. Proposing a new one: [hyperc.com/contact.html?topic=market](https://hyperc.com/contact.html?topic=market).
+Synthetic markets are open to every member through this API. **Listing a market
+is not a claim of support** — check the state before you plan around it, and run
+the [market-fit check](https://hyperc.com/markets.html#fit) on your own market.
+Proposing a new one: [hyperc.com/contact.html?topic=market](https://hyperc.com/contact.html?topic=market).
 
 ### Which market should you choose?
 
