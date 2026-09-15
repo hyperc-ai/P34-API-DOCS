@@ -262,7 +262,17 @@ Both kinds are required, and there are volume floors:
 - each menu needs a healthy count of **observed deals**: internal fit
   candidates with fewer than ~10 outcome-carrying deals are skipped, and if
   every candidate is skipped the fit fails with `No FC-fit universe had
-  enough rows to fit an FC regressor` — aim for 20+ observed deals per menu.
+  enough rows to fit an FC regressor` — aim for 20+ observed deals per menu;
+- each historical key needs **at least two quantity rows per menu** — the
+  quantity that was ordered and the alternatives that could have been
+  (`profit` blank on those; see [The Menus table](#the-menus-table)). The
+  model calibrates along the quantity axis and skips a key that offers a
+  single point; a history where *every* key carries only the ordered quantity
+  fails with `ParmlInsufficientDataError: Not enough valid calibration scan
+  data`. `/fit` refuses that case at intake (422) and warns in
+  `parse_report.volume_warnings` when more than half of the groups are
+  single-quantity; grounding does not repair it, because the option grid is
+  built from the quantities you sent up to the key's own scale bound.
 
 As a rule of thumb: **hundreds of observed deals spread over a dozen or more
 menus** is the practical minimum; real business histories clear these floors
