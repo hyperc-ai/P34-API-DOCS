@@ -139,8 +139,10 @@ reconciliation failed: {'n_rows': 2526, 'n_excluded_nan': 0, 'n_compared': 2526,
 - `n_within_zero_band` — rows that matched **exactly** (within 1% of the menu's
   mean `|profit|`). Here 2,387 of 2,526.
 - `p80`/`p98` are percentiles of the relative difference over the **remaining**
-  rows only — 139 of them above, not all 2,526. Gate: `p80 ≤ 0.10`,
-  `p98 ≤ 0.30`. `p98 = 1.0` means at least one row has the opposite sign.
+  rows only — 139 of them above, not all 2,526. Gate: `p80 ≤ 0.10` and the
+  tail `≤ 0.30`, where the tail is `p98` when at least 100 rows disagree and
+  `p95` below that (the message says which), so that a single row cannot veto
+  a fit. `p98 = 1.0` means at least one row has the opposite sign.
 - `median_signed` is likewise over those remaining rows only. Positive = the
   replay reports **more** profit than your books.
 
