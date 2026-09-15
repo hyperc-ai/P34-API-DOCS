@@ -350,7 +350,7 @@ the same response — none of it is silent, though all of it is easy to not read
 | `menus_rows_dropped_no_choice` | — | **always `0`** since the flag became optional (2026-09-05); kept so older integrations that read it keep working. A group without a `historically_chosen = 1` row is no longer dropped — it is kept and receives the default business choice when the datasets are formed. |
 | `profit_values_ignored_on_non_chosen` | **cell** | a `profit` written on a row that is not the chosen row of a *flagged* group. The row survives; only the number is discarded, because the derived modes are about to recompute it. Never counts a row of a group without a flag — there the profit is the outcome you know. Always `0` under [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded), which keeps every one of those values and reports them as `client_labeled_rows` instead. |
 | `sales_rows_dropped_unknown_key` | **row** | Sales rows whose `key` is absent from the surviving historical menus. Note the cascade: a key that vanished with a no-choice group takes its sales with it, under *this* counter, not the menus one. |
-| `sales_rows_dropped_zero_or_blank_qty` | **row** | Sales rows with `qty` of 0 or blank. `unit_fee` is harvested from them **before** they go, so per-key fee rows that carry no quantity still do their job. |
+| `sales_rows_dropped_zero_or_blank_qty` | **row** | Sales rows with `qty` of 0 or blank. `unit_fee` is harvested from them **before** they go, so a per-key fee row that carries no quantity still does its job — and it is the only way a position that sold nothing can carry its fee. One value per key: intake refuses a key whose rows disagree. |
 | `client_grounding_rows` | — | not a drop at all: how many rows carried `historically_available = 0`. Informational. |
 | `historically_chosen` | — | not a drop: `"provided"` when at least one historical row carried the flag, `"absent"` when the column was missing or flagged nothing. |
 | `menus_groups_without_choice` | — | not a drop: how many historical `(menu, key)` groups carried no flag and receive the [default business choice](#what-happens-without-it) when the datasets are formed. Equals every group when the column is absent. |
@@ -393,7 +393,7 @@ the replayed economics are only as honest as this tape.
 | `qty` | yes | units sold. `0`/blank rows are ignored (they may still carry per-key columns). Whole numbers are the usual case and the only thing some market types accept, but the wire itself only requires `qty > 0` — so **if your `profit` was computed from a fractional quantity, send the fraction**. See [The tape and the profit must agree](#the-tape-and-the-profit-must-agree). |
 | `price` | format: yes | realized price at sale. The format spec treats it as required for the sales log — it is what lets the model infer price sensitivity on compatible markets and advise price behaviour — though the current wire validator only enforces `key`/`T`/`qty`. Send it. |
 | `unit_holding_cost` | no | per-unit storage/holding cost as incurred at that date. If holding costs have changed over time, recalculate historical rows to **current** holding costs. An entire column holding a single constant value is fine. |
-| `unit_fee` | no | per-unit extra fee, defined by the identity `price − unit_fee − unit_cost − unit_holding_cost` = net profit per unit. |
+| `unit_fee` | no | a charge per unit **ordered**, one value per key. Replay subtracts `unit_fee × qty` of the option row once, at order time, whether or not those units later sell — so a position that sold part of its order, or nothing, still pays it in full. Send the same value on every Sales row of the key, or on one `qty = 0` placeholder row (any `T ≤ 0`); rows of one key that disagree are refused (422). This is the channel for a per-position charge (a settlement surcharge, a funding or listing fee): `unit_fee = charge / qty ordered`. It is **not** a commission that exists only when a unit sells — state such a fee, with its rate and basis, in the business description. See [Per-position charges](#per-position-charges-unit_fee-is-charged-on-ordered-units). |
 
 A sale is attributed to the key's menu: its replay week is `T − T(menu)`, and
 must fall within the write-off horizon set in `market_type`. Every sale must
@@ -429,6 +429,11 @@ actually used, so it produces a different profit and reconciliation fails with
 If rows without the export problem reconcile *exactly*, the model is right and
 the tape is the problem.
 
+A third shape — most rows exact, the rest **one-signed and confined to the
+keys that carry a `unit_fee` and sold less than they ordered** — is neither of
+these: it is the fee sent on the wrong basis, described under
+[Per-position charges](#per-position-charges-unit_fee-is-charged-on-ordered-units).
+
 **Fixing it.** In order of preference:
 
 1. **Send the quantity your `profit` was computed from**, fractional if that is
@@ -449,6 +454,54 @@ the tape is the problem.
 
 Describing the rounding in your business description does **not** exempt the
 fit: the gate is arithmetic on your numbers, not a reading of your prose.
+
+### Per-position charges: `unit_fee` is charged on ordered units
+
+Some outcomes carry a charge that belongs to the **position**, not to a sale:
+a settlement surcharge, a funding or listing fee, a logistics charge on the
+lot. The contract has exactly one channel for it, and sending it on the wrong
+basis is the most common reconciliation failure we see on otherwise exact
+data.
+
+**The contract.** `unit_fee` is one number per key, and the replay charges it
+on **every unit ordered**, once, at order time:
+
+```
+profit = Σ sales × price − qty × (unit_cost + unit_fee) − holding − write-off …
+```
+
+So the per-unit identity `price − unit_fee − unit_cost − unit_holding_cost`
+is the net profit per unit only of a position that sold everything it bought.
+To encode a charge of `S` on a position that ordered `q` units, send
+`unit_fee = S / q` — the same value on every Sales row of that key, or on one
+`qty = 0` placeholder row for the key. Intake reads the value from every row
+of the key, placeholders included, before it drops the zero-quantity rows,
+keeps one value per key, and refuses a key whose rows disagree.
+
+**The typical failure.** An exporter spreads the charge over the units that
+**sold** — `unit_fee = S / units sold`, the same on every row of the key. It
+is right on every position that sold out, and those rows reconcile exactly.
+On a position that sold `s` of `q` units the replay charges `q × S / s`,
+over-charging by `S × (q − s) / s`; on a position that sold nothing there is
+no sales row to carry the value, so the charge vanishes and the replay shows a
+**smaller** loss than your books. The report then reads: most rows exact, a
+one-signed residual only on the keys with a fee that sold less than they
+ordered, each gap equal to `unit_fee × (ordered − sold)`, plus a few zero-sale
+positions modelled too optimistically. No wording in the description repairs
+this — the number on the tape is what replays — and no recompile can either.
+
+**Two channels that do not exist.** A feature column is a predictor and is
+never read by the replay: a charge carried in a column of the Menus table
+(`realized_surcharge`, `f_settlement_fee`, or any other name) cannot reach the
+profit, and those positions reconcile as if the charge did not exist. And a
+fee that exists only when a unit sells — a marketplace commission per unit or
+per cent of price — is not `unit_fee`: state it in the business description
+with its rate and basis, and the compiled economics apply it per unit sold.
+
+**Check before you submit.** For every key that carries a `unit_fee`:
+`unit_fee × qty` on the executed Menus row equals the charge on your books;
+every Sales row of the key carries the same value; and a position with no
+sales carries it on a `qty = 0` row.
 
 ## market_type
 

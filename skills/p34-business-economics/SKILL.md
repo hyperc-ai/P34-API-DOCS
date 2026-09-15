@@ -64,14 +64,29 @@ are in [the Menus table](../../docs/03-data-format.md#the-menus-table) and
 [the Sales table](../../docs/03-data-format.md#the-sales-table) — read them
 there.
 
-The fee identity is the one worth memorising, because most cost structures
-collapse into it: `price − unit_fee − unit_cost − unit_holding_cost` is net
-profit per unit. A percentage fee becomes a per-unit number at a stated price;
-say which price you used.
+Two fee channels, and they are not interchangeable. `unit_fee` is one value
+per key that the replay charges **on every unit ordered**, once, whether or not
+the units sell — the channel for a per-position charge (a settlement surcharge,
+a funding or listing fee): send `charge / qty ordered`, the same on every Sales
+row of the key or on one `qty = 0` placeholder row, and make sure a position
+that sold nothing still carries it. Spreading the charge over the units that
+*sold* reconciles on the fully sold positions and fails on every partial one —
+the most common failure on otherwise exact data
+([per-position charges](../../docs/03-data-format.md#per-position-charges-unit_fee-is-charged-on-ordered-units)).
+A fee that exists only when a unit sells — a commission per unit, or a
+percentage of the price — has no column: state its rate and basis in the
+description and the compiled economics apply it per unit sold. The per-unit
+identity `price − unit_fee − unit_cost − unit_holding_cost` is net profit per
+unit only on a position that sold everything it bought. A percentage fee
+becomes a per-unit number at a stated price; say which price you used.
 
 A term with no column of its own belongs in the description — that is what the
-description is for — and, when it varies row by row, additionally in a named
-feature column.
+description is for. A feature column is a predictor, never an accounting
+input: the replay does not read it, so a realized cost carried only in one is
+invisible to reconciliation. A term that varies by position and is part of a
+realized outcome has to reach the tape (`unit_fee` for a charge per ordered
+unit, `unit_holding_cost` per period held); a feature column may *additionally*
+carry it as a signal.
 
 ### 3. Calculate the values the records support
 
@@ -85,9 +100,11 @@ The cheap, defensible ones:
   is `p × (1 − f) × q_sold − c × q_bought − holding cost as the tape records
   it`, which collapses to
   `(p × (1 − f) − c) × q` only when the group sold everything it bought. A
-  batch that sold nothing is a full write-off of its cost, not a zero. Where a
-  payout or settlement statement exists, compute it that way too and check the
-  two agree.
+  batch that sold nothing is a full write-off of its cost, not a zero. A
+  per-position charge is paid on the whole lot, so it is subtracted in full
+  however much sold — and it goes on the tape as `unit_fee = charge / q_bought`.
+  Where a payout or settlement statement exists, compute it that way too and
+  check the two agree.
 - **rates you can recompute.** Where a payout, invoice or settlement record
   shows the money that actually moved, derive the rate from it instead of
   taking a stated one on trust, and compare the two. A rate somebody states is

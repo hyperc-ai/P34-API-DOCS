@@ -69,6 +69,8 @@
 | `no menu-0 (T=0) task rows` | include the current menu you want predicted. |
 | `dated after now (T > 0)` | your Sales contain future rows — trim to history. |
 | `outside the replay horizon` | a sale is dated more than `inventory_holding_weeks_before_writeoff` after its menu (or before it). |
+| `unit_fee differs between rows of one key` | `unit_fee` is one value per key, charged on every unit **ordered**. Send the same value on every Sales row of the key, or on one `qty = 0` placeholder row — see [per-position charges](03-data-format.md#per-position-charges-unit_fee-is-charged-on-ordered-units). |
+| `unit_fee given for keys whose menus rows lack a positive unit_cost` | the fee is applied as a fraction of the key's cost basis, so the key's historical Menus rows need a positive `unit_cost`. |
 | `keys appear in historical menus at multiple T values` | split those into distinct keys or separate requests. |
 | `grounding failed: ...` | economics couldn't replay — the message names the failing constraint (e.g. non-integer sales qty). |
 | unknown `model` version | check `GET /` for the versions this server offers. |
@@ -151,6 +153,20 @@ not the formula — see
 [The tape and the profit must agree](03-data-format.md#the-tape-and-the-profit-must-agree).
 If instead the bias is one-signed across the board, a cost component is missing
 or double-counted; `median_signed` gives you its sign and rough size.
+
+Two shapes have one specific cause each, and the message names them when the
+arithmetic matches:
+
+- **one-signed, confined to keys that carry a `unit_fee` and sold less than
+  they ordered, each gap equal to `unit_fee × (ordered − sold)`** — the fee was
+  spread over the units that sold; the contract charges it on every unit
+  ordered. Resend `unit_fee = charge / qty ordered`, the same value on every
+  row of the key — see
+  [per-position charges](03-data-format.md#per-position-charges-unit_fee-is-charged-on-ordered-units).
+- **loss positions with no sales on the tape that the replay shows as gains or
+  as smaller losses, everything else exact** — a per-position charge never
+  reached the tape (it sits in a feature column, or only in the description).
+  Put it on a `qty = 0` placeholder row of the key as `unit_fee`.
 
 Do not tune a fact-grounded component to make the gate pass. Undercharging one
 term can partially cancel an unrelated error and *improve* the number while
