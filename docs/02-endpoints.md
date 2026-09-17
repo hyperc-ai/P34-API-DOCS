@@ -320,6 +320,66 @@ user to provide this unit-economics information, or research it on the
 internet with the maximum effort possible — it is later used to enrich the
 choices and balance risks, so a thin description degrades the result.
 
+### Fix the profit window and write-off mechanics
+
+Profit is meaningful over a stated business time frame. Before calculating
+labels or submitting a fit, fix the economic write-off cutoff and describe it
+in `business_description`; do not let the available export window silently
+choose it. State:
+
+- the duration in calendar units and in the tables' `T` units, its starting
+  event (decision, purchase, receipt, or settlement), and whether the cutoff
+  includes events exactly on the boundary; explain how `T_lead` affects it;
+- what happens to every leftover, unsold or non-liquidated position at that
+  cutoff: full write-off, a specified percentage write-off, or liquidation;
+- for a percentage, its exact base (for example, remaining units × landed
+  unit cost), the residual value retained, and any liquidation, disposal,
+  holding or financing costs; state whether residual value is cash recovered
+  or an accounting valuation;
+- how later sales, returns and recoveries are treated, and how you handle
+  positions whose observation window has not yet reached the cutoff. An
+  incomplete window is not evidence of zero sales through the full horizon.
+
+Use formulas and actual business terms. For example, with purchase cost
+already deducted, `profit = net sale proceeds through cutoff − total purchase
+cost − holding costs + residual value − disposal costs`. A 100% write-off
+sets residual value to zero; a 30% write-off of the remaining landed cost
+retains 70% of that cost as residual value. Do not subtract the purchase cost
+and then subtract that same written-off cost again. These are illustrations,
+not default rates or a universal accounting policy.
+
+The user-side agent should implement this deterministic calculation for the
+recorded outcomes it can support, and preserve the rule, inputs, cutoff and
+calculation with the request so it can be replayed. The same inputs and policy
+must give the same result. This is ordinary business arithmetic; it does not
+require the caller to build the service's counterfactual grounding engine.
+Business-led grounding uses the description (and available workspace economics
+code) to replay the history. Missing future observations must not be invented
+to make a completed-horizon label. Keep estimates distinct from observations.
+
+### Describe every submitted column
+
+Include a data dictionary in `business_description` covering **every column
+in each submitted table**, including standard columns and custom features.
+For each, give its exact table and column name, business meaning, unit and
+currency, type or encoding, and the meaning of blanks and zero. Add applicable
+formulas, source/provenance, aggregation window, timestamps/timezone, reporting
+delay, and when the value was knowable. Explain identifiers and join keys,
+percentage scales, and whether a value is measured, calculated or estimated.
+Column names alone are not a definition; a private file or link alone is not
+a substitute for sending the meanings to the API.
+
+For example: `Menus.unit_cost: USD per individual unit, landed purchase cost
+including inbound freight, from the supplier invoice; blank means unknown`.
+Describe `Sales.qty` separately from `Menus.qty`, and document each feature's
+formula and lookback window. Keep the dictionary, tables and economics code
+consistent when a column or policy changes.
+
+These are preparation recommendations for reproducible economics, not new
+wire fields or extra intake validation. Under `client_grounded`, the API still
+accepts caller-supplied labels without a description or service-side replay;
+keeping the same policy and dictionary is recommended for auditing those labels.
+
 ### Grounding modes
 
 `/fit` accepts an optional `grounding_mode` (also inside `market_type`; the

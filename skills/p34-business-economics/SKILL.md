@@ -41,6 +41,9 @@ result. Collect, and make each of these a line in the description:
 - **outcome and horizon treatment** — what counts as the outcome of a decision,
   over what window it is measured, and what happens to what does not sell;
 - **the formulas**, and which column each term maps to;
+- **a data dictionary for every submitted column** — exact table/name, business
+  meaning, units/currency, encoding, blank/zero semantics, source, formula and
+  time window where applicable; include custom features, not just contract columns;
 - **sources, and material unknowns** — including whether recorded sales were
   **stock-limited**: a group that sold out measures the stock, not the demand,
   and nothing in that history says how much more would have sold.
@@ -52,6 +55,15 @@ template you are handed is a draft to check line by line against the terms you
 were actually given; keep the lines that match and rewrite the rest. A market
 name, a link to a playbook, or last quarter's text edited at the top is not a
 description of this request.
+
+Fix the cutoff before computing labels: its starting event, duration in `T`
+units, boundary inclusion, and lead-time treatment. Specify the exact full or
+percentage write-off base, residual value and liquidation costs, plus late
+recoveries and incomplete windows. Follow
+[profit window and write-off mechanics](../../docs/02-endpoints.md#fix-the-profit-window-and-write-off-mechanics).
+Implement this deterministic arithmetic for supported recorded outcomes on the
+user side and save enough inputs to reproduce it; do not infer a full write-off
+merely because the export stops.
 
 ### 2. Map the business concepts to contract columns
 
@@ -98,9 +110,12 @@ The cheap, defensible ones:
   and units bought are different numbers, and the ones that never sold were
   still paid for: at price `p`, fee rate `f` and recorded cost `c`, the outcome
   is `p × (1 − f) × q_sold − c × q_bought − holding cost as the tape records
-  it`, which collapses to
-  `(p × (1 − f) − c) × q` only when the group sold everything it bought. A
-  batch that sold nothing is a full write-off of its cost, not a zero. A
+  it + residual value at cutoff − disposal costs`, using the stated horizon
+  and write-off policy. It collapses to `(p × (1 − f) − c) × q` only when all
+  bought units sold and no other costs apply. A batch that sold nothing by a
+  full-write-off cutoff loses its purchase cost plus applicable costs; partial
+  write-offs retain the explicitly stated residual value. Do not count the
+  written-off purchase cost twice. A
   per-position charge is paid on the whole lot, so it is subtracted in full
   however much sold — and it goes on the tape as `unit_fee = charge / q_bought`.
   Where a payout or settlement statement exists, compute it that way too and
@@ -122,7 +137,7 @@ tape and the label consistent with each other — the check is arithmetic on you
 numbers, not a reading of your prose
 ([the tape and the profit must agree](../../docs/03-data-format.md#the-tape-and-the-profit-must-agree)).
 
-Do not build a demand model, a replay implementation, a parameter sweep or a
+Do not build a demand model, a counterfactual grounding engine, a parameter sweep or a
 grid of predictors to fill a cell. If an outcome needs an assumption the records
 do not carry, it is not supported — leave it blank and say so.
 
