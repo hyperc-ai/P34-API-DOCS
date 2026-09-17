@@ -517,6 +517,13 @@ the business description:
 }
 ```
 
+The short description above only illustrates the field. For a usable request,
+fix the [profit window and write-off mechanics](02-endpoints.md#fix-the-profit-window-and-write-off-mechanics)
+and describe [every submitted column](02-endpoints.md#describe-every-submitted-column)
+in `business_description`. Include the cutoff, full or percentage write-off,
+valuation base and residual value, and definitions for both tables and their
+features. Keep the deterministic calculation and its inputs with the request.
+
 The generated files under `examples/data/` are explicitly sample data for
 `mock: true` input testing. They are not recorded customer history and must be
 replaced before an actual fit.
