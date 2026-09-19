@@ -274,7 +274,10 @@ GET /result/{session_id}  ◄──  grounding → queued → processing → don
 
 One grounding mode skips that phase and returns `queued` from `/fit` directly:
 [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded),
-where you supply the labels yourself so there is nothing left to derive.
+where you supply the labels yourself so there is nothing left for the service
+to derive. This is reserved for enterprise clients preserving private knowledge
+and know-how and requires vast client-side compute resources. Consult HyperC
+before considering it; members and agents should use `business_led` by default.
 
 Fits are **asynchronous**: `POST /fit` returns in seconds with a
 `session_id`; the calculation itself typically takes minutes. Poll

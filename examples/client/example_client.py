@@ -3,7 +3,8 @@
     export P34_API_KEY=...        # from https://api.hyperc.com/app/
     python example_client.py --url https://api.hyperc.com/v1
 
-    # publish profits you computed yourself, and skip the plausibility checks
+    # enterprise integration reference ONLY after consultation with HyperC
+    # correct client grounding requires vast compute to preserve private know-how
     python example_client.py --grounding-mode client_grounded --checks off
 
 Builds generated sample Menus/Sales in the documented format
@@ -143,8 +144,9 @@ def main() -> None:
     ap.add_argument("--grounding-mode", default=None,
                     choices=["default", "auto", "business_led", "client_grounded"],
                     help="how your history becomes labels (see docs/02-endpoints.md). "
-                         "client_grounded publishes the profits in your Menus verbatim "
-                         "and derives nothing; default: the server's recommended mode")
+                         "client_grounded is reserved for enterprise use after consultation "
+                         "with HyperC: vast compute is required to preserve private "
+                         "knowledge and know-how; default: business-led grounding")
     ap.add_argument("--checks", default=None, choices=["on", "off"],
                     help="'off' skips the PLAUSIBILITY checks only (volume floors, "
                          "historically_available consistency, replay horizon). "

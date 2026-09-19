@@ -327,19 +327,24 @@ top-level field wins). It decides **how your history becomes the labelled
 examples the model learns from** — the single biggest lever on result
 quality.
 
+**Use `business_led` for standard member and agent workflows.** Client-side
+grounding is reserved for enterprise use after consultation with HyperC;
+do not select it simply because you already have profit numbers. See the
+[enterprise guidance below](#bringing-your-own-labels-client_grounded).
+
 | value | what it does | use it when |
 | --- | --- | --- |
 | *omitted* | **The default: `business_led`.** Description-driven grounding is what you get when you express no preference. | you have nothing special to say |
 | `default` (or `auto`) | Identical to omitting it: `business_led`. Spells the intent out for readers of your code. | you prefer to be explicit |
 | `business_led` | Pins description-driven grounding by name. If that execution path is unavailable, the request fails. | you want to name the mode explicitly |
-| `client_grounded` | **You** ground the history. Every historical option row carrying a `profit` is published with that value verbatim; P34 derives nothing — no replay, no adapter, no LLM, no grounding charge. | your own systems already value the options you *did not* take |
+| `client_grounded` | **You** ground the history. Every historical option row carrying a `profit` is published with that value verbatim; P34 derives nothing — no replay, no adapter, no LLM, no grounding charge. | enterprise use agreed with HyperC after consultation, to preserve private knowledge and know-how; requires vast client-side compute resources |
 
 > **Changed:** the legacy `internal` mode is retired. If you send no
 > `grounding_mode` today, your fits use `business_led` and
 > become **asynchronous** (`status: "grounding"` — see
 > [below](#it-runs-asynchronously)) and carry a
-> [grounding charge](#what-it-costs). Use `client_grounded` when you supply
-> the historical option values yourself.
+> [grounding charge](#what-it-costs). Keep `business_led` unless HyperC has
+> agreed an enterprise client-grounding integration after consultation.
 
 The applied mode is echoed back in the fit response's `grounding_mode`, and
 it always names a concrete mode — never the alias you sent.
@@ -425,11 +430,33 @@ cost.
 
 #### Bringing your own labels: `client_grounded`
 
+**Enterprise use only — consult HyperC before implementing or selecting this
+mode.** Correct client-side grounding requires **vast compute resources** and
+is reserved for enterprise clients that need to preserve **private knowledge
+and know-how** in their own grounding environment. Members and agents should
+use the default `business_led` mode unless an enterprise integration has been
+agreed with HyperC. If consultation has not happened, request it before
+proceeding with client grounding.
+
+Client-led/client-side grounding is described here using the documented API
+value `client_grounded`; this guidance does not introduce a `client_led` API
+value. Having recorded profits, a spreadsheet, or an inexpensive local profit
+calculation does not establish a correct client grounding pipeline. Ordinary
+calculation of recorded business outcomes remains part of preparing inputs
+for `business_led`.
+
+The absence of a service-side grounding charge does not remove the client's
+compute burden. Do not use this mode as a shortcut around grounding cost,
+latency, or reconciliation failures. Consultation should establish the private
+knowledge requirements, compute capacity, and validation of the client-produced
+labels. The technical contract below is retained for those enterprise
+integrations; these usage restrictions are guidance, not a claim that the API
+currently enforces enterprise access.
+
 Business-led grounding exists to **derive** a profit for every option row and
 deliberately discards whatever `profit` you sent on the rows you did not choose
-— they are about to recompute it. If your own systems already value the
-options you declined, that rule is backwards: the labels are the input, not
-something to be reconstructed.
+— they are about to recompute it. In an agreed enterprise client-grounding
+integration, the client's validated option values instead become the input.
 
 `"grounding_mode": "client_grounded"` inverts it. Every historical option row
 carrying a finite `profit` is published as a **labeled** row with that value
@@ -496,7 +523,7 @@ mode. Like `grounding_mode`, it is accepted at the top level or inside
 
 ```json
 { "menus": [...], "sales": [...], "market_type": {...},
-  "grounding_mode": "client_grounded", "checks": "off" }
+  "business_description": "...", "checks": "off" }
 ```
 
 It **cannot** skip a structural check. Those exist because the cluster runner

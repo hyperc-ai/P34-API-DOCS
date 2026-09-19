@@ -48,7 +48,7 @@ validation and the model fit still run; see
 
 - ✅ You face **menu-shaped decisions**: inventory purchasing, wholesale lots, loan approvals, load acceptance, contract sizing — many (item, quantity) options per decision moment.
 - ✅ The menu is **wide**: hundreds to thousands of candidate deals per decision moment, far more than anyone could evaluate by hand. A handful of deals is not a P34 problem — see [Where it pays](#where-it-pays-reject-markets-at-scale).
-- ✅ You have **history**, including the options with no outcome attached — or you're willing to start logging it. No trading record at all? A history assembled from market research and replayed past deals is a first-class input — `historically_chosen` records your previous policy and is optional; see [your previous business policy](docs/03-data-format.md#your-previous-business-policy-what-historically_chosen-marks). Already compute outcomes for the options you *declined*? Send them as-is with [`client_grounded` grounding](docs/02-endpoints.md#bringing-your-own-labels-client_grounded).
+- ✅ You have **history**, including the options with no outcome attached — or you're willing to start logging it. No trading record at all? A history assembled from market research and replayed past deals is a first-class input — `historically_chosen` records your previous policy and is optional; see [your previous business policy](docs/03-data-format.md#your-previous-business-policy-what-historically_chosen-marks). Use the default `business_led` grounding. [enterprise client-side grounding](docs/02-endpoints.md#bringing-your-own-labels-client_grounded) is reserved for enterprise clients preserving private knowledge and know-how; consult HyperC before considering it because correct client grounding requires vast compute resources.
 - ✅ You can measure an economic outcome: profit, contribution margin, recovery, yield.
 - ✅ You want an executable answer — sizes and predicted economics — not a dashboard.
 - ✅ You're wiring an **AI agent** (Claude, ChatGPT, open models, custom code) to real commercial decisions and need the one step it can't do alone.
@@ -187,8 +187,8 @@ r = requests.post("https://api.hyperc.com/v1/fit",
                         # and omit this field entirely
                         "business_description": "..."})
                         # grounding is compiled from that description by
-                        # default; send "grounding_mode": "client_grounded" to
-                        # publish profits you have already computed yourself
+                        # default; keep business_led for standard member use
+                        # (enterprise client grounding needs prior consultation)
 session = r.json()["session_id"]
 # poll until done (business-led fits pass through "grounding" first):
 requests.get(f"https://api.hyperc.com/v1/result/{session}",
@@ -208,8 +208,8 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    [reject markets, at scale](docs/01-overview.md#where-the-theory-meets-reality-reject-markets-at-scale).
 2. [docs/02-endpoints.md](docs/02-endpoints.md) — endpoint reference, auth,
    result statuses, model versions, confidence correction, the grounding
-   modes (including [bringing your own
-   labels](docs/02-endpoints.md#bringing-your-own-labels-client_grounded)) and
+   modes (including [enterprise client-side
+   grounding](docs/02-endpoints.md#bringing-your-own-labels-client_grounded)) and
    the [plausibility-checks
    switch](docs/02-endpoints.md#turning-the-plausibility-checks-off).
 3. [docs/03-data-format.md](docs/03-data-format.md) — the Menus / Sales /
@@ -230,10 +230,12 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    and what a fetch-only agent (ChatGPT and friends) should do instead.
 8. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
-     (fit → poll → portfolio). `--grounding-mode client_grounded --checks off`
-     runs the bring-your-own-labels pattern.
+     (fit → poll → portfolio). Use the default business-led mode. The
+     `client_grounded` example is an enterprise integration reference for use
+     only after consultation with HyperC.
    - [examples/data/](examples/data/) — sample input as Excel, CSV, and JSON,
-     including `request_client_grounded_sample.json`.
+     including `request_client_grounded_sample.json` as an enterprise wire-format
+     reference, not a ready-made client grounding pipeline.
    - [examples/pytest/](examples/pytest/) — a minimal pytest workflow you can
      drop into CI to validate your integration.
    - [examples/baseline_comparison/](examples/baseline_comparison/) — a demo

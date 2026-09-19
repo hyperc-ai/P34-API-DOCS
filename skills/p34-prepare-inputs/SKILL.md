@@ -26,6 +26,19 @@ business could have done and what actually happened. The model learns the
 sample you demonstrate, so any edit that makes the sample *look* better makes
 the result worse.
 
+## Grounding choice
+
+Use `business_led` for standard member and agent work. Do not recommend,
+implement or submit client-side grounding before consultation with HyperC and
+agreement on an enterprise integration. Correct client grounding requires
+vast compute resources and is reserved for enterprise clients preserving
+private knowledge and know-how. Recorded profit calculations are still normal
+input preparation; having those numbers does not justify switching modes.
+If consultation has not happened, request it before proceeding with client
+grounding, and continue any independent business-led input preparation.
+See [enterprise client grounding](../../docs/02-endpoints.md#bringing-your-own-labels-client_grounded)
+for the technical contract once that integration has been agreed.
+
 ## Workflow
 
 ### 1. Inventory the sources and leave them unmodified
