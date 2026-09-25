@@ -113,21 +113,6 @@ billed — nothing is charged and no `session_id` exists. The `detail` is
 | `run_id is not a run of that project` | the project exists but has no such run. Mint the run in that project before submitting. |
 | `your workspace could not be reached to verify project_id (...)` | the workspace did not answer, so the binding could not be checked — an unverifiable binding is never assumed. Retry, or submit without `workspace_context`. |
 
-## Single-quantity offers will not pass
-
-Before submitting, count distinct quantity choices per offer `(menu, key)`.
-One row per offer is not sufficient; the business formulation must support at
-least three distinct meaningful quantities and profits that depend on size.
-A large total row count does not repair single-point offers. More meaningful
-quantity points are better; duplicating rows or inventing labels is not a fix.
-
-Reformulate inventory units, money quanta for loans or bids, or historically
-similar domain buckets as described in the
-[quantity guide](03-data-format.md#multiple-quantity-choices-are-required).
-Check the historical option structure and current executable menu separately.
-A successful mock/format check does not prove this fit requirement is met;
-turning plausibility checks off does not make a one-point business valid.
-
 ## Fit-time (cluster) failures
 
 `POST /fit` validates shape, not statistics: a request can pass intake and

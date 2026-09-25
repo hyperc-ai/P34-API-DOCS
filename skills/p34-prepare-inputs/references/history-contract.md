@@ -130,15 +130,16 @@ from a pruned one — nothing in the rows records what was left out. So:
 
 Report these explicitly instead of inventing a policy.
 
-**Continuous or very large quantity spaces.** Define a fixed money quantum
-for lending/bidding, or another business-defined executable increment, with
-explicit bounds. This defines the actual choice set; enumerate its feasible
-sizes rather than sampling arbitrary quantiles. Do not invent interval fields.
-At least three meaningful quantities per offer are required, with more where
-supported. A unit conversion does not justify invented observations. If no
-finite executable choice set can be established, report incomplete coverage.
-See [quantity formulations](../../../docs/03-data-format.md#multiple-quantity-choices-are-required)
-for the money conversion and historically similar domain-bucket rules.
+**Continuous or very large quantity spaces.** There is no published resolution
+policy for a choice set that is a continuous range. Until one exists,
+completeness for such a range **fails explicitly**. Do not replace the range
+with quantiles or a sampled grid, and do not invent interval or range columns
+the contract does not have. Two things — and only these two — can establish a
+new completeness target: an authoritative published discretization policy, or
+a caller-defined change to the actual business choice set with documented,
+finite, legal options (a supplier that genuinely quotes in pallets). Approving
+an arbitrary sample does not prove coverage of the original range; it changes
+the question.
 
 **A zero-quantity input row.** A zero in the *output* means the model declined
 the deal. That does not imply a zero-`qty` *input* row. Input zero handling

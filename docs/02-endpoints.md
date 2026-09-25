@@ -380,16 +380,6 @@ wire fields or extra intake validation. Under `client_grounded`, the API still
 accepts caller-supplied labels without a description or service-side replay;
 keeping the same policy and dictionary is recommended for auditing those labels.
 
-### Describe the quantity decision
-
-State what one `qty` unit represents, the available size range, and how total
-profit depends on size. Single-quantity offers will not pass a fit: formulate
-at least three distinct, meaningful sizes per offer, with more where the
-business supports them. Explain the money quantum for lending/bids or the
-historical similarity and package rules for domain buckets. Follow the
-[quantity formulation guide](03-data-format.md#multiple-quantity-choices-are-required);
-do not fabricate historical outcomes to fill the alternatives.
-
 ### Grounding modes
 
 `/fit` accepts an optional `grounding_mode` (also inside `market_type`; the

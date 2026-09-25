@@ -41,19 +41,6 @@ for the technical contract once that integration has been agreed.
 
 ## Workflow
 
-### Establish a real quantity decision
-
-Single-point offers will not pass a fit. Require at least three distinct,
-meaningful quantities per offer `(menu, key)`, with size-dependent total
-profit; more real sizes are better. Check both historical option structure
-and current executable choices. Use inventory counts, a fixed money quantum
-for loans/bids, or buckets of domains with similar historical behaviour.
-Read [the formulation guide](../../docs/03-data-format.md#multiple-quantity-choices-are-required)
-for the mapping and evidence rules. Document the unit, range and economics in
-`business_description`. Do not duplicate offers, split quantities across keys,
-or fabricate history/labels to pass. When the business cannot support the
-range, report the gap and reformulate the business before submitting.
-
 ### 1. Check the request before spending anything on it
 
 Run the cheap client-side checks first; each of them is a 422 you would

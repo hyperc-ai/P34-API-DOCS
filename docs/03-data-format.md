@@ -65,62 +65,6 @@ at what granularity, and under which counter is set out in [What intake drops,
 and what it reports](#what-intake-drops-and-what-it-reports) — read it before
 you conclude a fit trained on everything you sent.
 
-## Multiple quantity choices are required
-
-**Fits with only one row per offer — a single quantity point — will not pass.**
-Formulate each offer as a real sizing decision with **at least three distinct
-quantity values**; more meaningful values are better. Two points are not the
-required formulation either. Different quantities must represent different
-business commitments whose total profits can differ. This applies to the
-historical option structure and the current task menu, not merely to the
-number of different quantities somewhere in the dataset.
-
-An offer's alternatives belong together in the same `(menu, key)` group.
-Giving each quantity its own key leaves single-point offers. Repeating a row,
-changing only its identifier, adding a dummy zero, or copying one profit across
-made-up quantities does not create a valid sizing decision. The model chooses
-one of the alternatives; it does not buy them all.
-
-### Define what one unit of qty means
-
-| Business | Quantity formulation |
-| --- | --- |
-| Inventory | `qty` counts units bought. More than one unit can be bought and historical purchases support that formulation. Enumerate the real range of order sizes, including pack increments, supplier limits and quantity-dependent prices. |
-| Lending / credit | Define a fixed **money quantum** in a stated currency. `qty = amount disbursed / money quantum`: for a USD 100 quantum, USD 100, 200 and 300 are quantities 1, 2 and 3 for the same offer. More money disbursed means proportionally more `qty`; repayment, losses and costs determine the profit at each size. |
-| Bidding | Define a fixed money quantum and encode `qty = bid amount / money quantum`. Different bid amounts are alternative sizes for the same opportunity. Describe winning, payment and resale/outcome rules so profit changes with the bid. This is a formulation, not a claim that every auction type is supported. |
-| Domains and other unique items | First group items by **similar historical behaviour**, then formulate buying a bucket of comparable items. One unit of `qty` is one similar domain in that bucket; quantities 1, 2, 3, and beyond are alternative package sizes. Build the bucket's history from its constituent domains and preserve the mapping to the individual assets. A single unique domain with only `qty = 1` is not sufficient. |
-
-The money-to-quantity conversion is linear; profit need not be. Keep amount,
-currency, quantum, per-unit costs and total profits consistent. Choose the
-quantum from the business's actual executable increments and limits, and list
-all feasible sizes in that formulation. An arbitrary sparse sample of a
-continuous range is not complete coverage.
-
-For domain buckets, record the similarity criteria and use only information
-available at the decision date. Preserve constituent costs, outcomes and
-availability, and explain how bucket totals and executable packages are built.
-Do not group items by future outcomes or merely to balance wins and losses.
-If there are not enough genuinely comparable, purchasable items, the bucket
-does not establish a valid quantity range.
-
-### Preserve the evidence while reformulating
-
-Describe the sizing unit, feasible range, and quantity-dependent profit
-mechanics in `business_description`, along with money conversion or bucket
-construction where applicable. Reconstruct historical options from recorded
-terms and availability; keep original records and a traceable mapping. Only
-one size may have been executed for a historical offer: that does not mean it
-had only one available size, and it does not supply observed profits for the
-untaken sizes. Leave unknown historical outcomes blank and all T=0 `profit`
-values blank. Business-led grounding derives the counterfactual outcomes.
-
-Do not invent purchases, availability, or profit labels to reach three points.
-If the business genuinely offers only one size, or cannot support at least
-three meaningful sizes, reformulate the actual business decision before
-submitting; report when the available evidence cannot support that change.
-This is a fit requirement, not a promise of a particular HTTP status or intake
-error. Passing a format-only check does not establish that the fit will pass.
-
 ## One choice per key-date: qty and cost are mutually exclusive
 
 The rows of a menu are not independent predictions — they are **mutually
