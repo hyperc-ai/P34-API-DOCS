@@ -472,8 +472,13 @@ data.
 on **every unit ordered**, once, at order time:
 
 ```
-profit = Σ sales × price − qty × (unit_cost + unit_fee) − holding − write-off …
+profit = net sales proceeds − qty × (unit_cost + unit_fee) − holding + residual value − disposal costs
 ```
+
+Here `qty` is ordered quantity, net sales proceeds are after sale-dependent
+fees, and residual value follows the stated cutoff/write-off policy. A full
+write-off means zero residual value: acquisition cost is already deducted
+for the whole lot, so do not subtract it again as a separate write-off.
 
 So the per-unit identity `price − unit_fee − unit_cost − unit_holding_cost`
 is the net profit per unit only of a position that sold everything it bought.
@@ -521,6 +526,13 @@ the business description:
   "business_description": "Small wholesale reseller buying supplier lots weekly. Net profit subtracts purchase cost, marketplace fees, fulfillment, returns, holding cost, and write-offs."
 }
 ```
+
+The short description above only illustrates the field. For a usable request,
+fix the [profit window and write-off mechanics](02-endpoints.md#fix-the-profit-window-and-write-off-mechanics)
+and describe [every submitted column](02-endpoints.md#describe-every-submitted-column)
+in `business_description`. Include the cutoff, full or percentage write-off,
+valuation base and residual value, and definitions for both tables and their
+features. Keep the deterministic calculation and its inputs with the request.
 
 The generated files under `examples/data/` are explicitly sample data for
 `mock: true` input testing. They are not recorded customer history and must be

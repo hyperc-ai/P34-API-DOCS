@@ -121,7 +121,12 @@ recorded rates, landed cost, quantity-weighted business statistics, and modest
 decision-time features — the request-specific unit economics and the business
 description that goes with them are
 [p34-business-economics](../p34-business-economics/SKILL.md). Carry feature
-columns on **all** rows of the dataset.
+columns on **all** rows of the dataset. Supply the meaning of every submitted
+column in `business_description`, including its units, source, formula or
+encoding, time window and missing-value conventions; follow the
+[column-description guidance](../../docs/02-endpoints.md#describe-every-submitted-column).
+Check that any calculated outcomes use the fixed cutoff and write-off policy
+in that description, including residual value and incomplete-window treatment.
 
 Keep four things distinguishable in the report: measured facts, values you
 calculated from them, estimates, and unknowns. A speculative demand or profit

@@ -138,7 +138,9 @@ You send **two tables and a config**, and later receive **one predicted menu**:
   [`business_led` grounding mode](docs/02-endpoints.md#grounding-modes) this
   text is compiled into the economics used to reconstruct your history, so it
   is executable input rather than documentation. You can send it per request
-  or save it once in the console.
+  or save it once in the console. Include the fixed profit horizon, deterministic
+  write-off and residual-value rules, and the meaning of every submitted column
+  (see [what to write](docs/02-endpoints.md#what-to-write-in-it)).
 
 The **task** is the menu you want decided **now** (`T = 0`, `menu = 0`). The
 response fills it in: per key, the selected quantity (`qty = 0` = *do not

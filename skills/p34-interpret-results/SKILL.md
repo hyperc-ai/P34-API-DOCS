@@ -107,6 +107,9 @@ the terms that come with it (lead time, minimum, pack increment).
 `predicted_profit_sum` is a calibrated prediction over a fitted distribution,
 not a forecast anyone owes you. Give it its context in a line or two:
 
+- the profit time frame and write-off/residual-value policy saved with this
+  request; distinguish retained accounting value from cash recovered, and do
+  not compare results with different horizons as though they measured the same outcome;
 - the applied selection threshold — `confidence_thresh_calibrated`,
   `confidence_correction`, `confidence_thresh_effective`;
 - the `confidence_sweep`: what the portfolio would have been at other

@@ -56,6 +56,12 @@ nothing is replayed, so the Sales, replay-horizon and description checks do not
 apply; what must hold instead is that at least one historical row carries a
 `profit`.
 
+For business-led fits, also review the description for a fixed cutoff,
+reproducible full or partial write-off calculation, and a dictionary of every
+submitted column, as described in
+[what to write](../../docs/02-endpoints.md#what-to-write-in-it). This is an
+economics-quality check, not an additional 422 rule.
+
 Two more conditions are accepted by `/fit` and fail later, so they are worth a
 few lines of pandas now rather than a queue wait: enough observed groups
 sharing a `qty` option, and declined groups actually present. Both are
