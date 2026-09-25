@@ -162,6 +162,12 @@ covers the extra phase:
 GET /result/{session_id}  ◄──  grounding → queued → processing → done | failed
 ```
 
+**Quantity must be a real choice.** Fits with a single quantity point per
+offer will not pass. Formulate each offer with at least three distinct sizes
+whose total profits can differ; more meaningful sizes are better. See
+[quantity requirements and market formulations](docs/03-data-format.md#multiple-quantity-choices-are-required)
+for inventory, lending, bidding and domain buckets.
+
 ## Quickstart
 
 Check the service is up (no key needed):

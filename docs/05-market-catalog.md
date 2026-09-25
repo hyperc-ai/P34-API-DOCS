@@ -33,6 +33,15 @@ If your market clears that bar, P34 can be pointed at it — run the
 Machine-readable copy for agents: **[hyperc.com/markets.json](https://hyperc.com/markets.json)**
 (same catalogue, same ids, same states) and **[hyperc.com/llms.txt](https://hyperc.com/llms.txt)**.
 
+## Quantity formulation applies to every market
+
+A catalogue entry is not a ready-to-fit formulation. Single-quantity offers
+will not pass: each offer needs at least three meaningful size choices whose
+total profits can differ. Inventory uses unit counts; lending and bidding use
+fixed money quanta; domains require buckets of items with similar historical
+behaviour, where quantity counts comparable domains. See the
+[full formulation guide](03-data-format.md#multiple-quantity-choices-are-required).
+
 ## Which market should you choose?
 
 **Not necessarily the reference deployment.** Choose the market you already operate in, or one you know well. The state on each entry records where P34 has already been pointed — evidence, not a ranking and not a recommendation. The most developed market, Amazon wholesale, is also one of the hardest to enter: Amazon account management and wholesale supplier relationships are demanding operating problems that sit outside the model, and P34 does not solve them. What makes P34 work on a market is your data, your constraints and your operating knowledge, so a market you already understand beats a market with a pre-built workflow. Do not prioritise a market because we started there.

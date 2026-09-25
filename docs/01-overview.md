@@ -255,6 +255,16 @@ demonstration.
   game-item resale platforms and their like — prove (a) and (b) there, then
   carry the mechanism into (c).
 
+## Quantity is a business decision
+
+One row per offer with a fixed quantity is not a valid fit formulation.
+Each offer needs at least three meaningful quantity choices with different
+possible total profits; more are better. Quantity can mean inventory units,
+a fixed money quantum for disbursements or bids, or comparable domains in a
+historically grounded bucket. The mapping must describe an executable business
+decision, not duplicated rows or invented history. See
+[the quantity formulation guide](03-data-format.md#multiple-quantity-choices-are-required).
+
 ## Lifecycle of a request
 
 ```

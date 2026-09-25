@@ -41,6 +41,19 @@ for the technical contract once that integration has been agreed.
 
 ## Workflow
 
+### Establish a real quantity decision
+
+Single-point offers will not pass a fit. Require at least three distinct,
+meaningful quantities per offer `(menu, key)`, with size-dependent total
+profit; more real sizes are better. Check both historical option structure
+and current executable choices. Use inventory counts, a fixed money quantum
+for loans/bids, or buckets of domains with similar historical behaviour.
+Read [the formulation guide](../../docs/03-data-format.md#multiple-quantity-choices-are-required)
+for the mapping and evidence rules. Document the unit, range and economics in
+`business_description`. Do not duplicate offers, split quantities across keys,
+or fabricate history/labels to pass. When the business cannot support the
+range, report the gap and reformulate the business before submitting.
+
 ### 1. Inventory the sources and leave them unmodified
 
 List every artifact the tables will be built from — recorded menus/offers,
@@ -197,11 +210,11 @@ identical to a missed instruction.
 
 Say so explicitly rather than inventing a policy — see
 [references/history-contract.md](references/history-contract.md#cases-with-no-supported-answer).
-Two come up often: a **continuous or very large quantity space** has no
-published completeness policy (do not quantise it, do not invent interval
-fields), and a **zero-quantity input row** is not implied by the fact that a
-zero output means abstain (input zero follows the published contract; ask if
-it is ambiguous).
+For a **continuous or very large quantity space**, establish a business-defined
+money quantum or other executable increment and bounds; enumerate the real
+choices under that formulation. An arbitrary sampled grid is not complete
+coverage. Do not invent interval fields. A **zero-quantity input row** is not
+implied by a zero output meaning abstain, and is not a dummy third size.
 
 ## Optional, not prerequisites
 
