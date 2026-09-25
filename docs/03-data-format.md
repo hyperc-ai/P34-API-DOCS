@@ -269,10 +269,13 @@ Both kinds are required, and there are volume floors:
   model calibrates along the quantity axis and skips a key that offers a
   single point; a history where *every* key carries only the ordered quantity
   fails with `ParmlInsufficientDataError: Not enough valid calibration scan
-  data`. `/fit` refuses that case at intake (422) and warns in
+  data`. The default business-led grounding adds the alternative
+  quantities itself, so this applies where your rows are fitted as sent: a
+  [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded)
+  fit, or a business-led one pinned to a non-default `grounding_executor`.
+  There `/fit` refuses that case at intake (422) and warns in
   `parse_report.volume_warnings` when more than half of the groups are
-  single-quantity; grounding does not repair it, because the option grid is
-  built from the quantities you sent up to the key's own scale bound.
+  single-quantity.
 
 As a rule of thumb: **hundreds of observed deals spread over a dozen or more
 menus** is the practical minimum; real business histories clear these floors

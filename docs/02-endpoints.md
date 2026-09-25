@@ -413,10 +413,13 @@ One thing the new default *relaxes*: `/fit` refuses a history that is too
 thin to fit ([volume floors](04-errors-and-checks.md#common-422-errors)), but
 a business-led fit is only held to the structural checks — grounding is what
 produces the rows the model trains on, so the intake counts are not the ones
-it will see. The one floor every mode keeps is quantity coverage — at least
-two quantity rows per historical key ([the Menus
-table](03-data-format.md#the-menus-table)) — because grounding never adds a
-quantity point to a key you observed at one.
+it will see. That includes quantity coverage — at least two quantity rows
+per historical key ([the Menus table](03-data-format.md#the-menus-table)):
+the default business-led grounding adds the alternative quantities to a key
+you observed at one, so it is not refused for sending only the ordered
+quantity. A [`client_grounded`](#bringing-your-own-labels-client_grounded)
+fit, or a business-led one pinned to a non-default `grounding_executor`, is
+fitted on the rows you send and keeps that floor.
 
 #### Why business-led grounding is recommended
 
