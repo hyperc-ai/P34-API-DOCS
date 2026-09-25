@@ -44,7 +44,7 @@ option space, taken and untaken, is what makes the history usable.
 | `qty` | **yes** | the deal-size option this row represents. Integer count-type values (1 apple, 2 apples) **or** floating-point values ($151.50, 38.566 kg) — but not both and not a mixture within one dataset. Required and numeric on every row. Options are **mutually exclusive** within a key-date — see [One choice per key-date](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive). |
 | `historically_available` | no | 1/0 — was this option actually available as a trade option at decision time. `0` marks a **grounded option**: a row whose features and outcome you were able to pre-calculate, but that was not actually selectable in the deal — e.g. only certain quantity combinations were tradeable because of MOQ or pack-size increments. Grounding more outcomes than were selectable is an optional, useful enrichment. **The column is optional and narrow in scope**: omit it and the whole history reads as real offers, which is what every dataset predating the column meant. It exists to keep an invented quote from being mistaken for one that was made, so it matters only where an *outcome is being replayed* from it. On declined, rejected, and unlabeled rows it changes nothing — see [Availability is not required on unlabeled rows](#availability-is-not-required-on-unlabeled-rows). |
 | `historically_chosen` | no | 1/0 — **your previous business policy**: the option your business actually took at that decision moment, out of the options that were on the table and whose outcome was known after the fact. Send it only when you have that record; **omit the column** when there is no previous business, or its decision data is not at hand when you fit. At most one flagged row per (menu, key), because `qty` is a mutex — see [One choice per key-date](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive); a group your business took nothing in carries no flag and stays in the history. Where the column is absent the service fills the model's reference row in when the datasets are formed — read [Your previous business policy](#your-previous-business-policy-what-historically_chosen-marks) before filling this column. |
-| `profit` | no | realized total profit of the decision. With a `historically_chosen` flag it belongs on the flagged row; without one, put it on whichever rows you know the outcome for. A value here marks the group as an **observed outcome** (labeled context); the number itself is not trusted — the economics are replayed from Sales, so send the Sales rows that produced it. When the precise outcome is unknown, leave it blank and put any *approximate* values in feature columns instead — propagated to **all rows** of the dataset, not just the ones lacking a label. Keep profits as close to the real, money-in-the-bank values as possible, updated with the very latest state of the sales process. **Must be blank on all T=0 task rows** — the task is the prediction target, and the API refuses outcome values for it. **For agreed enterprise integrations using [`client_grounded` grounding](02-endpoints.md#bringing-your-own-labels-client_grounded) this row's rules invert**: send `profit` on *every* historical option row you have valued, and the number is taken verbatim rather than replayed. |
+| `profit` | no | realized total profit of the decision. With a `historically_chosen` flag it belongs on the flagged row; without one, follow [Multiple observed quantities for one historical offer](#multiple-observed-quantities-for-one-historical-offer) when supplying known results. A value here marks the group as an **observed outcome** (labeled context); the number itself is not trusted — the economics are replayed from Sales, so send the Sales rows that produced it. When the precise outcome is unknown, leave it blank and put any *approximate* values in feature columns instead — propagated to **all rows** of the dataset, not just the ones lacking a label. Keep profits as close to the real, money-in-the-bank values as possible, updated with the very latest state of the sales process. **Must be blank on all T=0 task rows** — the task is the prediction target, and the API refuses outcome values for it. **For agreed enterprise integrations using [`client_grounded` grounding](02-endpoints.md#bringing-your-own-labels-client_grounded) this row's rules invert**: send `profit` on *every* historical option row you have valued, and the number is taken verbatim rather than replayed. |
 
 Rules the server enforces (violations → HTTP 422 with a specific message):
 
@@ -147,17 +147,28 @@ records your previous policy and nothing else, and it is **optional**:
   is not at hand when you fit. Do not invent a flag to satisfy the format: a
   flag is a claim about what the business did.
 
+### Multiple observed quantities for one historical offer
+
+If a historical offer in a menu has multiple observed quantities with known
+results, the member must send the **maximum observed quantity**, together with
+its known result, rather than the minimum observed quantity. This refers to
+the quantity, not the highest profit or the largest unobserved option.
+
+The Sales log must accordingly contain the **entire known cashflow history for
+that item**, not a subset corresponding to a smaller quantity. The history is
+assumed known and must support the result supplied for the maximum observed
+quantity.
+
 ### What happens without it
 
 The model itself needs one reference option per group. Where you sent no flag,
 the service fills it in **after grounding, when the grounded datasets are
 formed** — not at intake, and not inside the replay:
 
-- the group's chosen option becomes the row with the **smallest available
-  quantity among the rows whose profit is known** (the labeled rows);
-- a group with no known profit at all takes its smallest available quantity;
-- the sign of the profit plays no part — the minimum quantity is the
-  convention whether the outcome was a gain or a loss.
+The service establishes the reference option from the group's available
+information. For what the member must send when several quantities have known
+results, follow [Multiple observed quantities for one historical offer](#multiple-observed-quantities-for-one-historical-offer),
+including the requirement to provide the item's entire known cashflow history.
 
 A history without the column therefore loses nothing structurally. What it
 gives up is the calibration real policy data brings: the replay can use the
@@ -179,9 +190,9 @@ flags nothing on any historical row reads as absent.
   (`profit_values_ignored_on_non_chosen`); under
   [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded)
   it is kept, because there it is your label.
-- **Without a flag** (column absent, or a group with none): put `profit` on
-  whichever rows you know the outcome for. A known profit anywhere in the
-  group marks it as observed; leave the rest blank.
+- **Without a flag** (column absent, or a group with none): supply the known
+  result according to [Multiple observed quantities for one historical offer](#multiple-observed-quantities-for-one-historical-offer).
+  A known profit in the group marks it as observed; leave unknown results blank.
 
 A `profit` value need not be realized cash — a safely calculated, predicted,
 replayed or otherwise obtained outcome labels a row equally, and no fit

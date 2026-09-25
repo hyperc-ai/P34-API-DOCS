@@ -60,6 +60,10 @@ with its recorded economics and granularity: the quantities that were offered,
 the unit costs that applied to each, the price, and the outcome where one is
 known.
 
+- When a historical offer has multiple observed quantities with known results,
+  follow [Multiple observed quantities for one historical offer](../../docs/03-data-format.md#multiple-observed-quantities-for-one-historical-offer):
+  send the maximum observed quantity with its known result and the item's
+  entire known cashflow history in Sales.
 - Keep the rows the business **did not** take. Declined and untested options
   are the context the fit needs — see
   [Include the deals you did not take](../../docs/03-data-format.md#include-the-deals-you-did-not-take).

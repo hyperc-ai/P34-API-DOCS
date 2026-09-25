@@ -31,6 +31,11 @@ the option was taken and returned nothing, and the model will believe it.
 Approximate values go in a named feature column instead, propagated to all
 rows of the dataset.
 
+**Multiple observed quantities.** For a historical offer with known results at
+several quantities, follow [the maximum-observed-quantity rule](../../../docs/03-data-format.md#multiple-observed-quantities-for-one-historical-offer).
+Send the maximum observed quantity and its known result, together with the
+item's entire known cashflow history in Sales.
+
 **Do not invent.** `historically_chosen` is a claim about what the business
 actually did. Where there is no record, send no flag — the column is optional
 and a group with no flag stays in the history. Do not present the reference

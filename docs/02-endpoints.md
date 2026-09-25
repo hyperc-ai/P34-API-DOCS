@@ -561,9 +561,9 @@ what the model learns. Two consequences worth designing for:
 `historically_chosen` keeps its usual job here, and stays optional: sent, it
 marks the option your business actually took, and the quantity on that row is
 the reference every other option in the group is compared against; absent, the
-reference becomes the smallest available quantity among the rows you labeled,
-filled in when the datasets are formed — see [Your previous business
-policy](03-data-format.md#your-previous-business-policy-what-historically_chosen-marks).
+service establishes a reference when the datasets are formed. For which
+observed quantity and cashflow history the member must send, see
+[Multiple observed quantities for one historical offer](03-data-format.md#multiple-observed-quantities-for-one-historical-offer).
 
 ## Turning the plausibility checks off
 
