@@ -193,7 +193,13 @@ def main() -> None:
         time.sleep(args.poll)
 
     if res["status"] == "failed":
-        print("FAILED:", res.get("error"))
+        print("FAILED:", res.get("error_code", ""), res.get("error"))
+        # a grounding failure carries the diagnosis written for you, and the
+        # technical report behind it (docs/02-endpoints.md#when-a-fit-fails)
+        if res.get("feedback"):
+            print("\n" + res["feedback"])
+        if res.get("feedback_report"):
+            print("\n--- technical report ---\n" + res["feedback_report"])
         return
     print("input test complete — no grounding, prediction, order, or billing")
     print("note:", res.get("mock_note", "mock response contains placeholders"))

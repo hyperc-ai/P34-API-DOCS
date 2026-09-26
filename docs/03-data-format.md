@@ -252,24 +252,23 @@ historical group make up the context:
 
 Both kinds are required, and there are volume floors:
 
-- current model versions refuse a history in which *every* group is observed —
-  the fit fails with `Unlabeled business-menu mask selected zero rows`;
+- current model versions refuse a history in which *every* group is observed
+  — `/fit` refuses it at intake, and it cannot be fitted;
 - at least ~100 observed groups must share a qty option, or the fit fails
-  with `NotEnoughData: No qty values have at least 100 rows`;
+  with `insufficient_historical_data`;
 - the history must span enough **decision moments**: a toy history of one or
-  two menus fails with `ParmlInsufficientDataError: Not enough valid menus to
-  train on` — provide at least ~10 historical menus (50+ recommended);
+  two menus fails with `insufficient_historical_data` — provide at least ~10
+  historical menus (50+ recommended);
 - each menu needs a healthy count of **observed deals**: internal fit
   candidates with fewer than ~10 outcome-carrying deals are skipped, and if
-  every candidate is skipped the fit fails with `No FC-fit universe had
-  enough rows to fit an FC regressor` — aim for 20+ observed deals per menu;
+  every candidate is skipped the fit fails with `insufficient_historical_data`
+  — aim for 20+ observed deals per menu;
 - each historical key needs **at least two quantity rows per menu** — the
   quantity that was ordered and the alternatives that could have been
   (`profit` blank on those; see [The Menus table](#the-menus-table)). The
   model calibrates along the quantity axis and skips a key that offers a
   single point; a history where *every* key carries only the ordered quantity
-  fails with `ParmlInsufficientDataError: Not enough valid calibration scan
-  data`. The default business-led grounding adds the alternative
+  fails with `insufficient_historical_data`. The default business-led grounding adds the alternative
   quantities itself, so this applies where your rows are fitted as sent: a
   [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded)
   fit, or a business-led one pinned to a non-default `grounding_executor`.
@@ -318,7 +317,7 @@ is about, where the split has to be constructed rather than found.
 
 `POST /fit` validates shape, not statistics — both conditions surface only
 when the calculation runs; see
-[Fit-time failures](04-errors-and-checks.md#fit-time-cluster-failures).
+[Fit-time failures](04-errors-and-checks.md#fit-time-failures).
 
 ## Keep the record as it is
 
@@ -443,8 +442,8 @@ quantities. The most common way that happens is an export step:
   operational feed that never quite matches it.
 
 The replay has only the tape. It cannot recover the quantity your accounting
-actually used, so it produces a different profit and reconciliation fails with
-`bg_replay_ground: reconciliation failed`.
+actually used, so it produces a different profit and reconciliation fails —
+the fit ends `failed`, and its `feedback` names the positions that disagree.
 
 **Recognising it.** Rounding noise and a wrong formula look nothing alike:
 
@@ -587,7 +586,8 @@ market, the collection mechanism or the plan is wrong. See [reject markets, at
 scale](01-overview.md#where-the-theory-meets-reality-reject-markets-at-scale).
 
 Along the way, read what the service sends back: beyond `parse_report` and
-the counters, the API may occasionally return **rich free-form text
-feedback**. If an agentic LLM is assembling your inputs, it should treat that
-feedback as instructions to consider and act upon when building the next
-iteration of the input.
+the counters, a business-led fit returns **free-form text feedback** — notes
+while it grounds, and a full diagnosis in `feedback` when it fails. If an
+agentic LLM is assembling your inputs, it should treat that feedback as
+instructions to consider and act upon when building the next iteration of the
+input.

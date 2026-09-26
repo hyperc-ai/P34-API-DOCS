@@ -52,11 +52,11 @@ input without grounding, compute, or billing. Website workspaces also receive a
 
 | status | meaning |
 | --- | --- |
-| `grounding` | your economics are being compiled from your business description and your history replayed through them — the phase a [business-led](#grounding-modes) fit (the default) starts in. Takes minutes. Ends by moving to `queued`, or to `failed` with a `feedback` field. |
+| `grounding` | your economics are being compiled from your business description and your history replayed through them — the phase a [business-led](#grounding-modes) fit (the default) starts in. Takes minutes. Ends by moving to `queued`, or to `failed` with a `feedback` diagnosis. |
 | `queued` | waiting for the compute queue. |
 | `processing` | fitting/predicting on the cluster (a `runner` field carries progress detail). |
 | `done` | predictions ready — see below. |
-| `failed` | something broke; `error` carries the reason. |
+| `failed` | the fit did not finish — terminal, stop polling. `error_code` and `error` name the kind of failure; a fit that failed while grounding also carries the diagnosis written for you. See [When a fit fails](#when-a-fit-fails). |
 | 404 | unknown session id (wrong server, or the session was removed). |
 
 A `done` response contains **only the T=0 menu, with profit predictions**:
@@ -103,6 +103,74 @@ to judge how sensitive the portfolio is to the confidence setting and to pick
 a correction for the next `/fit` without paying for exploratory runs. Absent
 on `r003-alpha-ray`.
 
+### When a fit fails
+
+`status: "failed"` is terminal. What the response carries depends on where the
+fit stopped.
+
+**While grounding** (`failed_stage: "grounding"`, [business-led](#grounding-modes)
+fits):
+
+```json
+{
+  "session_id": "…", "status": "failed", "failed_stage": "grounding",
+  "error_code": "grounding_input_needs_review",
+  "error": "The grounding step could not interpret the supplied data reliably. …",
+  "feedback": "401 of your 3,639 settled positions carry a charge that is on none of your feeds …",
+  "feedback_report": "The reconciliation check ran over 3,639 positions … (or null)",
+  "billing": {"grounding_tokens": 0.42, "settled": true, "failure_kind": "input"},
+  "feedback_log": [{"channel": "error", "title": "…", "body": "…"}],
+  "feedback_delivery": {"…": "see below"}
+}
+```
+
+| field | meaning |
+| --- | --- |
+| `error_code` / `error` | the class of failure in stable, public terms ([table below](#failure-codes)) — for routing in code. |
+| `feedback` | **the diagnosis written for you** — never empty, often several paragraphs of markdown, as long as it needs to be. It says whether the cause is in your data or description or on our side. When it is yours, it names what was checked, what disagrees (your keys, columns and numbers) and exactly what to change. When it is ours but a different dataset would likely get through — a shorter history, a charge sent through `unit_fee`, profits recomputed from the exported Sales tape — it says which change. |
+| `feedback_report` | the technical report behind the diagnosis (checks run, figures, what was ruled out), or `null`. Always `null` when the failure is on our side. |
+| `billing.failure_kind` | `input` — a verdict on your data or description: the grounding work it metered is charged (`grounding_tokens`, `null` until it settles) and it counts toward the [repeat limit](#repeating-a-failed-input). `infra` — the failure is ours: not charged, and it never counts. |
+| `feedback_log` / `feedback_delivery` | the process notes and where they were delivered — see [Where feedback is delivered](#where-feedback-is-delivered). |
+
+Both texts are written in your terms: internal file, script and column names
+are translated ("your Menus sheet", "row id", "our grounding check") and raw
+data dumps are left out — quote the session id to support if you need an
+omitted detail. The same diagnosis, followed by a `### Technical report`
+section when there is one, is appended to your workspace's `ERROR.md`.
+
+**On the cluster** — after grounding published the task, or for a
+`client_grounded` fit: `error_code` and `error` (plus `feedback_delivery` for a
+business-led fit, whose workspace `ERROR.md` receives the same message). The
+fit's compute is metered but not charged.
+
+#### Failure codes
+
+| `error_code` | what happened | what to do |
+| --- | --- | --- |
+| `grounding_input_needs_review` | grounding stopped on your data or description | do what `feedback` says |
+| `insufficient_historical_data` | too few usable completed decisions with realized outcomes to fit the model reliably | add more historical decision periods with their realized outcomes |
+| `historical_data_too_large` | the history exceeds the current processing limit | sample or trim older history, keeping whole decision groups |
+| `grounding_service_failed` | grounding failed on our side | resubmit; contact support with the session id if it repeats |
+| `model_fit_failed` | the model fit failed on our side | resubmit; contact support with the session id if it repeats |
+| `fit_canceled` | the fit was canceled before it completed | submit again when ready |
+
+#### Repeating a failed input
+
+Grounding is deterministic in its inputs, so after three input-verdict failures
+(`failure_kind: "input"`) of the identical request — the same sheets,
+`market_type` and business description; changing only `model` does not count —
+`/fit` stops running it and returns **422** with the answer you already have:
+
+```json
+{"detail": {"error": "this exact input has already failed grounding 3 times …",
+            "failed_attempts": 3,
+            "prior_sessions": ["…", "…", "…"],
+            "feedback": "… the last diagnosis …"}}
+```
+
+Change anything real and the next request is accepted at once. Failures on our
+side (`failure_kind: "infra"`) never count toward the three.
+
 ### Where feedback is delivered
 
 A [business-led](#grounding-modes) fit produces process feedback while it
@@ -121,7 +189,7 @@ polls:
   "path": "/workspace/260908-demo",
   "delivered": 2,
   "pending": 1,
-  "last_error": "GatewayError: append /workspace/260908-demo/ERROR.md: HTTP 502"
+  "last_error": "Feedback delivery is temporarily unavailable; it will be retried."
 }
 ```
 
@@ -144,9 +212,10 @@ own id, so a retry never doubles an entry that already arrived.
 While the session is `grounding` or `failed`, the response also carries
 `feedback_log`: a copy of the **channel** entries in the poll itself, so you
 can read them without going to the workspace at all. It is a recent-history
-window, not the archive — at most 50 entries, each body truncated to 2,000
-characters — and it never contains the final report, which is written to your
-workspace only. That is why a published fit's polls keep retrying delivery:
+window, not the archive — at most 50 entries; an error entry keeps its whole
+diagnosis (up to 16,000 characters), other entries are truncated to 2,000 —
+and it never contains the final report, which is written to your workspace
+only. That is why a published fit's polls keep retrying delivery:
 its report is produced after the task reaches the compute queue, and the
 workspace is the only place it lands.
 
@@ -446,8 +515,8 @@ grounding phase while the pipeline runs, then switches to the normal
 queue. A client that already polls through to `done` needs no changes.
 
 If grounding cannot succeed, `/result` ends at `status: "failed"` with a
-`feedback` field describing what to fix in your data or your description —
-see [free-form feedback](#free-form-feedback).
+`feedback` diagnosis saying whether the cause is your data, your description or
+our side, and what to change — see [When a fit fails](#when-a-fit-fails).
 
 #### Reusing grounding code
 
@@ -487,7 +556,9 @@ Grounding is metered and billed as its own line when the task is published —
 the LLM work of compiling your adapter plus the CPU of the replay — and
 appears in your [ledger](06-token-wallet.md) as a `service` entry. The fit's
 own compute is billed separately at settlement. A
-fit can incur metered grounding work even if grounding fails. A successful
+fit that fails grounding on a verdict about your input
+(`billing.failure_kind: "input"`) is charged for the grounding work it
+metered; a failure on our side (`"infra"`) is not charged. A successful
 [grounding code cache hit](#reusing-grounding-code) avoids agentic compilation
 work, but fresh-data validation/replay and the model's compute still incur their
 normal metered charges. If cached execution falls back to agentic grounding,
@@ -560,9 +631,9 @@ what the model learns. Two consequences worth designing for:
   claim than "we do not know".
 - **The [observed / unobserved split](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement)
   is now yours to get right.** Labeling every row you send leaves the model no
-  declined options to contrast against, and the cluster refuses the fit with
-  `Unlabeled business-menu mask selected zero rows`. Send the options you
-  could not value, with `profit` blank.
+  declined options to contrast against: `/fit` refuses such a history at
+  intake, and with `checks: "off"` the cluster cannot fit it. Send the options
+  you could not value, with `profit` blank.
 
 `historically_chosen` keeps its usual job here, and stays optional: sent, it
 marks the option your business actually took, and the quantity on that row is
@@ -651,7 +722,9 @@ from an older run's:
 ```
 
 The `event:` marker is also how a redelivery is recognised, so an entry that
-already arrived is never appended twice.
+already arrived is never appended twice. A failure's `ERROR.md` entry carries
+the diagnosis as `<body>`, followed by a `### Technical report` section when
+there is one.
 
 The binding is validated **before the request is spooled or billed**: a
 `workspace_context` that cannot be resolved is a 422 whose `detail` starts
@@ -671,11 +744,13 @@ phase to report on, and only it keeps the binding and retries delivery.
 
 ## Free-form feedback
 
-Beyond the structured counters (`parse_report`, volume-floor errors), the API
-may occasionally produce **rich free-form text feedback** about your input.
-Agentic clients should surface it — and act on it: it is written to improve
-the next iteration of your input construction (features to add, grounding to
-fix, history to extend).
+Beyond the structured counters (`parse_report`, volume-floor errors), a
+business-led fit writes **free-form text feedback** about your input: notes and
+assumptions in `feedback_log` while it runs, and — when it fails — a full
+diagnosis in `feedback` (see [When a fit fails](#when-a-fit-fails)). It is
+markdown and can run to several paragraphs. Agentic clients should surface it
+whole — and act on it: it is written to improve the next iteration of your
+input construction (features to add, charges to send, history to extend).
 
 ## Wire formats
 

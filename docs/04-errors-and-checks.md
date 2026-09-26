@@ -114,24 +114,33 @@ billed — nothing is charged and no `session_id` exists. The `detail` is
 | `run_id is not a run of that project` | the project exists but has no such run. Mint the run in that project before submitting. |
 | `your workspace could not be reached to verify project_id (...)` | the workspace did not answer, so the binding could not be checked — an unverifiable binding is never assumed. Retry, or submit without `workspace_context`. |
 
-## Fit-time (cluster) failures
+## Fit-time failures
 
 `POST /fit` validates shape, not statistics: a request can pass intake and
-still fail when the calculation runs on the cluster. These surface as
-`status: "failed"` on `GET /result/{session_id}`, with the reason in `error`:
+still fail while it grounds or when the calculation runs on the cluster. These
+surface as `status: "failed"` on `GET /result/{session_id}`, with the class of
+failure in `error_code` and `error`
+([the codes](02-endpoints.md#failure-codes)) and — for a grounding failure —
+the diagnosis written for you in `feedback`, with the technical report in
+`feedback_report` ([the fields](02-endpoints.md#when-a-fit-fails)). The raw
+cluster messages stay with our operators; the conditions behind the common
+ones are:
 
-| `error` contains | meaning | fix |
+| condition | you see | fix |
 | --- | --- | --- |
-| `Unlabeled business-menu mask selected zero rows` | the history contains only observed outcomes — no unlabeled context for the model to contrast against. P34 needs both halves of a [partially observed market](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement) | include the groups with no trustworthy outcome — `profit` blank on every row of the group, no flag needed — see [the data-format guide](03-data-format.md#include-the-deals-you-did-not-take) |
-| `NotEnoughData: No qty values have at least 100 rows` | too little observed history — the model needs at least ~100 observed groups sharing a qty option (`max_qty_rows` in the message reports your best count) | send more history: more observed keys/menus per qty option |
-| `Not enough valid menus to train on` | the history spans too few decision moments (`valid_fc_group_count` reports what survived; the floor is 10) | spread the history over more menus — at least ~10 decision moments, 50+ recommended |
-| `No FC-fit universe had enough rows to fit an FC regressor` | every internal fit candidate was skipped — too few observed (outcome-carrying) deals per menu | send more observed deals per decision moment — aim for 20+ per menu |
-| `Not enough valid calibration scan data` | each historical key carries only the quantity that was ordered — the model calibrates along the quantity axis and skips a key with a single quantity point, so nothing was left to fit | send the alternative quantity rows the business could have ordered (`profit` blank) — see [The Menus table](03-data-format.md#the-menus-table) |
-| `bg_replay_ground: reconciliation failed` | replaying your Sales tape did not reproduce the `profit` you reported. Either the economics in your business description are wrong, **or** the tape and the profit were computed from different quantities (a rounded/aggregated/re-derived export) | read the stats in the message before changing anything — see [reading a reconciliation failure](#reading-a-reconciliation-failure) below |
+| the history contains only observed outcomes — no unlabeled context for the model to contrast against. P34 needs both halves of a [partially observed market](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement) | refused at `/fit` with a 422 volume finding; with `checks: "off"` it reaches the cluster and fails as `model_fit_failed` | include the groups with no trustworthy outcome — `profit` blank on every row of the group, no flag needed — see [the data-format guide](03-data-format.md#include-the-deals-you-did-not-take) |
+| too little observed history — the model needs at least ~100 observed groups sharing a qty option | `insufficient_historical_data` | send more history: more observed keys/menus per qty option |
+| the history spans too few decision moments (the floor is 10) | `insufficient_historical_data` | spread the history over more menus — at least ~10 decision moments, 50+ recommended |
+| every internal fit candidate was skipped — too few observed (outcome-carrying) deals per menu | `insufficient_historical_data` | send more observed deals per decision moment — aim for 20+ per menu |
+| each historical key carries only the quantity that was ordered — the model calibrates along the quantity axis and skips a key with a single quantity point | `insufficient_historical_data` | send the alternative quantity rows the business could have ordered (`profit` blank), or let business-led automatic grounding add them — see [The Menus table](03-data-format.md#the-menus-table) |
+| replaying your Sales tape did not reproduce the `profit` you reported. Either the economics in your business description are wrong, **or** the tape and the profit were computed from different quantities (a rounded/aggregated/re-derived export), **or** a charge never reached the tape | a grounding failure: `grounding_input_needs_review` with the diagnosis in `feedback` — or, when our automatic repair could not settle it, `grounding_service_failed` whose `feedback` says which data change usually gets through | read the diagnosis before changing anything — see [reading a reconciliation failure](#reading-a-reconciliation-failure) below |
 
 ### Reading a reconciliation failure
 
-The message carries the whole diagnosis; read it before touching your model.
+The `feedback` of a reconciliation failure (and its `feedback_report`) carries
+the whole diagnosis; read it before touching your model. It is usually prose
+that names the positions that disagree and the charge or quantity behind the
+gap; a fit grounded by the fixed staged chain quotes the gate statistics:
 
 ```
 reconciliation failed: {'n_rows': 2526, 'n_excluded_nan': 0, 'n_compared': 2526,
@@ -158,7 +167,7 @@ not the formula — see
 If instead the bias is one-signed across the board, a cost component is missing
 or double-counted; `median_signed` gives you its sign and rough size.
 
-Two shapes have one specific cause each, and the message names them when the
+Two shapes have one specific cause each, and the diagnosis names them when the
 arithmetic matches:
 
 - **one-signed, confined to keys that carry a `unit_fee` and sold less than
@@ -177,10 +186,12 @@ term can partially cancel an unrelated error and *improve* the number while
 making the model wrong — which then trains on the wrong economics.
 
 A fit that fails on the cluster is metered but **charged nothing**, so these
-cost you time rather than tokens. They still cost you a full queue wait, so
-catching both conditions client-side before submitting (count your observed
-groups per qty; make sure declined groups are present) is worth the few lines
-of pandas.
+cost you time rather than tokens. A fit that fails while grounding is charged
+for the grounding work it metered when the failure is a verdict on your input
+(`billing.failure_kind: "input"`), and not at all when it is ours (`"infra"`).
+Both still cost you a full wait, so catching the volume conditions client-side
+before submitting (count your observed groups per qty; make sure declined
+groups are present) is worth the few lines of pandas.
 
 ## Quick self-checks before you file a support request
 

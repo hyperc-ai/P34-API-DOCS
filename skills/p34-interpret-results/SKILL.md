@@ -163,10 +163,14 @@ improve the next request
 
 ## A result that is not `done`
 
-`failed` carries its reason in `error`, and the fixes for the fit-time failure
-messages are tabulated in
-[docs/04-errors-and-checks.md](../../docs/04-errors-and-checks.md) — there is
-nothing to interpret and nothing to soften. `/predict` output is a payload
+`failed` carries its class in `error_code` and `error`; a fit that failed
+while grounding also carries the diagnosis written for the member in
+`feedback` and the technical report in `feedback_report`
+([When a fit fails](../../docs/02-endpoints.md#when-a-fit-fails)), and the
+conditions behind cluster failures are tabulated in
+[docs/04-errors-and-checks.md](../../docs/04-errors-and-checks.md#fit-time-failures).
+Relay the diagnosis as written — there is no portfolio to interpret and
+nothing to soften. `/predict` output is a payload
 sanity check from a small reference model, **not** P34's answer, and a
 `"mock": true` response carries deterministic placeholders rather than
 predictions; neither belongs in a trade proposal. See

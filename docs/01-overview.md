@@ -126,8 +126,8 @@ market**:
 > business, by the market, or by a replay you would trust.
 
 That asymmetry is the signal. A history in which every outcome is known says
-nothing about what a process refuses, and the fit rejects it outright
-(`Unlabeled business-menu mask selected zero rows`); a history in which nothing
+nothing about what a process refuses, and the fit rejects it outright; a
+history in which nothing
 is known has nothing to calibrate against. Everything P34 does with selection
 bias lives in the gap between the two.
 

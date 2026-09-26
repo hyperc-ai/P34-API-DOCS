@@ -163,8 +163,9 @@ means everything landed; a `pending` that does not fall is not lost, and
 to, or one that refused the write or could not be reached. Report that reason
 rather than treating the entries as missing. While the session is `grounding`
 or `failed`, `feedback_log` carries the channel entries in the poll itself
-(capped and truncated); the final report goes to the workspace only, so a
-delivery still owed there is the one thing the poll cannot hand you.
+(capped at 50; an error entry kept whole, the rest truncated); the final report
+goes to the workspace only, so a delivery still owed there is the one thing the
+poll cannot hand you.
 
 `POST /predict` is an instant sanity check on your payload from a small
 reference model. It is **not** P34's answer; `/result` is.
@@ -173,19 +174,35 @@ reference model. It is **not** P34's answer; `/result` is.
 
 - **`done`** — hand it to
   [p34-interpret-results](../p34-interpret-results/SKILL.md).
-- **`failed`** — report it as failed, with its `error` string. The fit-time
-  failure table in
-  [docs/04-errors-and-checks.md](../../docs/04-errors-and-checks.md) names
-  what each message means and how to fix it, and a fit that fails there is
-  charged nothing. A failure that partly succeeded is still a failure:
-  "most rows reconciled" is a diagnosis, not a pass, and the statistics in the
-  message are the diagnosis worth quoting.
+- **`failed`** — report it as failed, with its `error_code` and `error`
+  ([When a fit fails](../../docs/02-endpoints.md#when-a-fit-fails)). A fit
+  that failed while grounding also carries **`feedback`**: the diagnosis
+  written for the member — never empty, often several paragraphs of markdown.
+  Relay it whole, not a summary of it: it says whether the cause is in the
+  data, in the description or on our side, and what exactly to change.
+  `feedback_report` (when not `null`) is the technical report behind it —
+  offer it rather than paraphrase it. `billing.failure_kind` says who owns the
+  failure: `input` was charged for its grounding work and counts toward the
+  three-failure repeat limit; `infra` is ours, not charged, and resubmitting is
+  safe — but when its `feedback` names a data change that would likely get
+  through, make that change first. A cluster failure carries only
+  `error_code` and `error`, is charged nothing, and
+  [docs/04-errors-and-checks.md](../../docs/04-errors-and-checks.md#fit-time-failures)
+  says what each condition means. A failure that partly succeeded is still a
+  failure: "most rows reconciled" is a diagnosis, not a pass, and the figures
+  in the diagnosis are the part worth quoting.
 - **`parse_report` and the row counts** — the drop counters and an
   `historically_chosen` reading of `absent` change what the fit was given.
   Surface them.
-- **free-form `feedback`** — surface it and act on it; it is written to
-  improve the next request
+- **free-form feedback** — the `feedback_log` notes of any business-led fit,
+  and a failed fit's `feedback`: surface them and act on them; they are written
+  to improve the next request
   ([Free-form feedback](../../docs/02-endpoints.md#free-form-feedback)).
+- **a 422 on resubmission** whose `detail` carries `failed_attempts` and
+  `prior_sessions` — the identical input already failed three times
+  ([Repeating a failed input](../../docs/02-endpoints.md#repeating-a-failed-input)).
+  Its `feedback` is the last diagnosis; change what it names before sending
+  again.
 
 None of this is minutiae to be trimmed for length. A shorter write-up drops
 detail, never the failure, the counters or the feedback.

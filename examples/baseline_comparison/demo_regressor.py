@@ -203,7 +203,8 @@ def p34_portfolio(url: str, key: str | None, model: str | None,
         print(f"  … {res['status']}")
         time.sleep(poll_s)
     if res["status"] != "done":
-        raise RuntimeError(f"P34 fit not done: {res['status']} {res.get('error', '')}")
+        raise RuntimeError(f"P34 fit not done: {res['status']} {res.get('error_code', '')} "
+                           f"{res.get('error', '')}\n{res.get('feedback') or ''}".rstrip())
     port = pd.DataFrame(res["menu"])
     if port.empty:            # a valid answer: the model takes no trades
         return pd.DataFrame(columns=["key", "qty", "profit"])
