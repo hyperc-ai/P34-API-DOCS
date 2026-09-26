@@ -153,6 +153,7 @@ fit's compute is metered but not charged.
 | `grounding_service_failed` | grounding failed on our side | resubmit; contact support with the session id if it repeats |
 | `model_fit_failed` | the model fit failed on our side | resubmit; contact support with the session id if it repeats |
 | `fit_canceled` | the fit was canceled before it completed | submit again when ready |
+| `result_outside_quoted_options` | the fit finished, but its answer uses order quantities your T=0 menu did not quote, on a market whose answer may only use quoted quantities | quote every orderable quantity of each key as its own T=0 row, then submit a new fit — see [Common 422 errors](04-errors-and-checks.md#common-422-errors) |
 
 #### Repeating a failed input
 
