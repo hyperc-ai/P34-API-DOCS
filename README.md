@@ -230,6 +230,16 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    runtimes where the constraint is the channel rather than the API: the
    measured URL-length ceiling that makes a healthy workspace answer `502`,
    and what a fetch-only agent (ChatGPT and friends) should do instead.
+8. [docs/08-candidate-markets.md](docs/08-candidate-markets.md) — the
+   waiting list: 67 markets screened as candidates for the catalogue, scored
+   on nine criteria and gated by the four computability criteria, with a
+   machine-readable copy in
+   [`examples/data/candidate_markets.json`](examples/data/candidate_markets.json).
+   Proposed blueprints, not catalogue entries.
+9. [docs/09-where-inefficiency-is-captured.md](docs/09-where-inefficiency-is-captured.md) —
+   the theory: the two admissible sources of excess return in a market
+   without price discovery, the seven mechanisms that let an inefficiency
+   persist, and which reject reason each one explains.
 8. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
      (fit → poll → portfolio). Use the default business-led mode. The
@@ -336,6 +346,8 @@ Synthetic markets are open to every member through this API. **Listing a market
 is not a claim of support** — check the state before you plan around it, and run
 the [market-fit check](https://hyperc.com/markets.html#fit) on your own market.
 Proposing a new one: [hyperc.com/contact.html?topic=market](https://hyperc.com/contact.html?topic=market).
+Markets proposed but not yet catalogued sit on the
+[candidate waiting list](docs/08-candidate-markets.md) with their scores and evidence.
 
 ### Which market should you choose?
 
