@@ -1,0 +1,1166 @@
+# Candidate markets — the waiting list
+
+**Proposed, not catalogued.** The [catalogue](05-market-catalog.md) lists the 135 markets that carry an evidence state. This page lists the markets screened *after* it — 67 candidates that are new to the catalogue or materially more specific than an entry in it — scored against nine criteria and gated by the four computability criteria. None of them is in `markets.json`, none carries a state, and a listing here is a research note, not a claim that P34 ships or has been pointed at that market.
+
+Machine-readable copy: [`examples/data/candidate_markets.json`](../examples/data/candidate_markets.json) · [`examples/data/candidate_markets.csv`](../examples/data/candidate_markets.csv). Screened 27 September 2026; figures are as published by the cited sources on that date.
+
+## The finding in three sentences
+
+Ten of the 67 clear the bar for a member workflow today, about fifteen belong on the enterprise track behind a licence or a relationship, and the rest mark where the computable-market thesis stops. One rule predicts fit better than any single criterion: **anyone can register, few can execute** — open access keeps the data honest, hard operations keep the mispricing alive. The theory behind that rule is in [where inefficiency can be captured](09-where-inefficiency-is-captured.md).
+
+## How the candidates were scored
+
+Nine criteria, each 0–3, at equal weight (the workbook version lets you re-weight):
+
+| Criterion | 0 | 3 |
+| --- | --- | --- |
+| Logistics complexity | none / digital | cold chain, hazmat, rigging, multi-leg or time-critical moves |
+| Opportunity density | sporadic | continuous thousands |
+| Open access | closed for a new entity | open registration |
+| Long-tail mispricing | standardised, index-priced | badly catalogued, dispersion inside one type |
+| Asset breadth | few tickers | thousands, changing weekly |
+| Partial observability | fully observed at trade | outcome hidden for weeks–months (yield, default, regrade) |
+| Consumption sink | pure store of value | literally destroyed, expired, retired, or venture-class death |
+| Adaptation cadence | latency race, or static | days/hours with combinatorial recomputation |
+| Ops-dependent selection | no operator differentiation | crews, lanes, storage, licences or exit channels change which deals are good |
+
+**Structural fit** = weighted average of the nine, scaled 0–100. **Gate multiplier** applies the four catalogue criteria (enumerable menu, attributable outcome, encodable constraints, repeated feedback with declined options recorded): Y = 1.0, P = 0.9, N = 0.6, multiplied. **Perimeter multiplier**: none 1.0 · licence/registration 0.95 · regulated commerce (gated launch) 0.7 · platform-rule/IP flag 0.6 · financial/securities perimeter 0.4 · prohibited or contract-barred 0.1. **Actionable score** = structural × gate × perimeter; the table is sorted on it.
+
+## The 67 candidates
+
+| # | Market | Group | Score | Perimeter | Declined options | Menu shape | Data |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | **Government & municipal surplus auctions (GovDeals, GSA Auctions, GovPlanet/DLA)** | Tier 2 | 92.6 | None | recorded by venue | Lot (category × item × condition photos × location × removal deadline) × bid | GovDeals/GSA closed results; BidProwl aggregates sold prices across 27 sources (GSA vehicle median $4,314, IQR $1,050–8,565, n=188). |
+| 2 | **Cut-flower & plant clock auctions (Royal FloraHolland, Plantion)** | Industrial | 88.0 | Licence / registration (cheap) | recorded by venue | Lot (product × grade × grower × day) × trolleys × clock price / pre-sale offer | Floriday platform + API; RFH weekly price stats (members); public annual report; clock shows every lot incl. the ones you passed. |
+| 3 | **Independent-retail wholesale buying on Faire / Ankorstore** | Core | 85.2 | None | recorded by venue | Catalogue line (brand × SKU × case size × wholesale price × terms) × order qty — the whole catalogue you did not order is the reject set | No retailer-side API; own order history + store POS; platform 'bestseller' badges only. |
+| 3 | **Restaurant & commercial-kitchen equipment liquidations** | Tier 2 | 85.2 | None | recorded by venue | Lot (item × make/model × condition note × location × pickup window) × bid | Auctioneer archives (prices realised for registered users); BidSpotter/Proxibid past results; eBay sold; WebstaurantStore new-price comps. |
+| 5 | **Cross-border marketplace arbitrage (MercadoLibre Global Selling, Allegro, noon)** | Core | 84.5 | Licence / registration (cheap) | recorded by venue | SKU (source listing × destination country × marketplace × qty) × landed cost × fees × duties | Marketplace price/BSR history; Nubimetrics / Real Trends for ML (unverified); Keepa-class tools for source side. |
+| 5 | **Used-smartphone wholesale lots (B-Stock carrier/insurer storefronts, Back Market supply)** | Tier 2 | 84.5 | Licence / registration (cheap) | recorded by venue | Lot (storefront × grade × model mix × qty × IMEI list) × bid — mutually exclusive lots per closing day | B-Stock closed-auction history (login); Swappa sold prices; Aikon grade benchmarks (−12% to −90% vs A); CTIA functional 0–9 × cosmetic A–D grading. |
+| 7 | **Fresh produce terminal-market wholesale (Hunts Point & regional terminals)** | Industrial | 82.3 | Licence / registration (cheap) | agent must snapshot | Merchant offer (commodity × origin × size/grade × pack) × cases × day | USDA AMS Market News terminal & shipping-point reports (daily, by commodity/origin/size) + MyMarketNews API (free key, bulk download) — best public feed in this list. |
+| 8 | **Consignment intake decisions (luxury & local resale shops)** | Tier 2 | 81.5 | None | recorded by venue | Offered item (category × brand × condition × asking/quote × consignor) × accept / buyout / decline × price | Platform sold listings; Rebag Clair; no accept/decline datasets published — the shop's own intake log is the asset. |
+| 9 | **Used networking & data-centre gear (ITAD lots)** | Tier 2 | 80.9 | Licence / registration (cheap) | recorded by venue | Lot (equipment class × model × qty × drive status × rails/licences) × bid | Closed-auction prices on Liquidity Services marketplaces; dealer quotes; no public used-Cisco/Dell index. |
+| 10 | **Printing paper stocklots & side-runs (Go2Paper, PaperIndex)** | Industrial | 80.0 | None | agent must snapshot | Lot (grade × basis weight × brightness × width × core × location) × tons × price → matched to a printer's job | No public benchmark; Fastmarkets RISI (paid) as reference; price discovery by RFP. |
+| 11 | **Private-label product launches (Alibaba → Amazon/marketplace) — venture-class bets** | Core | 79.2 | Licence / registration (cheap) | agent must snapshot | Launch (niche × supplier quote × MOQ × unit cost × freight × tariff × ad budget) × order qty — each row is a small startup | Helium 10 / Jungle Scout demand estimates; Keepa; Brand Analytics (sellers only); no public per-launch outcome dataset — '90% fail' claims unsourced. |
+| 12 | **Electronic fish auctions (Pefa clock network; Portland Fish Exchange)** | Industrial | 77.4 | Licence / registration (cheap) | recorded by venue | Lot (species × size × grade × port × vessel) × boxes × clock price | Pefa Data (paid); EUMOFA first-sale prices (free weekly/monthly); PFEX daily/weekly price reports; live clock. |
+| 13 | **Excess & obsolete electronic components brokerage (independent distribution)** | Industrial | 76.7 | None | agent must snapshot | Line (MPN × date code × qty × source × price × test level) × buy/pass against RFQ demand | Nexar / Sourcengine APIs (price, stock); Z2Data / SiliconExpert lifecycle (paid); ERAI reports; TrendForce; Baird lead-time monitor. |
+| 13 | **Used lab & scientific equipment (LabX, BioSurplus, EquipNet, Heritage Global)** | Tier 2 | 76.7 | None | agent must snapshot | Lot (instrument × model × calibration/service status × removal window) × bid | No public sold-price index; Bidspotter results after login; LabX asking prices. |
+| 13 | **Insurance-salvage merchandise lots (Salvex, Fr8Auctions, insurer programs)** | Tier 2 | 76.7 | None | agent must snapshot | Lot (category × damage type × manifest completeness × location × branding restriction) × bid | Per-listing bid counts on Salvex; closed prices for registered Liquidity Services users; no index. |
+| 13 | **Mill-end textiles & flexible-packaging film remnants (B2B)** | Industrial | 76.7 | None | agent must snapshot | Roll (spec × width × length × location × age) × qty × price → matched to a small job | No index or API; quote-driven. |
+| 17 | **Nursery stock & live-plant wholesale (landscape trade)** | Tier 2 | 76.0 | Licence / registration (cheap) | agent must snapshot | Plant (species × cultivar × size × container × grower) × quantity × landed price | Grower availability lists (weekly PDF/Excel); LandscapeHub member pricing; ANSI Z60.1 grading; no public price index. |
+| 18 | **Biomass wood-chip / pellet spot (BALTPOOL-class auctions)** | Industrial | 73.9 | Licence / registration (cheap) | recorded by venue | Lot (quality class × origin × delivery week × distance) × MWh × €/MWh bid | BALTPOOL public market data and monthly statistics; Argus Biomass Markets (paid); US pellet/chip indexes paid (ResourceWise, FutureMetrics). |
+| 19 | **Vehicle-transport load boards (Central Dispatch class)** | Capacity | 72.8 | Licence / registration (cheap) | agent must snapshot | Load (vehicle × origin/destination × pickup window × open/enclosed × rate) × accept/decline given truck position and open slots | In-app daily market price tool; CCJ rate surveys ($2.04/mi short haul ≈ $623/vehicle; $0.55/mi cross-country ≈ $1,534); no open API. |
+| 19 | **Inland barge spot capacity (shipper-side quoting)** | Capacity | 72.8 | Licence / registration (cheap) | agent must snapshot | Quote (lane × commodity × tons × sailing week × draft/tow constraints) × accept / decline | USDA AMS Grain Transportation Report (weekly); agtransport.usda.gov Barge Dashboard + 3-month forward rate datasets (Socrata downloads); OpenTug rate guide. |
+| 21 | **TikTok Shop / dropship product tests — venture-class, days cadence** | Core | 71.3 | Licence / registration (cheap) | agent must snapshot | Product test (SKU × supplier × price × creative × affiliate commission × ad budget) × launch/skip — thousands of candidate products per week | Seller Center analytics (own); Kalodata / FastMoss cross-shop estimates; no public return/CAC archive. |
+| 22 | **Standing timber & log sales (state/federal auctions, private stumpage, log yards)** | Industrial | 70.4 | Licence / registration (cheap) | recorded by venue | Sale (tract × species mix × cruised volume × haul distance × contract term) × bid $/MBF or $/ton | WA DNR / ODF full bid archives incl. no-bid sales; USFS cut-and-sold reports; TimberMart-South (quarterly, subscription); state extension price reports. |
+| 22 | **Contingency recruiting job-order selection (split-fee networks)** | Contracts | 70.4 | Licence / registration (cheap) | recorded by venue | Job order (role × employer × fee % × exclusivity × location × responsiveness) × work / pass × sourcing hours | No public archive; BountyJobs exposes employer responsiveness/payment metrics; the agency's own ATS holds worked vs passed reqs. |
+| 24 | **Hay, forage & feed lots** | Industrial | 70.0 | None | agent must snapshot | Lot (type × quality grade × bale format × location × test status) × tons × delivered price | USDA AMS Market News (free; MyMarketNews API); HayWire index; extension surveys. Prices: Alfalfa Premium $300–310/t, Fair $109–165/t; TX $345 vs MN $111. |
+| 24 | **Recycled pallet, IBC tote & drum trading** | Tier 4 | 70.0 | None | agent must snapshot | Load (core source × grade mix × location) × pallets × $/pallet; IBC lot × condition × prior contents | Repackify pricing guides; usedpalletrecycling quarterly report; Pallet Enterprise surveys (paywalled). IBC avg $61 (range $11–144). |
+| 24 | **Retired toy lines & mass collectibles (Funko, Hot Wheels STH, Pop Mart/Labubu, Jellycat)** | Tier 1 | 70.0 | None | agent must snapshot | Item (line × SKU × exclusive/chase flag × box condition) × qty × buy price × channel | hobbyDB Pop Price Guide; PriceCharting (Funko); StockX per-SKU sales history; eBay sold. |
+| 24 | **Luxury handbag & accessories resale (Fashionphile, Rebag, TRR, eBay AG)** | Tier 2 | 70.0 | None | agent must snapshot | Item (brand × model × size × colour × year × condition) × buy price × channel | Rebag Clair annual index; Fashionphile/TRR sold listings; eBay sold comps; no days-to-sell published. |
+| 28 | **Specialty green-coffee spot lots (importer spot lists, Cup of Excellence)** | Industrial | 69.7 | Licence / registration (cheap) | agent must snapshot | Lot (origin × farm × process × grade × cup score × warehouse) × bags × price/lb | Importer offer sheets with Q-grader cupping scores; CoE public results archive (1999→: score, rank, price/lb, buyer); ICE 'C' futures as basis. |
+| 28 | **Recovered-material bales (OCC, mixed paper, PET/HDPE)** | Industrial | 69.7 | Licence / registration (cheap) | agent must snapshot | Load (grade × moisture × contamination × origin × lane) × tons × $/t delivered | RecyclingMarkets.net SMP (subscription; Sep 2026 OCC $90/t, mixed $35–40/t, PET 2.61¢/lb, nat. HDPE 36.5¢/lb); Fastmarkets RISI; Resource Recycling monthly (free). |
+| 30 | **Unclaimed freight, abandoned cargo & customs (General Order) auctions** | Tier 2 | 69.0 | None | agent must snapshot | Lot (container/pallet × declared contents × condition × export-only flag × location) × bid | No public results archive (unverified); Salvex/HiBid closed lots for some liquidators. |
+| 31 | **Architectural salvage & reclaimed building materials** | Tier 2 | 68.4 | Licence / registration (cheap) | agent must snapshot | Lot (material × spec × condition × haul distance × buyer job) × bid / pass | Reclaimed-lumber price pages (dealers); no index; no API. |
+| 32 | **Tire wholesale — closeouts, used & retread** | Tier 2 | 66.5 | Licence / registration (cheap) | agent must snapshot | SKU (size × brand × model × DOT age × condition) × units × cost; used lots by grade | Retail comps (Tire Rack); MTD Facts Issue (paywalled); no closeout index. |
+| 32 | **Second-hand & excess solar panels and inverters** | Industrial | 66.5 | Licence / registration (cheap) | agent must snapshot | Lot (make × model × wattage × condition/test data × location) × panels × $/W | EnergyBin resources (used avg $0.070/W 2025 vs new DDP US $0.290/W); pvXchange/secondsol price lists; no US transaction index. |
+| 32 | **Micro-acquisitions of small businesses (BizBuySell / Acquire.com tier)** | Tier 3 | 66.5 | Licence / registration (cheap) | agent must snapshot | Listing (industry × geography × revenue × SDE × asking × terms) × offer / pass | BizBuySell Insight Report (quarterly); Acquire.com multiples report; no API; post-close outcomes not tracked. |
+| 32 | **Used cooking oil (UCO) / waste-oil collection routes** | Tier 4 | 66.5 | Licence / registration (cheap) | agent must snapshot | Stop (restaurant × est. gallons/month × rebate × route position) × sign / drop × route | The Jacobsen UCO spec/price (IOSCO-compliant) and Argus US UCO assessments (paid); renderer buy prices negotiated, not public. |
+| 36 | **Used-clothing bales, credential clothing & fabric deadstock** | Industrial | 66.0 | None | agent must snapshot | Lot (source × grade × weight basis × destination) × lb × $/lb landed | No public price index — every supplier quotes only; landed-cost method; Apex Fashion Lab deadstock market est. $6.7B (unverified). |
+| 36 | **Traditional media remnant inventory (TV / radio / print / static OOH)** | Demand | 66.0 | None | agent must snapshot | Slot (station × daypart × week × creative × price) × buy / pass | No public price feed; measurement via response/attribution — unverified. |
+| 38 | **Used shipping-container resale & one-way leasing** | Capacity | 63.4 | None | agent must snapshot | Box (size × grade × depot × date) × buy/lease × price or one-way credit | xChange monthly market report and price/leasing indices (paywalled); retailer price guides; one-way credits (Shanghai→LA 40'HC pickup credit $1,460, 135 free days). |
+| 38 | **Used crypto-mining hardware (ASIC / GPU rigs)** | Industrial | 63.4 | None | agent must snapshot | Lot (model × condition/grade × qty × location) × price/TH | Hashrate Index / Luxor ASIC Price Index (three efficiency tiers); hashprice series; weekly roundups (free). |
+| 38 | **Scratch-and-dent & returned appliance/furniture truckloads** | Tier 2 | 63.4 | None | agent must snapshot | Load (program × manifest × repair-mix expectation × freight) × take/pass | Manifests per load; B-Stock appliance auctions (unverified); no index. |
+| 41 | **Graded coins, stamps & comics (PCGS/NGC/CGC; Heritage, GreatCollections)** | Tier 1 | 63.0 | None | recorded by venue | Lot (cert × grade × CAC × auction × date) × bid | Heritage prices-realised archive; GreatCollections archive; PCGS Price Guide + Population Report + Public API; CGC census; NGC guides. |
+| 42 | **Intermodal chassis / trailer / reefer spot rental** | Capacity | 62.7 | Licence / registration (cheap) | agent must snapshot | Equipment (chassis/trailer/reefer × pool × location × date × term) × rent / reposition / decline | DCLI public rate page; UIIA per-diem/free-day schedules; no API. |
+| 43 | **Empty-leg & repositioning charter capacity** | Capacity | 60.2 | Licence / registration (cheap) | agent must snapshot | Leg (aircraft × route × date/time × discount) × buy/resell or match to a client request | Avinode API (Ultimate); list prices on apps; no index. |
+| 43 | **Vacant-land & rural-parcel flipping** | Tier 3 | 60.2 | Licence / registration (cheap) | agent must snapshot | Parcel (county × acreage × access × zoning × back taxes × asking) × offer / pass | Land.com/LandWatch listings (no public API); county assessor/recorder; no authoritative rural-lot sold index. |
+| 43 | **DDGS / ethanol co-product spot (distillers grains, corn oil)** | Industrial | 60.2 | Licence / registration (cheap) | agent must snapshot | Lot (plant × product × moisture/protein × tons × week) × FOB price × haul → feedlot demand | USDA AMS National Weekly Grain Co-Products Report (AMS_3618) — DDGS, distillers corn oil, value per bushel; regional text reports; MyMarketNews. |
+| 46 | **Wool, hides & animal by-product auctions (AWEX; packer hide tenders)** | Industrial | 59.9 | Licence / registration (cheap) | recorded by venue | Lot (micron × length × strength × VM × bales) × bid c/kg clean | AWEX market reports, EMI, forecasts; AWTA certificates; USDA AMS by-product reports (free); The Jacobsen (paid). |
+| 47 | **Pawn lending against long-tail collateral** | Core | 51.9 | Regulated commerce — gated launch | recorded by venue | Walk-in (item × appraisal × requested amount × term) × offer amount / decline | FirstCash/EZCORP 10-Ks (aggregate); Bravo POS holds declined-loan and offer data internally; eBay sold for resale comps. |
+| 48 | **State-legal cannabis B2B wholesale (LeafLink-class)** | Core | 51.3 | Regulated commerce — gated launch | agent must snapshot | SKU (brand × product × potency/COA × batch) × units × wholesale price × terms | LeafLink Wholesale Pricing Guide (annual); Cannabis Benchmarks US Spot Index ($1,123/lb, 25 Sep 2026); Headset retail data; METRC/BioTrack (not public per lot). |
+| 48 | **Aircraft used-serviceable material (USM) & expendables** | Industrial | 51.3 | Regulated commerce — gated launch | agent must snapshot | Part (P/N × condition tag × trace × qty × source × price) × buy/pass vs RFQ/AOG demand | No public price index; quote histories inside subscriptions; ILS SalesEdge analytics. |
+| 48 | **Short-dated lab reagents & medical consumables surplus** | Flagged | 51.3 | Regulated commerce — gated launch | agent must snapshot | Lot (SKU × lot number × expiry × storage condition × qty) × offer | No price index; retail list prices as comps; no closed-lot archive. |
+| 51 | **IPv4 lease brokerage (exploratory)** | Tier 3 | 50.0 | None | agent must snapshot | Block (size × RIR × reputation × routeability) × term × $/IP/month × lease / pass | IPXO price history; IPv4.Global prior-sales data; CircleID trend posts; no formal API. |
+| 52 | **Fine wine & rare spirits secondary market (Liv-ex, WineBid, auctions)** | Tier 2 | 49.3 | Regulated commerce — gated launch | recorded by venue | Wine (LWIN × vintage × format × case/bottle × condition/provenance) × qty × bid/offer | Liv-ex 50/100/1000 indices; LWIN (CC licence); Liv-ex APIs (tiered, no scraping); WineBid/auction archives public per lot. |
+| 53 | **Short-term-rental arbitrage (lease-to-list units)** | Flagged | 49.0 | Regulated commerce — gated launch | agent must snapshot | Unit (address × rent × lease term × furnishing cost × permit status) × lease / pass | AirDNA (free market pages: occupancy, ADR, RevPAR; paid comps/API); AirROI; Inside Airbnb; city registries. |
+| 53 | **Ag-input dealer inventory (seed / fertilizer / crop protection)** | Core | 49.0 | Regulated commerce — gated launch | agent must snapshot | SKU (product × pack × season × supplier program) × qty × prepay/spot price × farm-credit terms | DTN weekly retail fertilizer survey (8 products); USDA NASS prices-paid indexes; no seed/crop-protection retail benchmark. |
+| 55 | **Used medical & imaging equipment (DOTmed, Centurion/Bidspotter)** | Flagged | 46.7 | Regulated commerce — gated launch | agent must snapshot | Unit (modality × model × service history × software licence × removal) × bid | DOTmed asking prices; Bidspotter/Centurion prior results (login); no public index. |
+| 56 | **Parallel-import / grey-market distribution (fragrance, cosmetics, small electronics)** | Flagged | 46.0 | Platform-rule / IP — flag | agent must snapshot | SKU (brand × product × batch/market version × source) × units × landed cost × channel | Amazon/Keepa price history; eBay sold; no grey-market index. |
+| 57 | **Bulk wine & grape lots (California brokerage)** | Industrial | 44.4 | Regulated commerce — gated launch | agent must snapshot | Lot (varietal × appellation × vintage × lab profile) × gallons × $/gal | Turrentine Market Update (free monthly); Ciatti report (paid); USDA/CDFA Grape Crush Report; WineBusiness bulk classifieds. Napa Cab $10–19/gal, CA Chardonnay <$5/gal. |
+| 57 | **Voluntary carbon credits & RECs (retirement-driven)** | Core | 44.4 | Regulated commerce — gated launch | agent must snapshot | Line (project × vintage × methodology × rating × CCP/CORSIA label × qty) × bid / offer | Verra/GS public registries (issuance & retirement); Sylvera/BeZero/Calyx ratings (paid); Xpansiv market data + API; Platts assessments. |
+| 57 | **Spent industrial catalyst / PGM reclaim (toll refining)** | Industrial | 44.4 | Regulated commerce — gated launch | agent must snapshot | Lot (catalyst type × est. PGM content × hazmat class × refiner terms) × buy / toll / pass | PGM references (LBMA/JM) standard but not confirmed in source; refiner terms private. |
+| 60 | **Trade-show / exhibit teardown surplus** | Tier 2 | 40.0 | None | rarely recorded | Lot (booth/hardware × condition × graphics-refit cost × venue × teardown deadline) × bid / pass | None public; listing prices only. |
+| 61 | **Film/TV prop & set-dressing liquidation** | Tier 2 | 38.0 | None | rarely recorded | Lot (item × provenance/screen-match × condition × pickup window) × bid / pass | Auction results per lot; no API. |
+| 62 | **Hotel FF&E & renovation liquidations** | Tier 4 | 36.0 | None | rarely recorded | Project (hotel × rooms × item mix × removal window × distance) × bid / pass | None public; liquidator showroom prices only. |
+| 62 | **Game-key & software-licence resale (G2A, Kinguin, Eneba)** | Flagged | 36.0 | Platform-rule / IP — flag | agent must snapshot | Key (title × region × source × qty) × buy price × list price | Public list prices; no archive; Kinguin integration API for resellers. |
+| 64 | **Flexo anilox roll / plate-cylinder surplus (exploratory)** | Industrial | 32.0 | None | rarely recorded | Roll (LPI × BCM × width × journal/press fit × cell condition) × buy / pass | None. |
+| 65 | **Reg CF / angel-syndicate deal selection** | Flagged | 26.7 | Financial / securities — separate perimeter | recorded by venue | Offering (issuer × terms × valuation × platform × close date) × invest / pass × amount | KingsCrowd ratings/market data; SEC Form C/C-U on EDGAR (failed offerings public); AngelList data private to members. |
+| 66 | **Music-royalty & creator-catalog auctions/advances (Royalty Exchange, SongVest, Spotter)** | Tier 3 | 22.2 | Financial / securities — separate perimeter | recorded by venue | Catalog (asset type × LTM × dollar age × term) × bid | Per-listing LTM earnings + 3–5 yr statements; observed multiples 4.57–9.9× LTM; SongVest collections dashboard; auction archive shows lots not won. |
+| 67 | **Hotel room wholesale / bed-bank distressed inventory** | Flagged | 5.1 | Prohibited / sanctions / contract-barred | agent must snapshot | Room-night (hotel × date × room type × rate × cancellation terms) × buy | Live availability via API only after contract; public OTA prices as comps. |
+
+## Per-market notes
+
+Access mechanism, scale evidence, what stays hidden, the primary computability risk and a first experiment — one block per market, in score order. Confidence reflects how much of the block was verified on an opened page.
+
+### 1. Government & municipal surplus auctions (GovDeals, GSA Auctions, GovPlanet/DLA)
+
+*Liquidation · proposed group: Tier 2 · Adjacent: Heavy equipment auctions; Dealer used-car auctions; 'Surplus laptops' — as a unified supply source it is new*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 3 · 3 · 3 · 3 · 3 · 1 · 3 · 3 → structural 92.6, gates Y/Y/Y/Y, actionable **92.6**
+- **Reject reasons:** Attention · Capacity · Operational fit
+- **Access:** GovDeals free registration, 12.5% premium, pay in 5 days, remove in 7–10 days; GSA no premium, pay 2 days, remove 10 days, default = 20%/$200; GovPlanet 15% fee, DEMIL items need End Use Certificate. Also Public Surplus and Municibid (~50k+ listings across fleet, IT, lab, athletic, misc.); treat the municipal/institutional seller set as one reject menu.
+- **Scale:** GovDeals 15,000–25,000 active lots/day, 900+ categories, 4.5M+ auctions completed; GovPlanet ~3.5k gov items + 7.4k trucks/trailers.
+- **Sales tape:** Win → pay → pickup (deadline) → title/transport → resale over weeks → storage/abandonment fees
+- **Consumption sink:** Durable (score 1).
+- **Primary risk / boundary:** As-is, photo-only; hard removal deadlines and pickup logistics decide margin; titling.
+- **First experiment:** Use BidProwl-class archives + a reseller's bid log (won/lost) with pickup cost; score lots within 300 miles; measure abstention on title-issue lots.
+- **Confidence:** high
+- **Sources:** <https://featured.govdeals.com/by-the-numbers> · <https://bidprowl.com/guides/govdeals-faq> · <https://govauctions.app/guides/gsa-auctions-faq> · <https://www.govplanet.com/buyer-faq>
+
+### 2. Cut-flower & plant clock auctions (Royal FloraHolland, Plantion)
+
+*Perishables · proposed group: Industrial · New — no floral entry in the 135*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 3 · 2 · 3 · 3 · 2 · 3 · 3 · 3 → structural 92.6, gates Y/Y/Y/Y, actionable **88.0**
+- **Reject reasons:** Attention · Time · Capacity
+- **Access:** Register as RFH customer; screened; expected turnover ≥€5k/week (~€250k/yr); collateral or eWallet prepay; Floriday access; remote clock buying (KOA).
+- **Scale:** 2025 product turnover €5.4B; clock >€2B on ~5bn stems; 18,930 distinct products auctioned; >100,000 transactions/day; 35 clocks; ~6,000 growers; 4 hubs.
+- **Sales tape:** Clock purchase → cold-chain dispatch → customer sale (florist/exporter) → returns/credit → destruction of unsold stems
+- **Consumption sink:** Flowers die in days; unsold volume is destroyed (2020: ~20%).
+- **Primary risk / boundary:** Turnover minimum + Dutch entity for a new operator; unsold/'doorgedraaid' rates not published; vase-life and downstream sell-through hidden at purchase.
+- **First experiment:** Log 4 weeks of clock lots for 200 products incl. passes; shadow-score against a wholesaler's realised sales; measure predicted vs realised margin by product/grade.
+- **Confidence:** high
+- **Sources:** <https://www.royalfloraholland.com/en/buying-2/marketplace/become-a-customer> · <https://www.floraldaily.com/article/9801629/nl-almost-eur5-billion-in-flowers-and-plants-traded-via-the-clock-in-2025/> · <https://www.royalfloraholland.com/en/news-2026/week-13/royal-floraholland-succesvol-2025-productomzet-groeit-naar-5-4-miljard-euro>
+
+### 3. Independent-retail wholesale buying on Faire / Ankorstore
+
+*Commerce · proposed group: Core · Adjacent: Amazon wholesale; E1 'Overlooked supplier catalogue' — the small-retailer, marketplace-supply version*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 1 · 3 · 3 · 3 · 3 · 2 · 3 · 2 · 3 → structural 85.2, gates Y/Y/Y/Y, actionable **85.2**
+- **Reject reasons:** Attention · Prediction · Scale
+- **Access:** Retailer signs up with business info; net-60 for eligible retailers; free returns on first order from any new brand; brand pays 15% + $10 first-order fee (Faire). Ankorstore: 60-day terms, ~€100 minimums.
+- **Scale:** Faire: 100,000+ brands; Ankorstore FY2025: 30,000+ brands, 300,000+ retailers, €1.2B GMV, €160 AOV, ~45% repeat.
+- **Sales tape:** Order → receipt → store sell-through over weeks–months → markdown/return (first order only)
+- **Consumption sink:** Consumer goods consumed.
+- **Primary risk / boundary:** Sell-through only visible in own POS; taste-driven demand; catalogue snapshots needed for declined set; net-60 hides cash cost.
+- **First experiment:** Independent retailer: 18 months of Faire orders + weekly catalogue snapshots + POS sell-through; shadow-score reorders and first-time brands; measure abstention on slow categories.
+- **Confidence:** medium-high
+- **Sources:** <https://www.faire.com/how-faire-works> · <https://garnetmarketplace.com/marketplaces/ankorstore.html>
+
+### 3. Restaurant & commercial-kitchen equipment liquidations
+
+*Equipment · proposed group: Tier 2 · Adjacent: Office clearance lots; Industrial surplus equipment — distinct vertical*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 3 · 3 · 3 · 3 · 1 · 2 · 3 → structural 85.2, gates Y/Y/Y/Y, actionable **85.2**
+- **Reject reasons:** Capacity · Operational fit · Attention
+- **Access:** Open bidder registration (ID + card); buyer's premium 10–18% (15% verified at Restaurant Auction Company); fixed pickup days (e.g., 3 days × 6 h); buyer removes/rigs.
+- **Scale:** BidSpotter snapshot Sep 2026: 1,853 restaurant/bar lots live; US restaurant closures 886–1,650/month (2025); 2026 chain closures ~1,000 locations.
+- **Sales tape:** Win → removal (disconnect, rigging) → test/clean → resale (eBay/local) over 2–8 weeks → scrap
+- **Consumption sink:** Durable; wears (score 1).
+- **Primary risk / boundary:** 'Working when removed'; refrigerant/gas faults; removal deadlines; geographic clustering (WA/GA/FL/CA).
+- **First experiment:** Used-equipment dealer's 12 months of bids (won/lost) + removal cost + resale; score lots; measure abstention on far-away/heavy lots.
+- **Confidence:** medium
+- **Sources:** <https://www.bidspotter.com/en-us/for-sale/food-and-beverage-equipment/restaurant-and-bar-equipment> · <https://restaurantauctioncompany.com/faqs/> · <https://datassential.com/resource/restaurant-closures-2025-trends-data/>
+
+### 5. Cross-border marketplace arbitrage (MercadoLibre Global Selling, Allegro, noon)
+
+*Commerce · proposed group: Core · Adjacent: Amazon wholesale / online arbitrage; Walmart and marketplace wholesale (domestic) — cross-border is new*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 3 · 2 · 3 · 3 · 2 · 3 · 2 · 3 → structural 88.9, gates Y/Y/Y/Y, actionable **84.5**
+- **Reject reasons:** Complexity · Attention · Time
+- **Access:** MercadoLibre Global Selling: no local entity, one account → MX/BR/CL/CO/AR, Full fulfilment from Texas, biweekly payouts; noon: trade licence + VAT; Allegro export 0% commission on new export offers. Ozon/Wildberries: sanctions exposure — exclude.
+- **Scale:** Whole catalogues per country; ML Full storage $0.0005–$0.024/unit/day; category counts unpublished.
+- **Sales tape:** Source purchase → inbound to ML Full / cross-border parcel → sale → returns/customs delays → biweekly payout
+- **Consumption sink:** Consumer goods consumed.
+- **Primary risk / boundary:** Duties/VAT and returns are the hidden costs; FX; marketplace rule volatility; Russian platforms off-limits for a US entity.
+- **First experiment:** Reuse the Amazon OA pipeline: snapshot ML/Allegro catalogues weekly for 3 months, ship 200 SKUs, replay landed margin; measure abstention vs duty surprises.
+- **Confidence:** medium
+- **Sources:** <https://global-selling.mercadolibre.com/landing/pricing> · <https://helpcenter.noon.partners/en/category/onboarding-and-registration/documents-required-to-sell-on-noon> · <https://help.allegro.com/en/marketplaces>
+
+### 5. Used-smartphone wholesale lots (B-Stock carrier/insurer storefronts, Back Market supply)
+
+*Electronics · proposed group: Tier 2 · Specifies: Refurbished electronics — the auction-lot, best-instrumented version*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 3 · 2 · 3 · 3 · 3 · 2 · 3 · 3 → structural 88.9, gates Y/Y/Y/Y, actionable **84.5**
+- **Reject reasons:** Prediction · Complexity · Time
+- **Access:** B-Stock mobile storefronts: US-only, state reseller certificate, $500 deposit, screening up to 2 months, R2 certification for non-functional lots; pay within 2 business days; buyer ships. Back Market: seller onboarding/quality charter.
+- **Scale:** ~1,000 mobile auctions closing per week on B-Stock; 5M+ phones/yr; Mobile Carrier ~500 lots/wk (grades AA+–RR); hundreds of model × storage × carrier SKUs.
+- **Sales tape:** Win → receive → test/grade → activation-lock & yield → refurb → resale over 2–6 weeks → returns
+- **Consumption sink:** Depreciating; used up over its life (score 2).
+- **Primary risk / boundary:** Functional yield, locks, battery health only after receipt; weekly price decay; reseller-cert/R2 gate.
+- **First experiment:** Refurbisher's 12 months of B-Stock bids (won and lost) + yield/resale ledger; score lots; measure predicted vs realised recovery by grade.
+- **Confidence:** high (B-Stock)
+- **Sources:** <https://bstock.com/blog/buyers-guide-mobile-storefronts-on-bstock/> · <https://bstock.com/mobilecarrier/faq/> · <https://sustainableelectronics.org/knowledge-base/ctia-grading-qa/>
+
+### 7. Fresh produce terminal-market wholesale (Hunts Point & regional terminals)
+
+*Perishables · proposed group: Industrial · Adjacent: Agricultural surplus and off-grade lots; Short-dated food closeouts (both cover off-spec — this is primary spot wholesale)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 3 · 2 · 3 · 3 · 3 · 3 · 3 · 3 → structural 96.3, gates Y/Y/Y/P, actionable **82.3**
+- **Reject reasons:** Attention · Time · Operational fit
+- **Access:** PACA licence for >2,000 lb/day ($995/yr); Hunts Point entry fee; buy full cases/pallets; negotiated spot pricing per merchant, no central order book, no API.
+- **Scale:** Hunts Point: ~47 merchants, $2–2.3B/yr, ~23,000 restaurant customers, ~9% of US produce; ~13 USDA-reported terminal markets; daily lot counts not published.
+- **Sales tape:** Purchase → cold storage → restaurant/retail sale (hours–days) → rejections/credits → shrink write-off
+- **Consumption sink:** Eaten or spoiled within days; retail loss 4–43% by fruit (USDA ERS).
+- **Primary risk / boundary:** Declined offers must be captured by the agent (no electronic book); shrink attribution per lot; PACA prompt-pay trust; hours-scale cadence stresses fit latency.
+- **First experiment:** Instrument one wholesaler's daily buys + passed offers for 30 days against USDA terminal prices; replay shrink-adjusted margin; test abstention on volatile commodities.
+- **Confidence:** medium
+- **Sources:** <https://www.ams.usda.gov/rules-regulations/paca/licensing> · <https://mymarketnews.ams.usda.gov/mymarketnews-api> · <https://www.nycfoodpolicy.org/hunts-point-distribution-center-brief-overview-spotlight-produce-market/>
+
+### 8. Consignment intake decisions (luxury & local resale shops)
+
+*Commerce · proposed group: Tier 2 · New — refusal-first market (accept/decline per item offered)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 1 · 3 · 3 · 3 · 3 · 3 · 1 · 2 · 3 → structural 81.5, gates Y/Y/Y/Y, actionable **81.5**
+- **Reject reasons:** Attention · Prediction · Capacity
+- **Access:** Open; TRR commission tiers (~40–85% to consignor by price band), Fashionphile quote in 3–5 days, buyout 70% (85% >$3k); local shops set own rules.
+- **Scale:** TRR FY2025: consignment revenue $535.9M of $693M; 1.056M active buyers; take rate 36.5% (Q4'25).
+- **Sales tape:** Intake → authentication/regrade → listing → sale → returns → consignor payout (day 15–21) → unsold return after ~90 days
+- **Consumption sink:** Wears (score 1).
+- **Primary risk / boundary:** Shelf capacity is the binding constraint; regrade after receipt; low consumption.
+- **First experiment:** Consignment shop: 24 months of intake decisions incl. declines + sales; shadow-score intake; measure inventory-turn gain.
+- **Confidence:** medium-high
+- **Sources:** <https://www.globenewswire.com/news-release/2026/02/26/3246067/0/en/the-realreal-announces-fourth-quarter-and-full-year-2025-results.html> · <https://www.underpriced.app/blog/the-realreal-consignment-guide-2026> · <https://www.thriftandtell.com/guides/fashionphileselling>
+
+### 9. Used networking & data-centre gear (ITAD lots)
+
+*Electronics · proposed group: Tier 2 · Specifies: Refurbished electronics / 'Surplus laptops and IT gear' (landing page)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 3 · 3 · 3 · 3 · 3 · 1 · 2 · 3 → structural 85.2, gates Y/Y/Y/Y, actionable **80.9**
+- **Reject reasons:** Complexity · Attention · Capacity
+- **Access:** GovDeals/AllSurplus/Liquidation.com free registration; enterprise ITAD contracts need R2v3/e-Stewards; buyers inherit data-bearing-media liability.
+- **Scale:** ITAD market $28.3B (2025) → $31.9B (2026); Liquidity Services 500+ categories; servers hold value 3–5 yrs from release.
+- **Sales tape:** Win → sanitisation (NIST 800-88) → component test → resale (weeks) → yield write-offs
+- **Consumption sink:** Durable; obsolescence (score 1).
+- **Primary risk / boundary:** Component yields, BMC/BIOS locks, missing transceivers; data-sanitisation obligations.
+- **First experiment:** ITAD reseller's 12 months of lot bids (won/lost) + yield + resale; score lots by class/age.
+- **Confidence:** medium
+- **Sources:** <https://www.grandviewresearch.com/industry-analysis/it-asset-disposition-market> · <https://liquidtechnology.net/how-much-is-used-it-equipment-worth/> · <https://www.sktes.com/news/what-is-r2v3>
+
+### 10. Printing paper stocklots & side-runs (Go2Paper, PaperIndex)
+
+*Industrial remnants · proposed group: Industrial · New — distinct from recovered-material bales (this is unused stock)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 3 · 3 · 3 · 2 · 3 · 2 · 3 → structural 88.9, gates Y/Y/Y/P, actionable **80.0**
+- **Reject reasons:** Scale · Complexity · Attention
+- **Access:** Go2Paper: free registration, sellers pay 5% ($100 min), buyers free, reverse auctions/RFPs; PaperIndex: lead-gen directory (64,046 members claimed), no transactions handled.
+- **Scale:** No listing/volume counts published; lot structure (basis weight × brightness × width × core) unverified on the help pages.
+- **Sales tape:** Buy → jumbo-roll freight → slit/convert → sale to printer → off-spec claims
+- **Consumption sink:** Printed on — consumed (score 3).
+- **Primary risk / boundary:** Spec matching is the business; freight on jumbo rolls; counterparty and quality risk off-platform; slow RFQ cycles on PaperIndex.
+- **First experiment:** Paper merchant's 12 months of stocklot offers (taken/passed) with conversion cost and sale price.
+- **Confidence:** medium (fees) / low (lots, prices)
+- **Sources:** <https://www.go2paper.com/help/help.asp> · <https://www.paperindex.com/faq>
+
+### 11. Private-label product launches (Alibaba → Amazon/marketplace) — venture-class bets
+
+*Commerce — venture · proposed group: Core · Adjacent: Amazon wholesale / OA — launch selection (no supplier approval) is a different decision*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 3 · 3 · 3 · 3 · 3 · 3 · 1 · 3 → structural 92.6, gates Y/Y/Y/P, actionable **79.2**
+- **Reject reasons:** Prediction · Complexity · Capacity
+- **Access:** Amazon Professional plan + identity verification; Brand Registry needs a registered/pending trademark; Alibaba/1688 suppliers; inspection agencies $300–1,000.
+- **Scale:** Unbounded niche menu (Helium 10 / Jungle Scout); Jungle Scout 2025 survey: 40% cite rising costs, 30% fewer sourcing from China; de minimis ended May/Aug 2025.
+- **Sales tape:** PO → inspection → freight → FBA → sales/PPC → reviews → returns → reorder or liquidation
+- **Consumption sink:** Venture-class: the launch lives or dies; goods consumed.
+- **Primary risk / boundary:** Data floor: $4–12k per observed launch → ≥100 observed launches ≈ $0.5–1M of history for one operator; 3–6 month cycles; tariff drift; platform suspension risk.
+- **First experiment:** Pool anonymised launch ledgers from several aggregators/agencies (enterprise); test if P34 abstains on launches that later died; membership version = only for operators with 100+ past launches.
+- **Confidence:** medium (costs/tariffs high; failure rates low)
+- **Sources:** <https://sell.amazon.com/blog/brand-registry-requirements> · <https://www.unicargo.com/de-minimis-ended-2026-tariffs-guide-amazon-fba/> · <https://www.junglescout.com/resources/reports/amazon-seller-report-2025/>
+
+### 12. Electronic fish auctions (Pefa clock network; Portland Fish Exchange)
+
+*Perishables · proposed group: Industrial · New*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 2 · 2 · 2 · 2 · 3 · 3 · 3 → structural 81.5, gates Y/Y/Y/Y, actionable **77.4**
+- **Reject reasons:** Time · Operational fit · Capacity
+- **Access:** Bank guarantee lodged with each physical auction → buyer number; paid Pefa Auction Clock subscription (free trial); buyer arranges transport. US: Portland Fish Exchange registered-buyer display auction with remote e-bidding.
+- **Scale:** Dutch first sale 2025: 26,682 t / €145M across 12 auctions (7 on Pefa); dozens of species × size × grade per port; lots/day not published.
+- **Sales tape:** Clock buy → same-day cold-chain → processor/retail sale → yield loss/shrink → claims
+- **Consumption sink:** Eaten within days; unsold fish is discarded.
+- **Primary risk / boundary:** Per-auction bank guarantees; lot counts unverified; yield/shrink only after processing; same-day cadence.
+- **First experiment:** Subscribe to one Pefa clock; record every lot and pass for 6 weeks; shadow-score against a fishmonger's realised resale; measure abstention value on gluts.
+- **Confidence:** medium
+- **Sources:** <https://www.pefa.com/how-to-buy-fish-with-the-pefa-auction-network/> · <https://fishery-aquaculture-market-observatory.ec.europa.eu/en/country-and-species-profiles/country-profiles/netherlands> · <https://www.pfex.org/auction/>
+
+### 13. Excess & obsolete electronic components brokerage (independent distribution)
+
+*Electronics · proposed group: Industrial · Adjacent: Spare-parts stocking; Industrial surplus equipment — MPN brokerage is distinct*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 1 · 3 · 3 · 3 · 3 · 3 · 3 · 2 · 2 → structural 85.2, gates Y/Y/Y/P, actionable **76.7**
+- **Reject reasons:** Attention · Prediction · Complexity
+- **Access:** Open; ERAI membership for counterfeit screening; Sourcengine (1B+ parts, 3,500+ suppliers, Part/Offer/Order APIs), Octopart/Nexar API, NetComponents/Broker Forum subscriptions.
+- **Scale:** 1B+ MPNs; 621,909 components EOL'd in 2025 (52% without PCN); 2026 shortage: DRAM contract +90–95% QoQ Q1 2026, FPGA lead times 40 wks, MCU up to 55 wks.
+- **Sales tape:** Buy → AS6081 test (days) → sale to OEM/EMS → returns/nonconformance → write-off of unsold reels
+- **Consumption sink:** Soldered into products; obsolescence ends the market for the part.
+- **Primary risk / boundary:** Counterfeit/nonconforming risk (ERAI 748 reports 2025; 24% pass electrical-only tests); shortage cycles are multi-quarter regimes; spreads unpublished.
+- **First experiment:** Broker's 24 months of RFQs, quotes, buys and sales; join test results; score buy/pass per line under shortage/normal regimes with lifecycle features.
+- **Confidence:** medium-high
+- **Sources:** <https://www.sourcengine.com/api-integrations> · <https://nexar.com/api> · <https://www.dasenic.com/blog/knowledgeHub/obsolete-components-in-2026-eol-list-shortage-statistics-what-to-do-about-it> · <https://www.oxebridge.com/emma/erai-report-counterfeit-electronics-on-the-decline-despite-increase-in-sales/>
+
+### 13. Used lab & scientific equipment (LabX, BioSurplus, EquipNet, Heritage Global)
+
+*Equipment · proposed group: Tier 2 · Adjacent: Industrial surplus equipment*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 3 · 3 · 3 · 3 · 1 · 2 · 3 → structural 85.2, gates Y/Y/Y/P, actionable **76.7**
+- **Reject reasons:** Complexity · Attention · Capacity
+- **Access:** Free accounts (LabX, EquipNet, BioSurplus); Heritage Global biotech/pharma auctions on Bidspotter; buyer's premium 5–20%; decon certificates. University lots also on Public Surplus.
+- **Scale:** Listing counts not published; HGP ~20+ biotech auctions Jan–Jul 2026; university surplus via Public Surplus/GovDeals.
+- **Sales tape:** Win → rigging/decon → test → resale (weeks) → OEM licence transfer issues
+- **Consumption sink:** Durable; wears (score 1).
+- **Primary risk / boundary:** Scale unverified; software licences and calibration unknown until powered; export controls on some analytical gear.
+- **First experiment:** Lab-equipment dealer's auction bids (won/lost) + test outcomes + resale for 12 months; score by instrument class.
+- **Confidence:** low-medium
+- **Sources:** <https://www.hgpauction.com/biotech-pharmaceutical-auctions/> · <https://www.labx.com/> · <https://www.excedr.com/blog/laboratory-equipment-auctions>
+
+### 13. Insurance-salvage merchandise lots (Salvex, Fr8Auctions, insurer programs)
+
+*Liquidation · proposed group: Tier 2 · Adjacent: Liquidation and B-stock pallets; Returned-goods resale — insurer supply is distinct*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 2 · 3 · 3 · 3 · 2 · 2 · 3 → structural 85.2, gates Y/Y/Y/P, actionable **76.7**
+- **Reject reasons:** Complexity · Attention · Capacity
+- **Access:** Salvex open signup; Fr8Auctions wholesale buyers only (business licence, in-person orientation, approval not guaranteed); Liquidity Services marketplaces free registration.
+- **Scale:** Salvex ~5k live lots (heavily industrial/aviation); Liquidity Services FY2025 GMV $1.57B, 6.0M registered buyers; Fr8 weekly.
+- **Sales tape:** Win → freight → inspection/sort → resale by channel → destruction of de-labelled goods
+- **Consumption sink:** Consumed downstream (score 2).
+- **Primary risk / boundary:** Damage extent hidden; control-of-damaged-goods clauses (brands destroy instead of salvage); Fr8 gate.
+- **First experiment:** Salvage buyer's 12 months of bids (won/lost, bid counts) + recovery ledger; score lots by damage type.
+- **Confidence:** medium
+- **Sources:** <https://www.salvex.com/> · <https://fr8auctions.com/registration/> · <https://liquidityservices.com/press-releases/liquidity-services-announces-fourth-quarter-fiscal-year-2025-0> · <https://www.munichre.com/en/insights/mobility-and-transport/high-price-brand-protection.html>
+
+### 13. Mill-end textiles & flexible-packaging film remnants (B2B)
+
+*Industrial remnants · proposed group: Industrial · Adjacent: Deadstock and branded apparel lots; Industrial by-products — remnant rolls into small jobs is new*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 2 · 3 · 3 · 3 · 2 · 3 · 2 · 3 → structural 85.2, gates Y/Y/Y/P, actionable **76.7**
+- **Reject reasons:** Scale · Complexity · Operational fit
+- **Access:** Textiles: jobber channel (NYC/LA districts, DeadstockLA, Fabscrap wholesale) buying end-of-roll, cancellations and overruns; 1–10 yd minimums vs 50–500 yd at the mill. Film remnants: converter-to-converter and scrap/regrind brokers — no dedicated marketplace verified.
+- **Scale:** No published volumes; jobber deadstock $5–15/yd at 50–70% below mill price (Style3D, marketing source).
+- **Sales tape:** Buy → LTL → cut/convert or resell → yardage shortfall, defects, dye-lot disputes
+- **Consumption sink:** Cut into garments / converted into packaging.
+- **Primary risk / boundary:** Thin comps; freight can exceed remnant value; actual yardage, flaws and (for film) treatment decay hidden until receipt; film-remnant side unverified.
+- **First experiment:** Jobber's 12 months of lots offered/taken and sell-through by spec; test spec-match features vs realised margin.
+- **Confidence:** low
+- **Sources:** <https://www.style3d.ai/blog/what-are-fabric-jobbers-and-how-do-they-benefit-fashion-designers/>
+
+### 17. Nursery stock & live-plant wholesale (landscape trade)
+
+*Perishables · proposed group: Tier 2 · Adjacent: Rare plants and seeds (collectibles) — this is trade wholesale*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 2 · 3 · 3 · 3 · 3 · 2 · 3 → structural 88.9, gates Y/Y/Y/P, actionable **76.0**
+- **Reject reasons:** Attention · Complexity · Operational fit
+- **Access:** Resale certificate; state nursery-dealer licence in some states (CA/FL); LandscapeHub free for buyers (300+ suppliers, one cart); PlantANT availability aggregator.
+- **Scale:** USDA 2019 census: $13.8B, 20,655 operations; nursery stock $4.55B; PlantANT claims 613,182 listings / 36,871 varieties; CA+FL+OR = 66% of sales.
+- **Sales tape:** Purchase → freight → hold in yard → job installation or retail sale → mortality/shrink write-off
+- **Consumption sink:** Planted (leaves the market) or dies in the yard; shrink models 2.5–15%.
+- **Primary risk / boundary:** Seasonality and weather; mortality attribution; phytosanitary quarantines; no central price archive.
+- **First experiment:** Aggregate 20 growers' availability lists weekly for a season; join a landscaper's job pipeline and yard shrink; score buy-vs-pass per line.
+- **Confidence:** medium
+- **Sources:** <https://www.nass.usda.gov/Newsroom/archive/2020/12-08-2020.php> · <https://blog.landscapehub.com/how-to-source-nursery-products-wholesale-without-the-hassle> · <https://www.plantant.com/>
+
+### 18. Biomass wood-chip / pellet spot (BALTPOOL-class auctions)
+
+*Energy feedstock · proposed group: Industrial · New*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 2 · 2 · 2 · 2 · 3 · 2 · 3 → structural 77.8, gates Y/Y/Y/Y, actionable **73.9**
+- **Reject reasons:** Operational fit · Scale · Time
+- **Access:** BALTPOOL (Lithuania): registered participants trade weekly auctions with distance-constrained matching; KYC/registration per BALTPOOL docs; participants from LT/LV/EE/PL/SE/FI. US: OTC, relationship-driven.
+- **Scale:** 2020–21 season: 4M MWh traded, 453 registered participants (117 international) — dated; 2025 volumes unverified. Avg supply prices then LT €10.89/MWh, LV €12.15, EE €12.90.
+- **Sales tape:** Award → delivery → moisture/ash measurement → settlement on delivered energy → penalties
+- **Consumption sink:** Burned (score 3).
+- **Primary risk / boundary:** Moisture and haul dominate value; EU sustainability certification (RED III/SBP); auction results public incl. unmatched bids — good declined-option record.
+- **First experiment:** Replay BALTPOOL auction history for a supplier: bids won/lost vs delivered-energy settlement; test abstention on long-haul lots.
+- **Confidence:** medium (2021-vintage scale)
+- **Sources:** <https://www.svebio.se/en/press/pressmeddelanden/increased-volumes-traded-international-biomass-exchange/> · <https://www.baltpool.eu/en/biomass-exchange/how-to-trade/>
+
+### 19. Vehicle-transport load boards (Central Dispatch class)
+
+*Logistics · proposed group: Capacity · Adjacent: Truckload boards; Backhaul matching (this is per-vehicle, multi-car routing)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 3 · 2 · 3 · 3 · 2 · 1 · 3 · 3 → structural 85.2, gates Y/Y/Y/P, actionable **72.8**
+- **Reject reasons:** Operational fit · Time · Capacity
+- **Access:** Carrier: DOT + MC authority, liability ≥$750k (brokers want $1M), cargo $100–250k; subscription ~$115–135/mo; broker authority + BMC-84 bond.
+- **Scale:** Central Dispatch: 10,000,000+ vehicles posted/yr (~27k/day), 20,000+ carriers; cancellations +24.8% H1-26, 4.64% of orders cancelled for inadequate rate.
+- **Sales tape:** Accept → pickup → delivery (BOL inspection) → damage claims → payment (net terms/quick-pay)
+- **Consumption sink:** Truck-hours perish; the vehicle itself is not consumed (score 1).
+- **Primary risk / boundary:** Rolling menu with interference (paper: rapidly expiring menus); declined loads must be logged by the dispatcher agent; damage-claim rates not published.
+- **First experiment:** Carrier with 3–9 car trailers: 6 months of board snapshots + accepted/declined loads + realised margin per trip; score load sets under routing constraints.
+- **Confidence:** medium
+- **Sources:** <https://www.centraldispatch.com/> · <https://www.ccjdigital.com/economic-trends/freight-demand/article/15834395/how-much-does-it-cost-to-ship-a-car-in-2026-rates-trends> · <https://superdispatch.com/blog/carrier-insurance/>
+
+### 19. Inland barge spot capacity (shipper-side quoting)
+
+*Logistics capacity · proposed group: Capacity · New — distinct from Ocean freight capacity and Container repositioning*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 2 · 3 · 2 · 2 · 3 · 3 · 3 → structural 85.2, gates Y/Y/Y/P, actionable **72.8**
+- **Reject reasons:** Operational fit · Time · Capacity
+- **Access:** Shippers/brokers quote via barge lines or OpenTug (multi-vendor quotes on predetermined routes); owning the fleet is Jones Act-gated; shipper-side quoting is open.
+- **Scale:** Rates quoted as % of the 1976 benchmark tariff × $/ton (St. Louis $3.99, Twin Cities $6.19, Cairo–Memphis $3.14); USDA GTR publishes weekly grain-barge tons and rates.
+- **Sales tape:** Booking → loading → transit (locks, river stage) → delivery → demurrage/cleaning → payment
+- **Consumption sink:** Capacity dies if the barge sails underutilised (score 3).
+- **Primary risk / boundary:** Draft restrictions, lock outages and low-water spikes (Oct 2022) are regime shocks; fleeting/demurrage hidden; declined quotes must be self-logged.
+- **First experiment:** Grain shipper/broker's 12 months of quotes accepted/declined vs USDA weekly rates and realised transit cost.
+- **Confidence:** medium-high (benchmarks)
+- **Sources:** <https://opentug.com/blog/comprehensive-guide-to-barge-rates> · <https://agtransport.usda.gov/stories/s/Barge-Dashboard/965a-yzgy/> · <https://www.ams.usda.gov/sites/default/files/media/GTR08062026.pdf>
+
+### 21. TikTok Shop / dropship product tests — venture-class, days cadence
+
+*Commerce — venture · proposed group: Core · New (Marketplace sponsored listings is the ad side; this is product-test selection)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 3 · 3 · 3 · 3 · 3 · 3 · 3 · 2 → structural 92.6, gates Y/Y/P/P, actionable **71.3**
+- **Reject reasons:** Time · Prediction · Attention
+- **Access:** US individual: ID + SSN/ITIN + US bank; business: EIN + docs; approval 24–48h; Seller Center API; 24–48h order-processing SLA.
+- **Scale:** US: ~475k–800k shops (sources conflict), ~216k with sales; US GMV 2025 ~$15B (Canopy); global $64–66B; ~2,000 US shops >$1M.
+- **Sales tape:** Launch → ad/affiliate spend → orders → delivery → returns/refunds → payout; kill or scale within days
+- **Consumption sink:** Venture-class product bets that die in days; goods consumed. Closest ordinary-commerce analogue to an ICO.
+- **Primary risk / boundary:** Platform-rule volatility (referral fee 6%→8% Aug 2026; gated categories); attribution of affiliate/ad demand; constraints change under you (gate 'Constraints' = Partial).
+- **First experiment:** Operator with 300+ past product tests: replay launch/skip decisions with ad spend and return tape; test 7-day kill/scale policy vs P34 abstention; keep fees as dated features.
+- **Confidence:** medium
+- **Sources:** <https://canopymanagement.com/tiktok-shop-eligibility-what-you-need-to-get-started/> · <https://delzonic.com/blogs/tiktok-shop-fee-increase-2026/> · <https://redstagfulfillment.com/how-many-tiktok-shop-sellers/>
+
+### 22. Standing timber & log sales (state/federal auctions, private stumpage, log yards)
+
+*Industrial / agri · proposed group: Industrial · New*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 1 · 2 · 3 · 2 · 3 · 2 · 1 · 3 → structural 74.1, gates Y/Y/Y/Y, actionable **70.4**
+- **Reject reasons:** Capacity · Operational fit · Complexity
+- **Access:** WA DNR monthly sealed-bid auctions with bid bonds; Oregon ODF monthly bid windows; USFS open-sales dashboard; some states require licensed timber buyers with surety (e.g., Indiana).
+- **Scale:** USFS FY2025 sold 2.94 BBF (goal 4 BBF by FY28); WA DNR monthly auctions with results published since 1969; sample GNA sales 2,442–11,547 MBF, 2 of 4 with no bids.
+- **Sales tape:** Award → logging → scaling at mill → delivered-log payments over months → defect/grade recovery variance
+- **Consumption sink:** Milled into lumber/pulp (converted, score 2).
+- **Primary risk / boundary:** Feedback arrives over months–years (paper boundary: too slow vs regime); $1M+ tickets on public sales; operator fit (crews, mills) dominates; cruise vs scale error is the market.
+- **First experiment:** Backtest 10 years of DNR/ODF results incl. no-bid sales against delivered-log price series; test whether P34 abstains on single-bidder tracts that later lost money.
+- **Confidence:** medium-high
+- **Sources:** <https://www.dnr.wa.gov/programs-and-services/product-sales-and-leasing/timber-sales/timber-auction-results> · <https://www.oregon.gov/odf/working/pages/timbersales.aspx> · <https://www.fs.usda.gov/about-agency/accomplishments> · <https://timbermart-south.com/>
+
+### 22. Contingency recruiting job-order selection (split-fee networks)
+
+*Services · proposed group: Contracts · Adjacent: Freelance-platform work arbitrage; Lead purchasing; B2B outbound prospecting*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 0 · 2 · 2 · 3 · 3 · 3 · 2 · 2 · 3 → structural 74.1, gates Y/Y/Y/Y, actionable **70.4**
+- **Reject reasons:** Attention · Prediction · Capacity
+- **Access:** BountyJobs admits preferred vendors/niche agencies (screening ≤72h; employer sets fee; earnings pending until 60 days of employment); Top Echelon TE Network $350 + $150/mo + 6% brokerage; state employment-agency licences in some states.
+- **Scale:** Open job orders per network unpublished; fees 15–25% of first-year base; time-to-fill ~36 days; Paraform avg placed comp $260k.
+- **Sales tape:** Submit → interview → placement → 60–90 day guarantee → fall-off / non-payment → fee received
+- **Consumption sink:** A filled req is consumed (score 2).
+- **Primary risk / boundary:** Fall-off and non-payment 60–90+ days later; capacity (recruiter hours) is the constraint; no logistics.
+- **First experiment:** Agency's 3 years of ATS job orders (worked/passed) + placements/fall-offs; shadow-score req selection.
+- **Confidence:** medium
+- **Sources:** <https://bountyjobs.com/recruiter-faq> · <https://topechelon.com/product/te-network/> · <https://www.paraform.com/blog/contingency-recruiting-guide>
+
+### 24. Hay, forage & feed lots
+
+*Perishables / agri · proposed group: Industrial · Adjacent: Small livestock and equipment auctions*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 3 · 2 · 1 · 2 · 3 · 2 · 3 → structural 77.8, gates Y/Y/Y/P, actionable **70.0**
+- **Reject reasons:** Operational fit · Scale · Time
+- **Access:** Open; auctions sold by the ton (e.g., Rock Valley IA: $125 handling, $40 no-sale fee); HayMap / Internet Hay Exchange classifieds; no API.
+- **Scale:** USDA AMS state reports (CA 9/25/2026: 25,550 t + 44,544 bales confirmed); HayWire index 83 quotes/19 markets weekly; national $166/t (wk of 21 Sep 2026).
+- **Sales tape:** Buy → truck → store → resale or feed-out over weeks → moisture/mold rejection
+- **Consumption sink:** Eaten; spoils if stored badly.
+- **Primary risk / boundary:** Few asset types (breadth low); freight 30–50% of delivered price dominates; quality tests 'honor system'; regional spreads are the edge.
+- **First experiment:** Take 12 months of AMS + auction data; join a hay dealer's buys, freight and sales; test whether regional spread minus freight predicts realised margin and when to pass.
+- **Confidence:** high (data) / medium (marketplace scale)
+- **Sources:** <https://www.ams.usda.gov/mnreports/ams_2904.pdf> · <https://haywireag.com/prices.html> · <https://www.rockvalleyhay.com/web/faqs/>
+
+### 24. Recycled pallet, IBC tote & drum trading
+
+*Packaging / logistics · proposed group: Tier 4 · New*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 3 · 3 · 2 · 1 · 2 · 2 · 2 · 3 → structural 77.8, gates Y/Y/Y/P, actionable **70.0**
+- **Reject reasons:** Scale · Operational fit · Capacity
+- **Access:** No licence; buy cores from generators, sell graded 48x40 by the truckload (~560 pallets); PalletTrader / Repackify marketplaces; UN/DOT reconditioning rules for hazmat-service IBCs/drums.
+- **Scale:** 48forty: 240+ facilities, 850+ partners; Q1-2026 report: 396 verified supplier listings in 50 states; core buy avg $2.75 (range $1.60–12.84), Grade A sell avg $9.04, regional spread 85%.
+- **Sales tape:** Buy cores → sort/repair → truckload sale → dock re-grade / rejection
+- **Consumption sink:** Pallets break and are consumed in service (score 2).
+- **Primary risk / boundary:** Few SKUs (breadth low); freight decides everything; grade drift at the dock; hazmat residue on totes.
+- **First experiment:** One recycler's 12 months of core buys, sort yields, repair labour and sales by lane; score buy/pass per source and lane; test regional spread capture.
+- **Confidence:** medium-high
+- **Sources:** <https://www.repackify.com/blog/what-is-a-gma-pallet-48x40-standard-grades-pricing> · <https://usedpalletrecycling.com/blog/2026-used-pallet-pricing-report> · <https://www.48forty.com/company-48forty>
+
+### 24. Retired toy lines & mass collectibles (Funko, Hot Wheels STH, Pop Mart/Labubu, Jellycat)
+
+*Collectibles · proposed group: Tier 1 · Adjacent: Retired LEGO sets; Sealed TCG; Sneakers (Tier 1 family)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 1 · 3 · 3 · 3 · 3 · 2 · 1 · 3 · 2 → structural 77.8, gates Y/Y/Y/P, actionable **70.0**
+- **Reject reasons:** Prediction · Time · Attention
+- **Access:** Open retail/secondary; StockX (authenticated), eBay, Mercari, Whatnot; retailer purchase limits.
+- **Scale:** Funko ~800 licensed properties; Hot Wheels 30 Super Treasure Hunts/yr (resale $19–350); Pop Mart #1 collectibles brand on StockX since Oct 2024, cooling in 2026 (latest drop −14.3%).
+- **Sales tape:** Buy → hold → sale on StockX/eBay (days–months) → fees 10–15% → fad reversal write-down
+- **Consumption sink:** Durable collectible; blind-box mechanics only (score 1).
+- **Primary risk / boundary:** Fad-driven regimes (Labubu 2026 cooling); counterfeits (11,000+ seized Seattle 2025); low consumption → capital competition.
+- **First experiment:** Reseller's ledger of drops bought/passed + StockX/eBay realised; test P34 on the 2025→26 Labubu regime shift.
+- **Confidence:** medium
+- **Sources:** <https://stockx.com/about/stockxs-midyear-trend-report-has-asics-and-salomon-among-fastest-growing-sneaker-brands-sees-new-records-for-labubu-and-triple-digit-sales-growth-for-trading-cards/> · <https://www.autoevolution.com/news/hot-wheels-super-treasure-hunt-prices-2025-vs-2024-253713.html> · <https://www.iam-media.com/article/pop-mart-intensifies-anti-counterfeiting-efforts-labubu-products-fakes-the-rise-and-prices-decline>
+
+### 24. Luxury handbag & accessories resale (Fashionphile, Rebag, TRR, eBay AG)
+
+*Collectibles / fashion · proposed group: Tier 2 · Adjacent: Entry-tier watches and microbrands (authentication-risk family)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 1 · 3 · 3 · 3 · 3 · 3 · 1 · 2 · 2 → structural 77.8, gates Y/Y/Y/P, actionable **70.0**
+- **Reject reasons:** Prediction · Attention
+- **Access:** Sell-side open; eBay Authenticity Guarantee mandatory ≥$500; TRR/Fashionphile/Rebag buyouts and consignment; no public APIs.
+- **Scale:** TRR FY2025 GMV $2.13B, 3.59M orders, AOV $594; Rebag Clair 2025: Hermès 138%, Goyard 132% value retention; item-level Kelly Mini II 282%.
+- **Sales tape:** Buy → authentication → listing → sale (weeks) → 15-day returns → take rate realised at sale
+- **Consumption sink:** Wears; Hermès is a store of value (score 1).
+- **Primary risk / boundary:** Authentication/regrade after receipt; take rates 36.5% (TRR); fashion regime shifts.
+- **First experiment:** Reseller's quote history (Fashionphile quotes accepted/declined) + realised sales for 12 months.
+- **Confidence:** medium-high
+- **Sources:** <https://www.prnewswire.com/news-releases/rebag-releases-its-sixth-annual-clair-report-a-comprehensive-luxury-appraisal-index-for-resale-302637452.html> · <https://pages.ebay.com/authenticity-guarantee-handbags-seller> · <https://www.globenewswire.com/news-release/2026/02/26/3246067/0/en/the-realreal-announces-fourth-quarter-and-full-year-2025-results.html>
+
+### 28. Specialty green-coffee spot lots (importer spot lists, Cup of Excellence)
+
+*Perishables / consumables · proposed group: Industrial · New*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 2 · 3 · 3 · 2 · 2 · 3 · 2 · 3 → structural 81.5, gates Y/Y/Y/P, actionable **69.7**
+- **Reject reasons:** Attention · Complexity · Scale
+- **Access:** Business account with importer (Cafe Imports, Royal Coffee): no minimum, full bags (59–70 kg) or 22–50 lb boxes; prepay first orders then credit; CoE auctions need ACE membership + sample sets.
+- **Scale:** Hundreds of live spot lots per importer (spot/afloat/future); CoE ~10 auctions/yr × 30 lots; Nicaragua 2025: ~2,800 bids from 100+ companies.
+- **Sales tape:** Buy spot → warehouse release → roast → wholesale/retail sale over weeks → fading write-down
+- **Consumption sink:** Roasted and drunk; cup quality fades with age.
+- **Primary risk / boundary:** Declined lots only recorded if offer sheets are snapshotted; value is operator-mediated (roasting + sales channel); seasonality of arrivals.
+- **First experiment:** Snapshot two importers' spot lists daily for 90 days; join a roaster's purchase + sell-through ledger; test whether cup score/price residuals predict margin.
+- **Confidence:** medium-high
+- **Sources:** <https://www.cafeimports.com/north-america/blog/purchase-planning/coffee-ordering-faq/> · <https://royalcoffee.com/how-to-buy/> · <https://cupofexcellence.org/about-coe-auctions/>
+
+### 28. Recovered-material bales (OCC, mixed paper, PET/HDPE)
+
+*Recycling · proposed group: Industrial · Adjacent: Scrap metal and e-waste recovery (different materials)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 3 · 2 · 1 · 3 · 3 · 2 · 3 → structural 81.5, gates Y/Y/Y/P, actionable **69.7**
+- **Reject reasons:** Operational fit · Scale · Complexity
+- **Access:** No licence to broker; relationships with MRFs/generators and mills; BaleBid marketplace (open, £2/wk); truckload (18–22 t) or container lots; Basel PIC for mixed plastics export.
+- **Scale:** BaleBid snapshot: 590 listings (1,153 t paper, 1,328 t cardboard, 7,959 t plastic); ReMA PS-2026 defines dozens of paper grades; broader flow bilateral.
+- **Sales tape:** Buy → truck/ship → mill receipt & grading → claims within 2 business days → downgrade/rejection → payment
+- **Consumption sink:** Pulped / re-melted (destroyed as a tradable bale).
+- **Primary risk / boundary:** Contamination grade only at mill receipt; commodity-like index (few grades) limits long-tail edge; export rules; brokers earn $/t spreads.
+- **First experiment:** A broker's 18 months of loads incl. quotes not taken; join mill claims; test whether P34 abstains on high-claim generators/lanes.
+- **Confidence:** medium-high
+- **Sources:** <http://resource-recycling.com/recycling/2026/09/09/bale-pricing-mostly-flat-for-september/> · <https://www.recycledmaterials.org/wp-content/uploads/Guidelines-for-Paper-Stock-Revisions-Jan-2026-1.pdf> · <https://www.balebid.com/>
+
+### 30. Unclaimed freight, abandoned cargo & customs (General Order) auctions
+
+*Logistics / liquidation · proposed group: Tier 2 · Adjacent: Liquidation and B-stock pallets; Storage unit auctions (different supply)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 1 · 3 · 3 · 3 · 3 · 2 · 2 · 3 → structural 85.2, gates Y/P/Y/P, actionable **69.0**
+- **Reject reasons:** Complexity · Attention · Capacity
+- **Access:** CBP GO / Treasury auctions via contractors (CWS Marketing, Apple Auctioneering): free public registration, deposit >$5k, no premium, pickup 15–30 days; Fr8Auctions weekly sealed-bid pallets for approved wholesale buyers.
+- **Scale:** GO goods saleable 6 months after import (19 CFR 127.4); auction frequency/lot counts unpublished; Fr8 weekly.
+- **Sales tape:** Win → pay in 2 days → pickup ≤15 days → sort → resale by channel → unsellable disposal
+- **Consumption sink:** Mixed consumer/industrial goods, largely consumed downstream (score 2).
+- **Primary risk / boundary:** Contents/condition largely hidden; export-only lots; sealed bids = your own passes only; sporadic supply.
+- **First experiment:** Log every GO/Fr8 lot and bid decision for 6 months; join resale ledger; test if manifest features + inspection notes predict recovery.
+- **Confidence:** medium
+- **Sources:** <https://cwsmarketing.com/faqs/faqs-us-customs-go-merchandise/> · <https://www.ecfr.gov/current/title-19/chapter-I/part-127> · <https://fr8auctions.com/turning-lost-freight-into-lucrative-opportunities/>
+
+### 31. Architectural salvage & reclaimed building materials
+
+*Construction reuse · proposed group: Tier 2 · Adjacent: Construction material surplus (new excess) — reclaimed/deconstruction supply is new*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 3 · 3 · 3 · 3 · 2 · 2 · 3 → structural 88.9, gates Y/P/Y/P, actionable **68.4**
+- **Reject reasons:** Operational fit · Complexity · Capacity
+- **Access:** Habitat ReStores (affiliate-run, donation-fed, walk-in), deconstruction contractors, salvage yards, reuse platforms (PlanetReuse, Rheaply — unverified); deconstruction ordinances create supply in some cities.
+- **Scale:** ReStore count commonly cited ~900 US (unverified); no sales figures; inventory unlisted.
+- **Sales tape:** Buy → deconstruct/haul → de-nail, re-mill → sale to a job or yard → yield loss, lead/asbestos disposal
+- **Consumption sink:** Installed into buildings (score 2).
+- **Primary risk / boundary:** Condition variance and haul cost dominate; structural reuse needs re-grading/engineer sign-off; lead paint and asbestos; walk-in inventory means the menu must be built by hand.
+- **First experiment:** Salvage yard's 12 months of lots offered/taken with haul and re-milling cost vs realised sales.
+- **Confidence:** low-medium
+- **Sources:** <https://www.habitat.org/restores> · <https://thegreenmissioninc.com/the-lumber-market-in-2026/>
+
+### 32. Tire wholesale — closeouts, used & retread
+
+*Auto consumables · proposed group: Tier 2 · Adjacent: Auto parts, OEM take-offs and cores*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 2 · 2 · 2 · 3 · 2 · 3 · 2 · 3 → structural 77.8, gates Y/Y/Y/P, actionable **66.5**
+- **Reject reasons:** Scale · Attention · Operational fit
+- **Access:** Dealer account with distributors (ATD, US AutoForce); scrap/used-tire hauler registration and manifests by state; no public API.
+- **Scale:** ATD: 90,000+ SKUs, 110+ DCs, 80,000+ customers; ~250M scrap tires/yr in US (79% to end markets); closeout flow unverified.
+- **Sales tape:** Buy → LTL → fit/resell over weeks → warranty/returns → scrap disposal fee
+- **Consumption sink:** Worn out — literal consumable.
+- **Primary risk / boundary:** Closeout flow and tire-only margin unverified; bulky low value density; DOT-age risk on aged closeouts.
+- **First experiment:** A regional tire shop's 12 months of distributor closeout offers + used-lot buys vs sell-through; score by size/age; measure pass value on slow sizes.
+- **Confidence:** medium-low
+- **Sources:** <https://www.atd.com/about-us/article/we-are-american-tire-distributors/> · <https://www.ustires.org/advocacy/tire-recycling-markets> · <https://www.moderntiredealer.com/home/news/55263033/mtds-facts-issue-examines-us-tire-market>
+
+### 32. Second-hand & excess solar panels and inverters
+
+*Energy hardware · proposed group: Industrial · New*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 2 · 2 · 2 · 3 · 2 · 2 · 3 → structural 77.8, gates Y/Y/Y/P, actionable **66.5**
+- **Reject reasons:** Complexity · Operational fit · Prediction
+- **Access:** EnergyBin members-only B2B; SanTan Solar / A1 SolarStore open with pallet minimums (20–25 panels); secondsol (EU) open.
+- **Scale:** Global secondary ≈1 GW/yr; US exports >50 MW in 2025; EnergyBin 14,462 modules posted early 2026; 98% of 'resale' modules in 2025 were excess NEW stock.
+- **Sales tape:** Buy → flash/EL test → pallet freight or export → sale to installer/exporter → breakage/hazardous-waste determination
+- **Consumption sink:** Installed for 20+ years (leaves the market); failed panels become regulated waste (score 2).
+- **Primary risk / boundary:** Sellers list without flash data; margins 'often too thin'; EPA hazardous-waste determination if unfit; UFLPA traceability.
+- **First experiment:** Reseller's 12 months of lots with test results and sales; test whether P34 abstains on untested/low-W lots.
+- **Confidence:** medium-high
+- **Sources:** <https://resources.energybin.com/solar-resources/global-solar-panel-resale-poised-to-take-off-despite-challenges> · <https://www.epa.gov/hw/solar-panel-frequent-questions> · <https://www.secondsol.com/en/index.htm>
+
+### 32. Micro-acquisitions of small businesses (BizBuySell / Acquire.com tier)
+
+*Venture · proposed group: Tier 3 · Adjacent: Micro-website and newsletter acquisitions (Tier 3, sub-$5k) — main-street tier*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 1 · 2 · 2 · 3 · 3 · 3 · 3 · 1 · 3 → structural 77.8, gates Y/Y/Y/P, actionable **66.5**
+- **Reject reasons:** Complexity · Prediction · Capacity
+- **Access:** Free browsing + broker NDAs (BizBuySell ~50,000 tracked); Acquire.com 2,200+ live listings, ~13% of submissions approved, paid buyer tiers; SBA 7(a) needs US-person ownership, equity injection, guarantees.
+- **Scale:** BizBuySell 2025: 9,586 closed deals, $7.95B; median price $350k, 0.69× revenue, 2.61× cash flow, 170 days to close; Acquire.com SaaS 3.9× profit, ~81 days on market.
+- **Sales tape:** LOI → diligence → close → post-close cash flow over years → seller-note default / earn-out
+- **Consumption sink:** Venture-class: businesses die (score 3).
+- **Primary risk / boundary:** Paper boundary: feedback arrives years later; one operator cannot reach 100+ observed deals → pooled/enterprise (search-fund or roll-up) data only.
+- **First experiment:** Roll-up or search-fund platform with 100+ acquisitions and a decline log; otherwise blueprint only.
+- **Confidence:** high (BizBuySell/Acquire figures)
+- **Sources:** <https://www.bizbuysell.com/blog/2025-year-in-review/> · <https://blog.acquire.com/acquire-com-biannual-acquisition-multiples-report-jan-2026/> · <https://ctacquisitions.com/guides/small-business-ma-statistics-2026/>
+
+### 32. Used cooking oil (UCO) / waste-oil collection routes
+
+*Renewable feedstock / routes · proposed group: Tier 4 · New — not in the 135*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 2 · 2 · 2 · 2 · 3 · 2 · 3 → structural 77.8, gates Y/Y/Y/P, actionable **66.5**
+- **Reject reasons:** Operational fit · Scale · Capacity
+- **Access:** Place containers at restaurants, haul to renderer/aggregator (Darling/DAR PRO, Mahoney/Neste, regionals); accounts won with per-gallon rebates and free equipment; state grease-hauler registration (e.g., CA CDFA inedible kitchen grease), DOT; renderer acceptance specs.
+- **Scale:** Restaurant-side rebates $2.00–4.50/gal (avg ~$3, 2025); national volume not verified (industry-cited 3B+ lb/yr, unverified).
+- **Sales tape:** Pickup → volume & FFA/moisture test at renderer → deduction → payment; theft losses
+- **Consumption sink:** Burned as biodiesel / renewable diesel or rendered into feed.
+- **Primary risk / boundary:** Sticky incumbents and permitting are the binding constraints; price keyed to RFS/45Z/LCFS credit values; theft (Dec 2025 multistate ring); per-stop yield hidden until pickup.
+- **First experiment:** Collector's 12 months of stops (signed and passed), pickup volumes, deductions and route costs; score stop selection under route density.
+- **Confidence:** medium-low
+- **Sources:** <https://greaseconnections.com/used-cooking-oil-pricing-guide/> · <https://thejacobsen.com/about/methodology/uco-spec/> · <https://www.argusmedia.com/en/methodology/key-commodity-prices/argus-us-uco-price-assessments>
+
+### 36. Used-clothing bales, credential clothing & fabric deadstock
+
+*Recycling / apparel · proposed group: Industrial · Adjacent: Deadstock and branded apparel lots (new goods) — this is used/export*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 3 · 3 · 2 · 3 · 2 · 1 · 3 → structural 81.5, gates Y/P/Y/P, actionable **66.0**
+- **Reject reasons:** Complexity · Operational fit · Attention
+- **Access:** No licence; graders/exporters (Bank & Vogue, Buffalo Export, US Dynamics) quote container lots (40'HC ≈ 40,000 lb credential); Queen of Raw / FabScrap for fabric.
+- **Scale:** Buffalo Export ~50M lb/yr; Bank & Vogue in 34 countries; grades supplier-defined (Cream/A/B/C); listing counts unverified.
+- **Sales tape:** Buy → ocean freight → sort → graded resale by destination → unsold/rag write-off
+- **Consumption sink:** Worn out over time (score 2).
+- **Primary risk / boundary:** Yield of saleable grade unknown until sorted; bale-level attribution hard (gate 'Outcome' = Partial); weeks–months cycle; destination import bans.
+- **First experiment:** Sorter's 12 months of bale purchases with sort yields and graded sales; test if source/grade features predict yield-adjusted margin.
+- **Confidence:** low-medium
+- **Sources:** <https://www.bankvogue.com/blog/credential-clothing-bale-guide-for-buying/> · <https://www.buffaloexportllc.com/credentialclothing.html> · <https://resale.queenofraw.com/>
+
+### 36. Traditional media remnant inventory (TV / radio / print / static OOH)
+
+*Demand — offline media · proposed group: Demand · Adjacent: Small-space advertising; Display and programmatic inventory — offline remnant is new*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 1 · 3 · 2 · 3 · 3 · 2 · 3 · 3 · 2 → structural 81.5, gates Y/P/Y/P, actionable **66.0**
+- **Reject reasons:** Time · Attention
+- **Access:** Through remnant agencies, direct station/network desks or the DR/infomercial market; no licence.
+- **Scale:** No volume or discount figures verified; agencies claim large discounts to rate card (unverified).
+- **Sales tape:** Buy → airing (no guarantee; preemptable) → response/attribution → make-goods
+- **Consumption sink:** Unsold inventory is destroyed when the slot passes (score 3).
+- **Primary risk / boundary:** Hidden variable is delivery of the asset itself (airing not guaranteed); attribution weak; keep the novel slice offline — DOOH overlaps the catalogue's demand group.
+- **First experiment:** DR advertiser's 12 months of remnant buys/passes with response data; test abstention on preempt-prone dayparts.
+- **Confidence:** low-medium
+- **Sources:** <https://www.simulmedia.com/blog/expert-guide-to-remnant-inventory-and-tv-advertising-strategies>
+
+### 38. Used shipping-container resale & one-way leasing
+
+*Logistics · proposed group: Capacity · Adjacent: Container repositioning (operator side) — this is trading/SOC leasing*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 2 · 2 · 2 · 2 · 1 · 2 · 3 → structural 70.4, gates Y/Y/Y/P, actionable **63.4**
+- **Reject reasons:** Operational fit · Attention · Capacity
+- **Access:** Container xChange: trading buyer $399/mo, wholesaler $899/mo, leasing $399–649/mo (12-mo commitment), vetted partners; retail via broker app.
+- **Scale:** xChange: 1,700+ vetted partners, 2,500+ locations, 29,000+ containers across 150+ NA depots; 2026 US delivered: 20' CW $2,800–4,000, 40'HC WWT $3,500–5,500.
+- **Sales tape:** Buy/lease → survey → trucking → resale or drop-off → damage/repair charges
+- **Consumption sink:** Durable; some boxes exit to storage conversion (score 1).
+- **Primary risk / boundary:** Subscription gate; regional imbalances shift quickly; survey vs grade disputes; small spread on trading.
+- **First experiment:** Use xChange history for 12 months of listings + one-way credits; join a trader's buys/leases; test if imbalance features predict per-box margin.
+- **Confidence:** medium-high
+- **Sources:** <https://www.container-xchange.com/pricing> · <https://www.container-xchange.com/blog/one-way-container> · <https://containerone.net/blogs/news/how-much-does-a-shipping-container-cost-complete-2026-price-breakdown>
+
+### 38. Used crypto-mining hardware (ASIC / GPU rigs)
+
+*Energy hardware — crypto-adjacent · proposed group: Industrial · New (hardware is ordinary commerce, but value keyed to BTC hashprice)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 2 · 3 · 2 · 1 · 2 · 2 · 3 · 2 → structural 70.4, gates Y/Y/Y/P, actionable **63.4**
+- **Reject reasons:** Time · Prediction · Scale
+- **Access:** Open; Kaboomracks (tested/graded, 7-day not-DOA), Luxor Hardware, Bitmain/MicroBT secondary, eBay; freight; hosting $/kWh.
+- **Scale:** Small model universe (~10 current-gen SHA-256); prices $10–30/TH (Hashrate Index 2026); hashprice $31.89/PH/day (Aug 2026) near breakeven.
+- **Sales tape:** Buy → burn-in → resale or hosting → hashboard failures → obsolescence write-down
+- **Consumption sink:** Economically consumed by difficulty growth (score 2).
+- **Primary risk / boundary:** Paper boundary: target dominated by one irreducible shock (BTC price/hashprice); tariffs 21.6–57.6% on imports; breadth low.
+- **First experiment:** Only as a hardware-dealer ledger test with hashprice as a feature; expect low incremental value over a hashprice rule.
+- **Confidence:** medium
+- **Sources:** <https://hashrateindex.com/blog/top-10-bitcoin-mining-asic-machines-for-2026/> · <https://kaboomracks.com/faq/> · <https://www.theblock.co/post/365793/trump-tariffs-bitcoin-miners>
+
+### 38. Scratch-and-dent & returned appliance/furniture truckloads
+
+*Liquidation · proposed group: Tier 2 · Adjacent: Returned-goods resale; Appliance and electronics repair-and-flip*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 1 · 2 · 2 · 3 · 1 · 2 · 3 → structural 70.4, gates Y/Y/Y/P, actionable **63.4**
+- **Reject reasons:** Capacity · Operational fit · Scale
+- **Access:** Distributor programs (NeuAppliance for Best Buy/Costco/LG/GE/Samsung/Whirlpool): business buyers, pre-made manifest truckloads only; several programs 'enrollment cap met'.
+- **Scale:** Truckload = 40–80 units, $20–35k; Best Buy S&D loads 95% no repair / 4% minor / 1% parts; returns loads 70/10/20.
+- **Sales tape:** Receive → test/repair → showroom/online sale over weeks → warranty claims
+- **Consumption sink:** Durable (score 1).
+- **Primary risk / boundary:** Rationed supply (enrolment caps) → menu is thin; hidden functional faults; warehouse and delivery needed.
+- **First experiment:** Discount appliance store's 12 months of loads (taken/passed) + repair and sell-through ledger.
+- **Confidence:** medium
+- **Sources:** <https://neuappliancewholesale.com/pages/best-buy-appliance-liquidation-program> · <https://neuappliancewholesale.com/pages/wholesale-appliance-liquidation-programs>
+
+### 41. Graded coins, stamps & comics (PCGS/NGC/CGC; Heritage, GreatCollections)
+
+*Collectibles · proposed group: Tier 1 · Adjacent: Trading cards — sport and TCG (same family, missing lines)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 1 · 3 · 3 · 3 · 3 · 1 · 0 · 2 · 1 → structural 63.0, gates Y/Y/Y/Y, actionable **63.0**
+- **Reject reasons:** Attention · Prediction
+- **Access:** Free registration; weekly internet auctions per category; buyer's premium ~20% (Heritage), ~10% (GreatCollections, unverified).
+- **Scale:** Heritage archive: millions of lots (free with registration); weekly auctions across coins/comics/currency; GreatCollections $250M+ sold.
+- **Sales tape:** Win → hold/regrade → resale at auction (weeks) → round-trip fees 20–30%
+- **Consumption sink:** Pure store of value — no consumer (score 0).
+- **Primary risk / boundary:** Boundary example: cleanest telemetry but no consumption and low ops → open capital competes away the edge; round-trip fees dominate.
+- **First experiment:** Cheap benchmark: replay 5 years of Heritage archives; likely shows P34 ≈ comps rule; use to calibrate, not to operate.
+- **Confidence:** medium
+- **Sources:** <https://www.ha.com/information/about-auction-archives.s> · <https://www.pcgs.com/publicapi> · <https://www.cgccomics.com/population-report/>
+
+### 42. Intermodal chassis / trailer / reefer spot rental
+
+*Logistics capacity · proposed group: Capacity · Adjacent: Container repositioning; Equipment rental — chassis/trailer pools are new*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 3 · 1 · 2 · 2 · 2 · 3 · 3 · 3 → structural 81.5, gates Y/P/Y/P, actionable **62.7**
+- **Reject reasons:** Capacity · Time · Operational fit
+- **Access:** Chassis pools (DCLI, TRAC, Flexi-Van) require a UIIA-registered motor carrier with insurance (new UIIA effective 5 May 2026); unregistered users pay DCLI $55/day; trailer/reefer spot marketplaces unverified.
+- **Scale:** DCLI daily rates from 1 Jul 2026: $28.55 (Southeast) to $47.50 (Pacific SW) incl. damage waiver; LA/LB short-term $20/day → $10 after 90 days.
+- **Sales tape:** On-hire → use → gate fees, repositioning penalties ($250), damage disputes, tolls → off-hire; detention/demurrage
+- **Consumption sink:** Capacity-days perish (score 3).
+- **Primary risk / boundary:** Pool access gated; detention/demurrage accounting messy (FMC rule under OSRA 2022); attribution of per-day cost to a load is partial.
+- **First experiment:** Drayage carrier's 6 months of daily chassis/trailer decisions with per-diem, penalties and load revenue.
+- **Confidence:** high (chassis rates) / low (trailer marketplaces)
+- **Sources:** <https://dcli.com/daily-market-rates/> · <https://uiia.intermodal.org/documents/uiia/newuiia-Home.pdf>
+
+### 43. Empty-leg & repositioning charter capacity
+
+*Travel capacity · proposed group: Capacity · Adjacent: Air cargo capacity*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 2 · 1 · 2 · 2 · 2 · 3 · 3 · 2 → structural 70.4, gates Y/Y/Y/P, actionable **60.2**
+- **Reject reasons:** Time · Operational fit
+- **Access:** Avinode broker tiers $740–2,119/mo (API on Ultimate); consumer apps (JetASAP, XO) list legs; DOT Part 295 disclosure duties; no licence.
+- **Scale:** Avinode 3,400+ aircraft, 13,500+ professionals; ~300k requests/month (2018); ~40% of European bizav flights are empty legs; legs/day unpublished.
+- **Sales tape:** Book → flight flies or cancels (operator may cancel) → client payment → refunds
+- **Consumption sink:** Seat-hours perish (score 3).
+- **Primary risk / boundary:** Leg may not fly; matching market rather than inventory; subscription gate.
+- **First experiment:** Broker's 12 months of Avinode requests, quotes and booked legs; score match decisions.
+- **Confidence:** medium
+- **Sources:** <https://avinode.com/pricing/> · <https://nbaa.org/aircraft-operations/part-135/air-charter-brokers/14-cfr-part-295-air-charter-broker-questions-answers/> · <https://theflyingengineer.com/private-jet-empty-legs/>
+
+### 43. Vacant-land & rural-parcel flipping
+
+*Real estate · proposed group: Tier 3 · Adjacent: Tax lien certificates (flagged) — outright parcel purchase is ordinary property*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 1 · 3 · 3 · 3 · 3 · 3 · 0 · 1 · 2 → structural 70.4, gates Y/Y/Y/P, actionable **60.2**
+- **Reject reasons:** Attention · Prediction · Complexity
+- **Access:** No licence to buy/sell own parcels; county delinquent lists; seller financing on vacant land largely outside Dodd-Frank/Reg Z (no dwelling); Reg N and state subdivision statutes apply.
+- **Scale:** LandWatch 526,047 US listings (Sep 2026), ~192k listed in last 60 days (≈3,000/day); off-market parcel counts unverified.
+- **Sales tape:** Offer → title/escrow → resale or seller-financed note over months–years → buyer default
+- **Consumption sink:** Land is not consumed (score 0).
+- **Primary risk / boundary:** Slow realisation; title/access/wetland defects; seller-financed notes stretch feedback to years; no consumer.
+- **First experiment:** Land flipper's 3 years of mail-campaign offers (accepted/declined) + resale; test if P34 beats their offer formula.
+- **Confidence:** medium
+- **Sources:** <https://retipster.com/dodd-frank/> · <https://www.landwatch.com/land> · <https://www.landwatch.com/land/listed-60-days>
+
+### 43. DDGS / ethanol co-product spot (distillers grains, corn oil)
+
+*Feed / agri · proposed group: Industrial · Adjacent: Industrial by-products and side streams; Hay, forage and feed lots*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 1 · 2 · 1 · 2 · 3 · 2 · 3 → structural 70.4, gates Y/Y/Y/P, actionable **60.2**
+- **Reject reasons:** Operational fit · Scale
+- **Access:** Plant-gate/FOB-plant sales negotiated with merchandisers; no exchange; needs feed-buyer relationships and trucking; state commercial-feed licensing and FDA/FSMA animal-food rules (unverified).
+- **Scale:** Plant count/volumes not verified this pass (RFA data).
+- **Sales tape:** Buy → truck → feedlot delivery → quality claims → payment
+- **Consumption sink:** Fed to animals (score 3).
+- **Primary risk / boundary:** Few product types (breadth low); quality variance (moisture, protein, fat after oil extraction) not in the published price; corn/ethanol correlation; relationship-heavy access.
+- **First experiment:** Feed merchandiser's 12 months of plant-gate offers taken/passed vs USDA weekly and realised delivered margin.
+- **Confidence:** medium (data) / low (practice)
+- **Sources:** <https://mymarketnews.ams.usda.gov/viewReport/3618>
+
+### 46. Wool, hides & animal by-product auctions (AWEX; packer hide tenders)
+
+*Industrial / agri · proposed group: Industrial · New*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 2 · 2 · 1 · 2 · 1 · 3 · 2 · 2 → structural 63.0, gates Y/Y/Y/Y, actionable **59.9**
+- **Reject reasons:** Scale · Operational fit
+- **Access:** AWEX: register via declaration forms; open-cry auctions Sydney/Melbourne/Fremantle ~46 weeks/yr; brokers publish catalogues with AWTA presale tests. Hides: packer tenders via relationships.
+- **Scale:** Weekly offerings 34k–41k bales (8–14% passed in); ~85% of Australian wool sold at auction; bale ≈180 kg greasy.
+- **Sales tape:** Buy → dump/ship → mill sale → claims
+- **Consumption sink:** Spun/tanned — consumed (score 3).
+- **Primary risk / boundary:** Boundary example: objectively measured pre-sale → little hidden mispricing; passed-in lots are an excellent declined-option record but the edge is thin.
+- **First experiment:** Cheap benchmark: AWEX passed-in vs re-offered price history; expect small P34 edge.
+- **Confidence:** medium-high (wool) / low (hides)
+- **Sources:** <https://www.awex.com.au/auction/> · <https://www.sheepcentral.com/wool-prices-tumble-under-weight-of-bigger-offering/> · <https://www.ams.usda.gov/mnreports/nw_ls444.txt>
+
+### 47. Pawn lending against long-tail collateral
+
+*Finance / commerce — regulated · proposed group: Core · Adjacent: Micro-lending — individual (Active experiment) — collateralised variant*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 1 · 3 · 1 · 3 · 3 · 3 · 1 · 2 · 3 → structural 74.1, gates Y/Y/Y/Y, actionable **51.9**
+- **Reject reasons:** Prediction · Attention · Complexity
+- **Access:** State and/or local pawnbroker licence (bond $5k–100k+), police reporting (LeadsOnline), 30–90 day holds; fee caps 2–25%/month by state.
+- **Scale:** ~7,771 US stores (NPA); FirstCash 1,207 US stores, avg loan $312 (2025), redemption ~85%, retail margin ~42–43%, inventory turns 2.8×/yr.
+- **Sales tape:** Loan → fees → redemption or forfeiture → inventory at principal → resale over months → markdown
+- **Consumption sink:** Goods redeemed or resold; not consumed (score 1).
+- **Primary risk / boundary:** Regulated consumer credit → gated launch like micro-lending; declined offers exist but only in POS; forfeiture resale months later.
+- **First experiment:** Enterprise lane with a chain using Bravo: 2 years of offers (incl. declines) + redemption + resale; shadow-score offer amounts.
+- **Confidence:** medium-high
+- **Sources:** <https://www.stocktitan.net/sec-filings/FCFS/10-k-first-cash-holdings-inc-files-annual-report-b004a84f37ec.html> · <https://pawn-software.com/pawn-licensing-us.htm>
+
+### 48. State-legal cannabis B2B wholesale (LeafLink-class)
+
+*Consumables — regulated · proposed group: Core · New (regulated commerce)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 3 · 1 · 3 · 3 · 2 · 3 · 2 · 3 → structural 81.5, gates Y/Y/Y/P, actionable **51.3**
+- **Reject reasons:** Attention · Prediction · Complexity
+- **Access:** Valid state cannabis licence required (retailer/distributor/processor); LeafLink verifies every licence; platform free for retailers; cannabis-specific banking.
+- **Scale:** LeafLink: 34 states, 12,000+ companies, >$5B annual GMV, 'millions of orders'; ~398,000 unique SKUs (141,488 flower) in the 2025 pricing guide.
+- **Sales tape:** Order → licensed transport (manifest) → retail sell-through over weeks → price compression → expiry/destruction
+- **Consumption sink:** Consumed; flower degrades in months; expired product destroyed under state rules.
+- **Primary risk / boundary:** Federal illegality (280E, banking, no interstate) — HyperC would gate or exclude; licence required to hold inventory; retail sell-through is the real outcome.
+- **First experiment:** Enterprise-only: a multi-store retailer's 2 years of LeafLink orders + catalogue snapshots + POS sell-through; shadow-score reorders; do not run on membership.
+- **Confidence:** high (scale) / medium (economics)
+- **Sources:** <https://www.leaflink.com/press/leaflink-marks-a-decade-of-powering-cannabis-commerce-growth-across-34-markets-and-billions-in-sales/> · <https://www.leaflink.com/press/leaflinks-2025-wholesale-cannabis-pricing-guide-now-available/> · <https://www.cannabisbenchmarks.com/reports/>
+
+### 48. Aircraft used-serviceable material (USM) & expendables
+
+*Aviation · proposed group: Industrial · New*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 1 · 3 · 3 · 3 · 2 · 2 · 3 → structural 81.5, gates Y/Y/Y/P, actionable **51.3**
+- **Reject reasons:** Complexity · Capacity · Attention
+- **Access:** ILS / PartsBase subscriptions (PartsBase 83,000 members, 7,600+ companies); ASA-100 accreditation for credibility; parts need FAA 8130-3 / EASA Form 1 and back-to-birth trace.
+- **Scale:** PartsBase 15B+ line items, 3.3M repair capabilities; USM market $7.8B (2025) → $12.1B (2035); ~1,100 aircraft retirements/yr.
+- **Sales tape:** Buy → inspection/repair (shop visit, BER risk) → sale → warranty returns
+- **Consumption sink:** Expendables consumed; rotables repaired (score 2).
+- **Primary risk / boundary:** Accreditation and trace paperwork gate; shop-visit findings only after purchase; ITAR/EAR; unapproved-parts liability.
+- **First experiment:** Enterprise lane with an ASA-100 distributor: 3 years of RFQs, buys, teardown results and sales; test abstention on BER-prone P/Ns.
+- **Confidence:** medium
+- **Sources:** <https://aviation.partsbase.com/partsbase-landing-page-homepage/> · <https://www.snsinsider.com/reports/used-serviceable-material-market-8691> · <https://www.aviationsuppliers.org/asa-100>
+
+### 48. Short-dated lab reagents & medical consumables surplus
+
+*Consumables — regulated · proposed group: Flagged · Adjacent: Short-dated food closeouts — the reagent/device version*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 1 · 1 · 3 · 3 · 2 · 3 · 3 · 3 → structural 81.5, gates Y/Y/Y/P, actionable **51.3**
+- **Reject reasons:** Time · Scale · Complexity
+- **Access:** Sell-side open (XS Supply: offers within 1 business day); buy-side via LabX / Bimedis / Salvex; reselling Rx-only devices into CA needs a Board of Pharmacy wholesaler licence; other states vary. Pharma-specific venues: PharmaTradz, RxOneShop, GSA medical lots; start with OTC/devices/GSA — Rx needs a VAWD-accredited pharmacy/wholesaler partner.
+- **Scale:** Unverified — fragmented catalogue-style resellers; XS Supply '$2M+ recovered for 500+ facilities' (cumulative).
+- **Sales tape:** Buy → cold-chain → sale to licensed buyer before expiry → expired write-off (training/research only)
+- **Consumption sink:** Consumed or expires — hard deadline.
+- **Primary risk / boundary:** Scale unverified; expiry makes abstention decisive; licensing per state; expired product cannot go to clinical use.
+- **First experiment:** Surplus reseller's ledger (offers received, accepted, expiry, sale date); test expiry-aware sizing.
+- **Confidence:** low
+- **Sources:** <https://xs-supply.com/pages/sell> · <https://simasgovlaw.com/dont-get-caught-without-a-california-pharmacy-wholesaler-license/> · <https://www.labx.com/categories/reagents-and-synthesis>
+
+### 51. IPv4 lease brokerage (exploratory)
+
+*Digital infrastructure · proposed group: Tier 3 · Adjacent: Wholesale bandwidth and transit; Expiring domain drops — address blocks are new*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 0 · 2 · 3 · 2 · 2 · 2 · 1 · 2 · 1 → structural 55.6, gates Y/Y/Y/P, actionable **50.0**
+- **Reject reasons:** Attention · Prediction
+- **Access:** IPXO marketplace (lessor/lessee; LOA/RPKI/abuse handled) or brokers (IPv4.Global/Hilco Streambank); sale via RIR transfer (ARIN needs-justification); needs an ASN + upstream to announce; no licence.
+- **Scale:** June 2026: avg $21.49/IP sale price (−24% YoY), ~580k IPs traded in the month (IPv4Center headline); /16 below $20/IP since June 2025; leases ~$0.40/IP/month (IPXO 2025), APNIC region >$0.60.
+- **Sales tape:** Lease → announce → abuse/blocklist events → renewals / default → return
+- **Consumption sink:** Addresses return at lease end — not consumed (score 1).
+- **Primary risk / boundary:** Thinner than freight, no logistics, drifting exchange-like as transparency rises; blocklist and geolocation lag hidden; RIR policy variance.
+- **First experiment:** Research-only: replay a lessor's 24 months of listings, offers declined and realised utilisation/abuse.
+- **Confidence:** medium-high (prices)
+- **Sources:** <https://circleid.com/posts/2025-ipv4-price-trends-2026-predictions> · <https://www.ipxo.com/blog/ipv4-price-history/>
+
+### 52. Fine wine & rare spirits secondary market (Liv-ex, WineBid, auctions)
+
+*Consumables — regulated · proposed group: Tier 2 · New*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 2 · 1 · 3 · 3 · 2 · 2 · 2 · 2 → structural 70.4, gates Y/Y/Y/Y, actionable **49.3**
+- **Reject reasons:** Prediction · Attention · Complexity
+- **Access:** Liv-ex B2B only: Data membership then Trading membership at Exchange Committee discretion, joining + annual fee, weekly GBP settlement; WineBid open to consumers (52 auctions/yr). US entity needs TTB permit + state wholesaler licences (three-tier).
+- **Scale:** Liv-ex 500–620 merchants in 42–47 countries; 16,000+ tradable wines; ~£100M live bids/offers (2018); LWIN 200,000+ wines & spirits; WineBid 'thousands of new bottles each week'.
+- **Sales tape:** Buy in bond → storage → sale to trade/collector over weeks–months → condition disputes
+- **Consumption sink:** Eventually drunk, but a large store-of-value component (score 2).
+- **Primary risk / boundary:** Membership at committee discretion; alcohol licensing; provenance/counterfeit only at physical check-in; cask market rife with fraud (flag).
+- **First experiment:** Use a Liv-ex data membership + WineBid archive to build 24 months of menus incl. lots not won; shadow-score a merchant's buys; exclude casks entirely.
+- **Confidence:** medium-high
+- **Sources:** <https://www.liv-ex.com/liv-ex-membership-terms/> · <https://www.liv-ex.com/lwin/> · <https://www.winebid.com/Help/WhyWineBid> · <https://www.thedrinksbusiness.com/2025/03/calls-mount-to-regulate-sham-scammer-whisky-cask-investment-industry/>
+
+### 53. Short-term-rental arbitrage (lease-to-list units)
+
+*Real-estate ops — regulated · proposed group: Flagged · Adjacent: Peer storage and parking leasing; Equipment and vehicle rental flipping*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 2 · 1 · 3 · 3 · 3 · 3 · 1 · 3 → structural 77.8, gates Y/Y/Y/P, actionable **49.0**
+- **Reject reasons:** Prediction · Complexity · Capacity
+- **Access:** Landlord consent + city STR permit + platform permit enforcement; effectively barred for non-resident operators in NYC/SF/LA; workable in Nashville, Houston, Phoenix/Scottsdale, several FL cities.
+- **Scale:** AirDNA tracks 12,074 US markets; candidate menu = rental listings × market (Zillow/Apartments.com).
+- **Sales tape:** Lease → furnish → nightly bookings → occupancy taxes → damage → regulatory change → lease exit
+- **Consumption sink:** Room-nights perish (score 3).
+- **Primary risk / boundary:** City-by-city rules change under a 12-month lease (constraints not stable); 12-month cadence; HyperC would flag like reservation arbitrage.
+- **First experiment:** Only after counsel; operator with 50+ units' lease decisions + AirDNA + realised P&L.
+- **Confidence:** medium
+- **Sources:** <https://www.rakidzich.com/articles/is-airbnb-rental-arbitrage-legal-state-by-state-guide-2026> · <https://www.airdna.co/vacation-rental-data/app/us> · <https://www.bnbcalc.com/blog/short-term-rental-regulation/new-york-city-guide>
+
+### 53. Ag-input dealer inventory (seed / fertilizer / crop protection)
+
+*Agri distribution — regulated · proposed group: Core · Adjacent: Procurement; Trade credit and payment terms — the ag-retail menu is new*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 2 · 1 · 3 · 3 · 3 · 3 · 1 · 3 → structural 77.8, gates Y/Y/Y/P, actionable **49.0**
+- **Reject reasons:** Prediction · Complexity · Capacity
+- **Access:** State pesticide-dealer licence for RUPs (FIFRA), state fertilizer registration/tonnage reporting; manufacturer return/carryover and rebate programs are contractual and non-public.
+- **Scale:** CropLife 100 (2021): top 10 retailers = 3,288 facilities (68%); Nutrien ~1,000 outlets; total US outlets often cited 6,000–7,000 (unverified).
+- **Sales tape:** Order → season sales on credit → carryover/returns → rebates → write-downs; collections
+- **Consumption sink:** Applied to fields — consumed (score 3).
+- **Primary risk / boundary:** Seasonal regime shifts (one menu per season); licences and EPA rules; dealer cost hidden in rebates; farm credit risk; months-scale loop.
+- **First experiment:** Enterprise lane with a multi-outlet retailer: 3 seasons of buys, carryover and sell-through; shadow-score prebuy sizing.
+- **Confidence:** medium
+- **Sources:** <https://www.croplife.com/croplife-top-100/top-10-ag-retailers-with-the-most-locations/> · <https://www.nass.usda.gov/Charts_and_Maps/Agricultural_Prices/prod1.php>
+
+### 55. Used medical & imaging equipment (DOTmed, Centurion/Bidspotter)
+
+*Equipment — regulated · proposed group: Flagged · New (regulated commerce)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 2 · 1 · 3 · 3 · 3 · 1 · 1 · 3 → structural 74.1, gates Y/Y/Y/P, actionable **46.7**
+- **Reject reasons:** Complexity · Capacity · Prediction
+- **Access:** DOTmed free registration; Centurion auctions: $2,000 deposit, 20% premium, pickup 7 business days; Rx-device resale restricted to licensed practitioners/facilities (21 CFR 801.109); state device-distributor licences vary.
+- **Scale:** DOTmed: 375k+ registered users, 'thousands of new listings/month'; Centurion 100+ auctions/yr.
+- **Sales tape:** Win → de-install (radiation/magnet) → refurb → sale to licensed buyer over weeks–months
+- **Consumption sink:** Durable (score 1).
+- **Primary risk / boundary:** Regulatory: FDA refurbisher vs remanufacturer, HIPAA data, state radiation registration; months-long cycle; tube/detector life hidden.
+- **First experiment:** Enterprise-only with a refurbisher; counsel review of resale licensing first.
+- **Confidence:** medium
+- **Sources:** <https://www.dotmed.com/features/stats.html> · <https://centurionservice.com/buying/medical-auction-bidding> · <https://relinkonline.com/blogs/homepage/navigating-regulatory-compliance-when-selling-used-medical-devices-what-vendors-need-to-know-in-2026>
+
+### 56. Parallel-import / grey-market distribution (fragrance, cosmetics, small electronics)
+
+*Commerce — IP-flagged · proposed group: Flagged · Adjacent: Discontinued cosmetics and fragrance; Distributor excess inventory — grey import angle is new*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 2 · 2 · 3 · 3 · 3 · 3 · 2 · 3 → structural 85.2, gates Y/Y/Y/P, actionable **46.0**
+- **Reject reasons:** Complexity · Attention · Prediction
+- **Access:** Open commercially (importer of record, customs broker); sourcing via diverters/closeout wholesalers; Amazon gating needs authorised invoices (≥10 units, entity match) — diverter invoices usually fail.
+- **Scale:** No aggregate volume data; categories: fragrance, cosmetics, small electronics, luxury; pharma excluded.
+- **Sales tape:** Import → listing → sale → IP takedown / stranded inventory → returns
+- **Consumption sink:** Consumed.
+- **Primary risk / boundary:** Legal boundary: Tariff Act §526 / Lever rule (materially different goods excluded), Lanham Act material-differences test, EU regional exhaustion; marketplace gating — HyperC should flag under API Terms.
+- **First experiment:** Counsel review first; then restrict to non-materially-different, non-gated categories; test on eBay-channel ledger only.
+- **Confidence:** medium (law high; scale low)
+- **Sources:** <https://www.mayerbrown.com/en/insights/publications/2025/10/navigating-the-gray-market-landscape> · <https://goaura.com/blog/amazon-top-restricted-brands-in-2025>
+
+### 57. Bulk wine & grape lots (California brokerage)
+
+*Consumables — regulated · proposed group: Industrial · New*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 1 · 1 · 3 · 2 · 3 · 3 · 1 · 3 → structural 70.4, gates Y/Y/Y/P, actionable **44.4**
+- **Reject reasons:** Complexity · Capacity · Prediction
+- **Access:** Untaxpaid bulk wine only to TTB-bonded premises (winery or bonded wine cellar; bond min $1,000) + state ABC; brokers (Ciatti, Turrentine) intermediate; custom-crush is the asset-light route.
+- **Scale:** 29.2M gal actively for sale statewide (Turrentine, Mar 2026); 2025 crush 2.62M t (lowest since 1999); lot counts unpublished.
+- **Sales tape:** Buy in bond → transfer → blend/bottle → distribution sale over months → unsold write-down
+- **Consumption sink:** Drunk; oversupply is being destroyed (vine removals).
+- **Primary risk / boundary:** Bonded-premises gate; months-long realisation; buyer's market until ~2027–28 = strong drift regime; declined lots only via broker snapshots.
+- **First experiment:** Enterprise lane with a négociant: 3 years of bulk buys + passes + bottled sell-through; test P34 abstention under the 2024–26 oversupply drift.
+- **Confidence:** medium-high (supply/prices) / low (margins)
+- **Sources:** <https://www.turrentinebrokerage.com/wp-content/uploads/2026/03/Turrentine-Market-Update-3-26.pdf> · <https://www.ecfr.gov/current/title-27/chapter-I/subchapter-A/part-24/subpart-D> · <https://www.pressdemocrat.com/2026/01/23/wine-business-forecast-grapes-turrentine-moramarco-vinoshipper/>
+
+### 57. Voluntary carbon credits & RECs (retirement-driven)
+
+*Environmental commodities · proposed group: Core · New*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 0 · 2 · 2 · 3 · 3 · 3 · 3 · 2 · 1 → structural 70.4, gates Y/Y/Y/P, actionable **44.4**
+- **Reject reasons:** Prediction · Attention · Complexity
+- **Access:** Verra general account: $750 opening + $750/yr + KYC (no project needed); Xpansiv CBL onboarding unpublished (1,100+ participants); Gold Standard/ACR/CAR terms unverified.
+- **Scale:** 168M credits retired in 2025 (the consumption sink); 22,000+ projects × vintages × methodologies; CBL 300M t cumulative; $12.3B forward offtakes announced 2025 at ~$180/t avg.
+- **Sales tape:** Buy → hold → resale or retirement → rating reassessment / methodology downgrade write-down
+- **Consumption sink:** Retirement literally destroys the credit — purest consumption sink in the list.
+- **Primary risk / boundary:** Price dispersion $2 to >$50 within one type; integrity events reprice held inventory; CFTC anti-fraud authority; commodity-regulated (CFTC anti-fraud), not securities — treat as a gated launch; no logistics/ops moat.
+- **First experiment:** Research-only: replay registry issuance/retirement + rating changes 2022–25 against a trader's book; test abstention before integrity downgrades.
+- **Confidence:** medium
+- **Sources:** <https://verra.org/new-verra-program-fee-schedule-faqs/> · <https://www.sylvera.com/blog/sylvera-state-of-carbon-credits-2025-market-shifts-from-volume-to-value> · <https://www.xpansiv.com/trading-platforms/cbl> · <https://www.morganlewis.com/pubs/2024/09/cftc-issues-final-guidance-on-listing-voluntary-carbon-credit-derivative-contracts>
+
+### 57. Spent industrial catalyst / PGM reclaim (toll refining)
+
+*Industrial recovery — regulated · proposed group: Industrial · Adjacent: Scrap metal and e-waste recovery — assay-uncertainty market is new*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 1 · 1 · 3 · 2 · 3 · 2 · 1 · 3 → structural 70.4, gates Y/Y/Y/P, actionable **44.4**
+- **Reject reasons:** Complexity · Capacity · Prediction
+- **Access:** Toll refiners (Sabin, Heraeus, Ecotrade, Red Fox): lot sampled 100%, split samples for owner/refiner/umpire, assay by ICP/XRF/fire assay; not open retail.
+- **Scale:** Lot sizes and volumes unverified.
+- **Sales tape:** Purchase → shipment (RCRA manifest) → sampling → assay → settlement 60–180 days (per brief; unverified) → treatment charges
+- **Consumption sink:** Catalyst destroyed, metal recovered (score 2).
+- **Primary risk / boundary:** Assay uncertainty is the market; RCRA K171/K172 listings and 40 CFR 266 Subpart F; months of capital lock; feedback slow.
+- **First experiment:** Enterprise lane with a refiner or aggregator: lots received/declined, estimated vs assayed content, settlement.
+- **Confidence:** medium (mechanics) / low (terms)
+- **Sources:** <https://www.digitalrefining.com/article/1000660/recoup-money-from-your-spent-catalyst> · <https://www.govinfo.gov/content/pkg/CFR-2024-title40-vol29/pdf/CFR-2024-title40-vol29-sec266-70.pdf>
+
+### 60. Trade-show / exhibit teardown surplus
+
+*Equipment · proposed group: Tier 2 · Adjacent: Office clearance lots; Hotel FF&E liquidations*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 1 · 3 · 3 · 2 · 2 · 1 · 2 · 3 → structural 74.1, gates Y/P/Y/N, actionable **40.0**
+- **Reject reasons:** Time · Capacity
+- **Access:** UsedBooths.com: sellers list free, platform brokers Q&A/transaction and offers transport; ExhibitTrader comparable; show-close teardown creates timed supply.
+- **Scale:** 'Thousands' of booths, counters, kiosks listed; no exact counts; no price index.
+- **Sales tape:** Buy → haul at show close → refit → resale or scrap branded skins
+- **Consumption sink:** Durable hardware (score 1).
+- **Primary risk / boundary:** Sporadic, event-driven supply; declined lots rarely recorded; condition and completeness unstandardised.
+- **First experiment:** Exhibit house's 3 years of teardown buys; likely too sparse for floors — blueprint only.
+- **Confidence:** medium (access) / low (pricing)
+- **Sources:** <https://usedbooths.com/how-it-works/>
+
+### 61. Film/TV prop & set-dressing liquidation
+
+*Collectibles / furniture · proposed group: Tier 2 · Adjacent: Small regional estate auctions; Office clearance lots*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 1 · 2 · 3 · 3 · 2 · 1 · 2 · 3 → structural 70.4, gates Y/P/Y/N, actionable **38.0**
+- **Reject reasons:** Attention · Capacity
+- **Access:** Propstore auctions (26% buyer's premium, consignment rate undisclosed, seller paid 35 days post-auction); studio set sales and prop-house liquidations ad hoc; WB Property Dept is rental, not liquidation.
+- **Scale:** No sales totals; wrap-driven supply; no price index (Propstore/Heritage results are the comps).
+- **Sales tape:** Win → pickup at lot → resale (collectible or furniture channel) → provenance disputes
+- **Consumption sink:** Resold furniture/collectibles (score 1).
+- **Primary risk / boundary:** Provenance is the hidden variable (no accepted third-party authentication); sporadic supply; declined lots rarely recorded.
+- **First experiment:** Prop dealer's 3 years of buys; blueprint only.
+- **Confidence:** medium (Propstore) / low (studio supply)
+- **Sources:** <https://propstore.com/general-faqs/>
+
+### 62. Hotel FF&E & renovation liquidations
+
+*Equipment · proposed group: Tier 4 · Adjacent: Office clearance lots*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 3 · 1 · 3 · 2 · 2 · 2 · 1 · 1 · 3 → structural 66.7, gates Y/P/Y/N, actionable **36.0**
+- **Reject reasons:** Capacity · Operational fit
+- **Access:** Negotiated buyout/consignment with owner, GC or brand PIP team; no licence; crews, trucks, warehouse required.
+- **Scale:** 2025 US hotel transactions 1,528 hotels / 186,925 rooms; 237 flagged for renovation; renovation cycles 5–7 yrs soft goods, 10–12 full.
+- **Sales tape:** Phased removal → warehouse → showroom / bulk sale over months
+- **Consumption sink:** Durable (score 1).
+- **Primary risk / boundary:** Sporadic supply; hotel nets only $200–300/room ('not going to get rich'); declined projects rarely recorded (gate N).
+- **First experiment:** Liquidator's project log for 3 years; probably too sparse for floors — treat as blueprint only.
+- **Confidence:** medium-low
+- **Sources:** <https://www.costar.com/article/66442661/how-to-handle-a-hotel-liquidation-sale> · <https://hotelbusiness.com/u-s-hotel-transaction-volume-surges-in-2025-fueling-a-wave-of-renovation-and-conversion-activity/>
+
+### 62. Game-key & software-licence resale (G2A, Kinguin, Eneba)
+
+*Digital — platform-flagged · proposed group: Flagged · Flagged class (cf. Aged social accounts)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 0 · 3 · 3 · 2 · 3 · 3 · 2 · 3 · 1 → structural 74.1, gates Y/Y/P/P, actionable **36.0**
+- **Reject reasons:** Time · Attention
+- **Access:** Merchant onboarding with KYC and proof of key source; commissions ~10% + fees; 30-day review hold on payouts (Kinguin).
+- **Scale:** G2A: 30M customers, 40,000+ sellers, 75,000+ digital items.
+- **Sales tape:** Buy → list → sale → redemption → revocation / chargeback (irreversible) → payout after hold
+- **Consumption sink:** Keys are redeemed — consumed (score 2).
+- **Primary risk / boundary:** Publisher EULAs, documented fraud (tinyBuild, Factorio), revocations; paper boundary: telemetry manipulated by strategic participants.
+- **First experiment:** None — flag under API Terms.
+- **Confidence:** medium
+- **Sources:** <https://en.wikipedia.org/wiki/G2A> · <https://kasepo.com/become-merhant-sell-on-kinguin/> · <https://www.osborneclarke.com/insights/paris-court-rules-users-may-resell-games-purchased-steam>
+
+### 64. Flexo anilox roll / plate-cylinder surplus (exploratory)
+
+*Printing equipment · proposed group: Industrial · Adjacent: Spare-parts stocking; Industrial surplus equipment*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 2 · 1 · 3 · 2 · 2 · 2 · 1 · 1 · 2 → structural 59.3, gates Y/P/Y/N, actionable **32.0**
+- **Reject reasons:** Scale · Attention
+- **Access:** No dedicated marketplace; Machinio lists presses with rolls incidental; a handful of eBay listings with specs in titles (e.g., 600 LPI / 6.05 BCM); equipment dealers.
+- **Scale:** Very thin; no counts; no pricing reference.
+- **Sales tape:** Buy → cell inspection → resale to a matching press owner
+- **Consumption sink:** Durable (score 1).
+- **Primary risk / boundary:** Effectively no market — press-specific fit fragments demand; cell wear unknowable from a listing.
+- **First experiment:** None; keep as an exploratory note.
+- **Confidence:** medium (that it is thin)
+- **Sources:** <https://www.machinio.com/cat/anilox-rolls>
+
+### 65. Reg CF / angel-syndicate deal selection
+
+*Venture — securities · proposed group: Flagged · Separate perimeter class (like Alt-coin hedge fund / Thin public equities)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 0 · 2 · 2 · 3 · 3 · 3 · 3 · 1 · 1 → structural 66.7, gates Y/Y/Y/Y, actionable **26.7**
+- **Reject reasons:** Prediction · Attention
+- **Access:** Reg CF open to all investors with income/net-worth caps; AngelList syndicates accredited-only (SPV min raise $80k, setup ~$10k, carry ≤20%, close in 2–4 weeks).
+- **Scale:** Reg CF 2025: $378.3M raised, 1,006 new offerings (−29%), 67.4% hit target, median equity raise $194k, avg 285 investors; AngelList claims 25,000 syndicates & funds.
+- **Sales tape:** Invest → 12-month resale restriction → follow-on rounds / failure over 5–10 years
+- **Consumption sink:** The user's own example class: startups die (score 3).
+- **Primary risk / boundary:** Securities perimeter (excluded from membership/profit-share); feedback arrives years after regime change (paper boundary); low ops leverage.
+- **First experiment:** Research-only: backtest KingsCrowd/EDGAR 2016–2020 cohorts for follow-on/failure; do not operate under membership.
+- **Confidence:** high (Reg CF) / medium (AngelList)
+- **Sources:** <https://kingscrowd.com/2025-investment-crowdfunding-annual-report/> · <https://www.angellist.com/syndicates> · <https://www.joinarc.com/guides/angel-syndicate>
+
+### 66. Music-royalty & creator-catalog auctions/advances (Royalty Exchange, SongVest, Spotter)
+
+*IP finance · proposed group: Tier 3 · Adjacent: Kindle and audiobook backlist rights (Tier 3)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 0 · 1 · 3 · 3 · 2 · 3 · 1 · 1 · 1 → structural 55.6, gates Y/Y/Y/Y, actionable **22.2**
+- **Reject reasons:** Prediction · Attention
+- **Access:** Royalty Exchange: identity verification only, non-US OK, timed auctions <1 week, ACH/wire in 2 days; SongVest = Reg A+ securities; Spotter = bilateral advances (not an open menu).
+- **Scale:** Royalty Exchange cumulative $200M / 2,000+ transactions, 30k investors (listings/month ~20–40, unverified); SongVest 185 offerings.
+- **Sales tape:** Assignment (~1 month) → quarterly/biannual distributions → decay
+- **Consumption sink:** Catalogs decay slowly (score 1).
+- **Primary risk / boundary:** Securities status ambiguous (SongVest explicitly securities); thin flow (≈1/day); quarterly feedback.
+- **First experiment:** Research-only backtest of Royalty Exchange archive vs subsequent distributions.
+- **Confidence:** medium-high
+- **Sources:** <https://royaltyexchange.com/faq> · <https://altstreet.investments/platforms/reviews/songvest> · <https://www.spotter.com/creator-capital>
+
+### 67. Hotel room wholesale / bed-bank distressed inventory
+
+*Travel capacity · proposed group: Flagged · Adjacent: Reservation arbitrage (flagged)*
+
+- **Scores** (logistics · density · access · long-tail · breadth · partial obs. · consumption · cadence · ops): 0 · 3 · 0 · 2 · 3 · 2 · 3 · 3 · 1 → structural 63.0, gates Y/Y/P/P, actionable **5.1**
+- **Reject reasons:** Time · Attention
+- **Access:** Strictly B2B: Hotelbeds API needs signed commercial agreement + certification; Expedia TAAP needs IATA/ARC/CLIA; wholesale contracts prohibit public resale of net rates — no evidence small operators can buy allotments to resell.
+- **Scale:** Hotelbeds 180k hotels; WebBeds 365k+; hotel × date × room type = millions of cells.
+- **Sales tape:** Book → stay → cancellations/no-shows/chargebacks → monthly commission
+- **Consumption sink:** Room-nights perish (score 3).
+- **Primary risk / boundary:** Access effectively closed (contract bans) → boundary example: perfect menu, inaccessible.
+- **First experiment:** None for membership; only as an enterprise lane with an accredited agency.
+- **Confidence:** medium
+- **Sources:** <https://hoteltechreport.com/news/hotel-bed-banks> · <https://developer.hotelbeds.com/documentation/activities/knowledge-base/certification/>
+
+## Seven families, and the inefficiency each lives on
+
+| Family | Markets | Lives on | Cost-side edge | Estimate-side edge |
+| --- | --- | --- | --- | --- |
+| Perishable auctions and spot wholesale | Flower clocks, fish clocks, produce terminals, green-coffee spot lists, nursery stock, hay | Perishability and attention: nobody can hold, and the lot you passed is compost by Thursday | Cold chain, same-day dispatch, customers who turn stock in days | Which lot, at which price, on which day, against your own realised sell-through |
+| Surplus, liquidation and salvage | Government surplus, restaurant equipment, lab and IT lots, phone lots, unclaimed freight, insurance salvage, appliance loads, architectural salvage, trade-show teardowns, film props | Lemons and the winner's curse: as-is, photo-only, hard removal deadlines | Pickup radius, refurbishment bench, a channel that clears in weeks | Recovery from a manifest and a photo, corrected for the curse |
+| Catalogue and reject-list markets | Faire-class catalogues, cross-border marketplaces, private-label launches, TikTok Shop tests, component brokerage, consignment intake, offline media remnant, IPv4 leases | Rational inattention: a buyer instantiates a fraction of a 100,000-brand or billion-part menu | Landed cost, duty and returns handling; a channel that sells through | Scoring the whole catalogue including the lines nobody ordered |
+| Logistics capacity | Car-hauling boards, inland barge quotes, chassis and trailer pools, container trading, pallet and tote recycling, recovered-material bales, empty-leg charter | Operator-dependent value: one carrier's loss is another's backhaul; the menu expires in hours | Truck or barge position, trailer type, depot network, lanes | Which combination of loads to accept under routing constraints |
+| Industrial feedstocks and remnants | Paper stocklots, mill-end textiles and film, biomass auctions, DDGS, used cooking oil routes, spent catalyst | Matching cost: a roll or a stream is worth more to the one small job it fits, and quality is only known on delivery | Haul distance, conversion or sampling capacity, a pipeline of small jobs | Spec-match and quality estimation; refusing the long-haul lot |
+| Licensed and gated markets | Pawn, cannabis wholesale, bulk and fine wine, aviation parts, medical equipment, ag-input dealers, carbon credits, PGM reclaim | Limits to arbitrage by licence: incumbents run on policy tables written years ago | Holding the licence or accreditation — P34 does not confer it | Replacing the rule table with expected economics, as a gated launch |
+| Venture-class bets | Private-label launches, TikTok Shop tests, small-business acquisitions, Reg CF and syndicate deals | Selection-biased histories: outcomes exist only for the bets taken | Sourcing, QC and ad operations that lower the cost of a failed test | Not making the false-positive bets that sink the portfolio |
+
+## Where the thesis stops
+
+- **No consumer, clean comps, open access** — graded coins, vacant land: nothing removes supply, so capital competes the edge down to fees.
+- **One irreducible shock** — used mining rigs (hashprice), bulk wine (a multi-year oversupply): a one-line rule does as well as a model.
+- **Feedback slower than the regime** — timber, small-business acquisitions, Reg CF: outcomes arrive in months or years; only pooled histories reach the data floors in [03-data-format](03-data-format.md#include-the-deals-you-did-not-take).
+- **Manipulated telemetry** — game keys, grey-market lots with counterfeits, untested hardware: refusal is most of the value and the label itself is corrupt.
+- **Structure without access** — hotel bed-bank inventory (contract-barred); licensed markets belong on the enterprise track with counsel first.
+
+## Reconciliation log
+
+Proposals received after the first screen, and what became of them.
+
+| # | Proposed | Verdict | Maps to |
+| --- | --- | --- | --- |
+| A1 | Truckload / DAT-style freight spot and backhaul | In catalogue | Truckload boards; Backhaul matching (capacity group) |
+| A2 | Short-dated food / produce wholesale closeouts | In catalogue + in list | Short-dated food closeouts (catalogue); Fresh produce terminal wholesale (row 'produce') |
+| A3 | B2B distributor excess / closeout inventory | In catalogue | Distributor excess inventory; Closeout merchandise; Liquidation and B-stock pallets |
+| A4 | Energy demand-response curtailment | In catalogue | Demand-response curtailment (infra group) |
+| A5 | Returned-goods / reverse-logistics grading | In catalogue | Returned-goods resale; Refurbished electronics |
+| A6 | LTL consolidation and warehouse overflow | In catalogue | Partial-truckload consolidation; Warehouse overflow space |
+| A7 | Used cooking oil / waste-oil collection routes | Added | Row 'uco' |
+| A8 | Mill-end textiles / flexible-packaging film remnants | Added | Row 'millends' |
+| A9 | Architectural salvage / reclaimed building materials | Added | Row 'archsalvage' |
+| A10 | Intermodal chassis / trailer / reefer spot rental | Added | Row 'chassis' |
+| A11 | Ag-input dealer inventory (seed / fertilizer / chem) | Added | Row 'aginputs' |
+| A12 | IPv4 lease brokerage | Added (exploratory) | Row 'ipv4' |
+| B1 | Inland barge spot capacity | Added | Row 'barge' |
+| B2 | Biomass wood-chip / pellet spot | Added | Row 'biomass' |
+| B3 | Municipal / institutional surplus as one portfolio | In list | Row 'govsurplus' (rank 1) |
+| B4 | Short-dated medical / pharma | In list | Row 'labcons' |
+| B5 | Printing paper stocklots / side-runs | Added | Row 'paperstock' |
+| B6 | Traditional media remnant (TV / radio / print / static OOH) | Added | Row 'mediaremnant' |
+| B7 | Used lab / biopharma equipment | In list | Row 'labeq' |
+| B8 | Trade-show / exhibit teardown surplus | Added | Row 'tradeshow' |
+| B9 | DDGS / ethanol co-product spot | Added | Row 'ddgs' |
+| B10 | Spent industrial catalyst / PGM reclaim | Added | Row 'catalyst' |
+| B11 | Off-spec chemicals / glycol reclaim | In catalogue — not added | Industrial by-products and side streams |
+| B12 | Film/TV prop & set-dressing liquidation | Added | Row 'filmprops' |
+| B13 | Flexo anilox / plate-cylinder surplus | Added (exploratory) | Row 'anilox' |
+
+## Proposing a market
+
+Bring the 68th: [hyperc.com/contact.html?topic=market](https://hyperc.com/contact.html?topic=market). The useful first step is not the model — it is the snapshot. Start recording the whole menu you see each day, including everything you pass on; that record is the asset the model reads.
+
+*Waiting-list version 2026-09-27. Nothing on this page is a forecast of returns; the evidence base for P34 is one production deployment and a synthetic benchmark, and the thesis is that a market can fail the test.*

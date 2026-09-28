@@ -6,7 +6,7 @@
 
 **Your AI can talk. P34 lets it do business.**
 
-[Website](https://hyperc.com) · [Markets catalogue](docs/05-market-catalog.md) · [Membership](https://hyperc.com/membership.html) · [Console](https://api.hyperc.com/app/) · [Simulator](https://api.hyperc.com/sim/) · [Research](https://hyperc.com/research.html) · [Technical report](https://github.com/hyperc-ai/p34-technical-report)
+[Website](https://hyperc.com) · [Markets catalogue](docs/05-market-catalog.md) · [Membership](https://hyperc.com/membership.html) · [Console](https://api.hyperc.com/app/) <!-- simulator temporarily disabled 2026-09-13 — restore when /sim/ is back: · [Simulator](https://api.hyperc.com/sim/) --> · [Research](https://hyperc.com/research.html) · [Technical report](https://github.com/hyperc-ai/p34-technical-report)
 
 </div>
 
@@ -26,17 +26,29 @@ This repository is the complete user-facing documentation for the P34 API: how i
 | --- | --- | --- |
 | **API** | `https://api.hyperc.com/v1/` | The P34 model API (`POST /fit`, `GET /result/...`) |
 | **Management console** | `https://api.hyperc.com/app/` | Account, API keys, plans/billing, session status & cancel |
+<!-- simulator temporarily disabled 2026-09-13 — restore when /sim/ is back:
 | **Market simulator** | `https://api.hyperc.com/sim/` | Interactive browser simulator — play a synthetic market with P34 predictions |
+-->
 
 `GET https://api.hyperc.com/v1/` is open (liveness + capability listing); all
-other API calls require an API key from the management console, sent as
-`Authorization: Bearer <key>`, on an account with an **active subscription**
-(subscribe on the console's plans page — there is no free usage tier).
+API requests use `Authorization: Bearer <key>`. Paid model fits require an
+eligible funded account; website workspace `free-` keys support fits for
+[select markets](docs/02-endpoints.md#free-workspace-fits).
+Every key class, including free keys testing markets outside that set, supports
+`mock: true` input testing. It parses and validates inputs without grounding,
+compute, or billing. See
+[authentication](docs/02-endpoints.md#authentication) for the differences.
+
+Repeated business-led fits automatically reuse validated grounding code when
+the account, exact business description and parsed schema match. Fresh-data
+validation and the model fit still run; see
+[grounding caching](docs/02-endpoints.md#reusing-grounding-code).
 
 ## Is this for you?
 
 - ✅ You face **menu-shaped decisions**: inventory purchasing, wholesale lots, loan approvals, load acceptance, contract sizing — many (item, quantity) options per decision moment.
-- ✅ You have **history**, including the options with no outcome attached — or you're willing to start logging it. No trading record at all? A history assembled from market research and replayed past deals is a first-class input — see [what `historically_chosen` really means](docs/03-data-format.md#what-historically_chosen-really-means).
+- ✅ The menu is **wide**: hundreds to thousands of candidate deals per decision moment, far more than anyone could evaluate by hand. A handful of deals is not a P34 problem — see [Where it pays](#where-it-pays-reject-markets-at-scale).
+- ✅ You have **history**, including the options with no outcome attached — or you're willing to start logging it. No trading record at all? A history assembled from market research and replayed past deals is a first-class input — `historically_chosen` records your previous policy and is optional; see [your previous business policy](docs/03-data-format.md#your-previous-business-policy-what-historically_chosen-marks). Use the default `business_led` grounding. [enterprise client-side grounding](docs/02-endpoints.md#bringing-your-own-labels-client_grounded) is reserved for enterprise clients preserving private knowledge and know-how; consult HyperC before considering it because correct client grounding requires vast compute resources.
 - ✅ You can measure an economic outcome: profit, contribution margin, recovery, yield.
 - ✅ You want an executable answer — sizes and predicted economics — not a dashboard.
 - ✅ You're wiring an **AI agent** (Claude, ChatGPT, open models, custom code) to real commercial decisions and need the one step it can't do alone.
@@ -56,6 +68,52 @@ Your history is **biased**: outcomes exist only for a subset of the options — 
 | Portfolio | Per-row scores that fight for capital | Jointly sized book, calibrated as a sum |
 
 \* Executed slower-market-waves notebook, synthetic market with known ground truth — mechanism demonstration, not evidence of live-market profitability. Methodology and notebooks: [p34-technical-report](https://github.com/hyperc-ai/p34-technical-report) and the [research page](https://hyperc.com/research.html). In production the model has generated **$30M+ in sales for customers with >95% of trades unsupervised** (company-reported; not audited by a human licensed auditor).
+
+## Where it pays: reject markets, at scale
+
+The main benefit of P34 — and the place where the theory actually matches the
+reality — is **reject markets**, also called markets of **computationally
+prohibitive deals**: markets where the ordinary players reject deals because
+the outcome is uncertain and filtering the good deals out of the flow is
+computationally hard, so a correctly calibrated AI is required to work them at
+all. One property of those markets is decisive: **there are thousands of such
+deals.**
+
+That gives a test every menu has to pass before it is worth sending. **If the
+scoring menu does not hold at least hundreds of candidate deals, something is
+wrong** — it is one of three things:
+
+- **the wrong market** — a market that only ever shows a handful of candidates
+  is not a reject market; as far as P34 is concerned it does not exist;
+- **a bad collection mechanism** — the agent, robot or scraper assembling the
+  menu is finding a fraction of what the market shows, and should be reworked
+  or reimplemented before anything is fitted;
+- **the "handful" trap** — the agent decided that a handful of probable deals,
+  scored by hand, is enough to satisfy the user.
+
+It is not enough. The user expects P34 to make these trades **at scale**, with
+enough efficiency to cover the cost of computation and of running the platform,
+and expects first to see a **demonstration** that finding and making positive
+trades on a big-enough market is in fact possible — in as short a period as
+possible. The demonstration has a fixed order of priority:
+
+1. **Data** — show that the history for the calibration dataset can be obtained
+   quickly.
+2. **Execution** — execute the deals and get the results back as fast as
+   possible, proving the entire automatic workflow end to end.
+3. **Scale** — only then carry the same mechanism to larger and longer markets
+   with more capital flow and more complex KYC, market-access and participation
+   rules. The general mechanism of P34 still applies as the scale and the time
+   frames grow.
+
+Two traps that agents reading this documentation fall into, by name:
+hand-calculating a handful of probable deals and treating that as the whole
+point; and proposing a complex market to start on — Amazon wholesale with
+distributor contracts, onboarding and account management — instead of an easier
+one: virtual goods and services trades, virtual trading on unregulated
+platforms, game-item resale platforms and the like, where the loop closes in
+days. Full treatment:
+[reject markets, at scale](docs/01-overview.md#where-the-theory-meets-reality-reject-markets-at-scale).
 
 ## The mental model
 
@@ -80,7 +138,9 @@ You send **two tables and a config**, and later receive **one predicted menu**:
   [`business_led` grounding mode](docs/02-endpoints.md#grounding-modes) this
   text is compiled into the economics used to reconstruct your history, so it
   is executable input rather than documentation. You can send it per request
-  or save it once in the console.
+  or save it once in the console. Include the fixed profit horizon, deterministic
+  write-off and residual-value rules, and the meaning of every submitted column
+  (see [what to write](docs/02-endpoints.md#what-to-write-in-it)).
 
 The **task** is the menu you want decided **now** (`T = 0`, `menu = 0`). The
 response fills it in: per key, the selected quantity (`qty = 0` = *do not
@@ -129,24 +189,31 @@ r = requests.post("https://api.hyperc.com/v1/fit",
                         # and omit this field entirely
                         "business_description": "..."})
                         # grounding is compiled from that description by
-                        # default; send "grounding_mode": "internal" for the
-                        # legacy fixed formula
+                        # default; keep business_led for standard member use
+                        # (enterprise client grounding needs prior consultation)
 session = r.json()["session_id"]
 # poll until done (business-led fits pass through "grounding" first):
 requests.get(f"https://api.hyperc.com/v1/result/{session}",
              headers={"Authorization": "Bearer <key>"}).json()
 ```
 
+<!-- simulator temporarily disabled 2026-09-13 — restore when /sim/ is back:
 No code? The [simulator](https://api.hyperc.com/sim/) runs a synthetic market
 in your browser against this same `/v1` API — a good way to build intuition
 for menus, grounding and portfolio behaviour before wiring your own data.
+-->
 
 ## Documentation map
 
-1. [docs/01-overview.md](docs/01-overview.md) — what P34 does and the mental
-   model behind the API (menus, sales, the T=0 task).
+1. [docs/01-overview.md](docs/01-overview.md) — what P34 does, the mental
+   model behind the API (menus, sales, the T=0 task), and where it pays:
+   [reject markets, at scale](docs/01-overview.md#where-the-theory-meets-reality-reject-markets-at-scale).
 2. [docs/02-endpoints.md](docs/02-endpoints.md) — endpoint reference, auth,
-   result statuses, model versions, confidence correction.
+   result statuses, model versions, confidence correction, the grounding
+   modes (including [enterprise client-side
+   grounding](docs/02-endpoints.md#bringing-your-own-labels-client_grounded)) and
+   the [plausibility-checks
+   switch](docs/02-endpoints.md#turning-the-plausibility-checks-off).
 3. [docs/03-data-format.md](docs/03-data-format.md) — the Menus / Sales /
    market_type input format, rule by rule.
 4. [docs/04-errors-and-checks.md](docs/04-errors-and-checks.md) — common
@@ -155,31 +222,99 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    markets catalogue: every market, its tier, its support state, its menu
    shape and the data it runs on.
 6. [docs/06-token-wallet.md](docs/06-token-wallet.md) — the accumulating
-   token wallet: monthly accruals that carry over (2,000 tokens a month, 4,000
-   for founding members), transfers between accounts by email, and the full
+   token wallet: monthly accruals that carry over (doubled for founding
+   members), transfers between accounts by email, and the full
    query-able ledger.
-7. [examples/](examples/) — runnable code:
+7. [docs/07-agent-skills.md](docs/07-agent-skills.md) — the four agent skills
+   in `skills/` and how to install them, then notes for specific agent
+   runtimes where the constraint is the channel rather than the API: the
+   measured URL-length ceiling that makes a healthy workspace answer `502`,
+   and what a fetch-only agent (ChatGPT and friends) should do instead.
+8. [docs/08-candidate-markets.md](docs/08-candidate-markets.md) — the
+   waiting list: 67 markets screened as candidates for the catalogue, scored
+   on nine criteria and gated by the four computability criteria, with a
+   machine-readable copy in
+   [`examples/data/candidate_markets.json`](examples/data/candidate_markets.json).
+   Proposed blueprints, not catalogue entries.
+9. [docs/09-where-inefficiency-is-captured.md](docs/09-where-inefficiency-is-captured.md) —
+   the theory: the two admissible sources of excess return in a market
+   without price discovery, the seven mechanisms that let an inefficiency
+   persist, and which reject reason each one explains.
+8. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
-     (fit → poll → portfolio).
-   - [examples/data/](examples/data/) — sample input as Excel, CSV, and JSON.
+     (fit → poll → portfolio). Use the default business-led mode. The
+     `client_grounded` example is an enterprise integration reference for use
+     only after consultation with HyperC.
+   - [examples/data/](examples/data/) — sample input as Excel, CSV, and JSON,
+     including `request_client_grounded_sample.json` as an enterprise wire-format
+     reference, not a ready-made client grounding pipeline.
    - [examples/pytest/](examples/pytest/) — a minimal pytest workflow you can
      drop into CI to validate your integration.
    - [examples/baseline_comparison/](examples/baseline_comparison/) — a demo
      that pits P34 against a gradient-boosting profit regressor on a synthetic
      market with known ground truth.
+9. [skills/](skills/) — four agent skills that carry the judgement calls this
+   documentation cannot state as a rule; see [Agent skills](#agent-skills)
+   below.
+
+## Agent skills
+
+`skills/` holds four skills for any agent calling this API, in the order a
+request goes through them. Each one links back into these docs for the field
+tables and restates none of them.
+
+1. [skills/p34-prepare-inputs/SKILL.md](skills/p34-prepare-inputs/SKILL.md) —
+   map recorded history and the current option schedule into the Menus and
+   Sales tables without altering the record, and enumerate the whole T=0 menu.
+   Long form in
+   [references/history-contract.md](skills/p34-prepare-inputs/references/history-contract.md).
+2. [skills/p34-business-economics/SKILL.md](skills/p34-business-economics/SKILL.md) —
+   get the caller's actual fees, costs, lead times and horizons, compute what
+   the records support, and write the `business_description` around them.
+3. [skills/p34-submit-and-monitor/SKILL.md](skills/p34-submit-and-monitor/SKILL.md) —
+   check the request against the documented rules, run an input test, submit,
+   and follow the `session_id` through the documented statuses.
+4. [skills/p34-interpret-results/SKILL.md](skills/p34-interpret-results/SKILL.md) —
+   turn a `done` result into executable orders and refusals, and say how far
+   the predicted profit can be trusted.
+
+### Installing them
+
+The layout is the portable [Agent Plugins](https://agent-plugins.org/) one — a
+`plugin.json` at the root and one `skills/<skill-name>/SKILL.md` per skill — so
+a client that reads that layout can load the four directly from a checkout of
+this repository. **Pin a commit** rather than tracking a branch: the skills and
+the doc anchors they link to move together, and a skill pinned to one revision
+against docs from another will link into headings that no longer exist.
+
+How an agent *discovers* skills differs per product — search paths, manifests
+and install commands are each client's own, and the Agent Plugins layout is an
+interoperability floor rather than a guarantee. **Native discovery is not
+verified here.** What is tested is the content: the skills are exercised by
+injecting them into an agent's context. If your client has no plugin
+installation of its own, point it at the four `SKILL.md` paths, or copy
+`skills/` into wherever it already looks.
+
+The skills need nothing besides this repository — no workspace VM, no
+membership, no bundle to install first. An agent working inside a HyperC member
+workspace may find market playbooks there that shorten the research step;
+nothing above depends on them.
 
 ## Access & membership
 
-API access comes with the **P34 Membership** — **$2,000/month**: a
-**24/7 virtual machine** for your agent — an always-on workspace preloaded with
+API access comes with the **P34 Membership**: a **24/7 virtual machine**
+for your agent — an always-on workspace preloaded with
 market-access tools, curated data sources and web scraping, so the agent can
 collect data and operate the business continuously rather than only while you
-are at the keyboard — plus the API, console and simulator, a weekly compute
+are at the keyboard — plus the API and console, a weekly compute
 allowance (shown as % used), access to computable markets — **the market you
 already operate in** first, plus supported workflows where we have coverage
-(Amazon wholesale, US & EU) — agent skills and examples, and a community of operators. Early paid accounts lock the
-introductory **10% success-fee rate** where profit-share pricing applies —
-assigned by paid-registration order and shown in your account.
+(Amazon wholesale, US & EU) — agent skills and examples, and a community of operators. Early paid accounts lock an
+introductory success-fee rate where profit-share pricing applies —
+assigned by paid-registration order and shown in your account. The current
+fee, token allocation and success-fee rate are stated on the membership page
+and in your account — this documentation does not restate them, because they
+change.
 
 **[Explore membership →](https://hyperc.com/membership.html)** ·
 **[Join at the console →](https://api.hyperc.com/app/)** ·
@@ -207,10 +342,12 @@ since 2023), **6 pilot-ready** (validated or in enterprise discovery — micro-l
 credit, bank onboarding, manager underwriting, online arbitrage), **53 research** candidates,
 **9 not currently supported** (regulated perimeter or declined by policy).
 
-Synthetic markets are open to every member through the [simulator](https://api.hyperc.com/sim/)
-and this API. **Listing a market is not a claim of support** — check the state before you plan
-around it, and run the [market-fit check](https://hyperc.com/markets.html#fit) on your own
-market. Proposing a new one: [hyperc.com/contact.html?topic=market](https://hyperc.com/contact.html?topic=market).
+Synthetic markets are open to every member through this API. **Listing a market
+is not a claim of support** — check the state before you plan around it, and run
+the [market-fit check](https://hyperc.com/markets.html#fit) on your own market.
+Proposing a new one: [hyperc.com/contact.html?topic=market](https://hyperc.com/contact.html?topic=market).
+Markets proposed but not yet catalogued sit on the
+[candidate waiting list](docs/08-candidate-markets.md) with their scores and evidence.
 
 ### Which market should you choose?
 
@@ -228,6 +365,12 @@ market. Proposing a new one: [hyperc.com/contact.html?topic=market](https://hype
 >
 > Treat the supported and pilot-ready entries as evidence that the method works, not as a shortlist
 > to pick from.
+>
+> **The first market is a demonstration**, and it should be the one where the loop closes fastest:
+> history obtainable in days, deals that execute and resolve quickly, low barriers to participation —
+> virtual goods and services trades, virtual trading on unregulated platforms, game-item resale
+> platforms and the like — and hundreds to thousands of candidate deals on every menu. Scale to the larger, slower, KYC-heavy markets after the mechanism
+> is proven there, not before. See [Where it pays](#where-it-pays-reject-markets-at-scale).
 
 ## What P34 is *not*
 
@@ -235,6 +378,7 @@ market. Proposing a new one: [hyperc.com/contact.html?topic=market](https://hype
 - **Not a trading-signal service.** Regulated-market uses (securities, derivatives, prediction markets) are excluded from profit-share pricing and gated under the [API Terms of Use](https://api.hyperc.com/app/).
 - **Not investment advice.** Output is statistical decision support; you own the decisions, the execution, the capital and the results.
 - **Not an uncontrolled bot.** Recommended deployment runs menu grounding → shadow test → capped pilot → scale, with caps, audit logs and kill switches.
+- **Not a calculator for a handful of deals.** If the menu is a few options you could score by hand, the market is wrong, the collection is broken, or the point was missed — P34 exists to work menus of hundreds to thousands of deals, at scale. See [Where it pays](#where-it-pays-reject-markets-at-scale).
 - **Not magic.** It requires policy-selection signal (you had more options than you took), tolerates minutes of latency, and refuses work its validation can't stand behind.
 
 *Built to pursue profit — not generate pretty answers.*

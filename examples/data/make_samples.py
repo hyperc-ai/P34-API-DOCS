@@ -3,9 +3,10 @@ request_sample.json from the sample client's miniature market.
 
     python make_samples.py
 
-The CSVs are the two input tables exactly as you would keep them in a
-spreadsheet; request_sample.json is the ready-to-send POST /fit body they
-combine into (tables as JSON records).
+The generated CSVs are sample data for learning the format, not recorded
+customer history. The JSON requests set ``mock: true`` and are suitable only
+for input parsing and validation. Replace the rows and business description
+with your actual business records before a real fit.
 """
 from __future__ import annotations
 
@@ -32,10 +33,25 @@ def main() -> None:
     with open(os.path.join(HERE, "request_sample.json"), "w") as f:
         json.dump(
             {"menus": records(menus), "sales": records(sales), "market_type": MARKET_TYPE,
-             "business_description": BUSINESS_DESCRIPTION},
+             "business_description": BUSINESS_DESCRIPTION, "mock": True},
             f, indent=1,
         )
+
+    # the client_grounded shape: a profit on EVERY option row the caller valued,
+    # no business_description needed (nothing is compiled from it), and the
+    # plausibility checks switched off because this tiny market is under them
+    cg_menus, cg_sales = build_sheets(n_keys=12, ground_all=True)
+    with open(os.path.join(HERE, "request_client_grounded_sample.json"), "w") as f:
+        json.dump(
+            {"menus": records(cg_menus), "sales": records(cg_sales),
+             "market_type": MARKET_TYPE,
+             "grounding_mode": "client_grounded", "checks": "off", "mock": True},
+            f, indent=1,
+        )
+    labeled = sum(1 for r in records(cg_menus) if r.get("profit") is not None)
     print(f"wrote {len(menus)} menu rows, {len(sales)} sales rows")
+    print(f"wrote client_grounded sample: {len(cg_menus)} menu rows, "
+          f"{labeled} carrying a client label")
 
 
 if __name__ == "__main__":

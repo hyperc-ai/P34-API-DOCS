@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hyperc-p34",
+  "version": "0.1.0",
+  "description": "Call the HyperC P34 API correctly from any agent: prepare the Menus and Sales tables without altering the record, work out the business economics behind the description, submit a fit and follow it to a result, and read the returned portfolio without adding to it.",
+  "author": { "name": "HyperC", "url": "https://hyperc.com" },
+  "homepage": "https://api.hyperc.com",
+  "repository": "https://github.com/hyperc-ai/P34-API-DOCS",
+  "keywords": ["hyperc", "p34", "api", "menus", "portfolio", "market", "decision-model"]
+}

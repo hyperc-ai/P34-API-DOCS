@@ -37,7 +37,7 @@
    "qty": 2,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": -3.1
   },
   {
    "key": "A000",
@@ -63,7 +63,7 @@
    "qty": 3,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": -4.65
   },
   {
    "key": "A000",
@@ -89,7 +89,7 @@
    "qty": 1,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 5.488
   },
   {
    "key": "A001",
@@ -141,7 +141,7 @@
    "qty": 3,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 2.764
   },
   {
    "key": "A001",
@@ -193,7 +193,7 @@
    "qty": 2,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 4.276
   },
   {
    "key": "A002",
@@ -219,7 +219,7 @@
    "qty": 3,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 2.289
   },
   {
    "key": "A002",
@@ -323,7 +323,7 @@
    "qty": 1,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 10.989
   },
   {
    "key": "A004",
@@ -375,7 +375,7 @@
    "qty": 3,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 32.967
   },
   {
    "key": "A004",
@@ -427,7 +427,7 @@
    "qty": 2,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 10.71
   },
   {
    "key": "A005",
@@ -453,7 +453,7 @@
    "qty": 3,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 16.065
   },
   {
    "key": "A005",
@@ -479,7 +479,7 @@
    "qty": 1,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 5.463
   },
   {
    "key": "A006",
@@ -531,7 +531,7 @@
    "qty": 3,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 16.389
   },
   {
    "key": "A006",
@@ -583,7 +583,7 @@
    "qty": 2,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 5.71
   },
   {
    "key": "A007",
@@ -609,7 +609,7 @@
    "qty": 3,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 8.565
   },
   {
    "key": "A007",
@@ -713,7 +713,7 @@
    "qty": 1,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 8.391
   },
   {
    "key": "A009",
@@ -765,7 +765,7 @@
    "qty": 3,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 25.173
   },
   {
    "key": "A009",
@@ -791,7 +791,7 @@
    "qty": 1,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 2.02
   },
   {
    "key": "A010",
@@ -843,7 +843,7 @@
    "qty": 3,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 2.12
   },
   {
    "key": "A010",
@@ -869,7 +869,7 @@
    "qty": 1,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 5.459
   },
   {
    "key": "A011",
@@ -921,7 +921,7 @@
    "qty": 3,
    "historically_available": 1.0,
    "historically_chosen": 0.0,
-   "profit": null
+   "profit": 16.377
   },
   {
    "key": "A011",
@@ -1140,6 +1140,7 @@
   }
  ],
  "market_type": {},
- "business_description": "Sample small wholesale reseller: buys SKU lots at weekly decision moments, sells over an 8-week horizon. Unit economics: net profit = unit_price - unit_cost - 0.1/unit/week holding cost; unsold leftovers are written off in full after 8 weeks; no marketplace or referral fees in this sample business. The rows in this example are generated sample data for input testing, not recorded customer history.",
+ "grounding_mode": "client_grounded",
+ "checks": "off",
  "mock": true
 }

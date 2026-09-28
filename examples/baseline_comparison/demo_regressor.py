@@ -49,16 +49,7 @@ HOLD_WEEKS = 8          # write-off horizon
 HOLD_COST = 0.15        # per unit per market: holding cost baked into unit economics
 QTYS = (1, 2, 4, 8)     # deal-size options on every menu
 
-MARKET_TYPE = {
-    "market_type": "synthetic_inventory",
-    "parameters": {
-        "qty_ordered_range": max(QTYS),
-        "inventory_holding_weeks_before_writeoff": HOLD_WEEKS,
-        "holding_cost_per_unit": HOLD_COST,
-        "leftover_writeoff_fraction": 1.0,
-        "grounding_labelling_mode": "synthetic_full",
-    },
-}
+MARKET_TYPE = {}
 
 
 # ---------------------------------------------------------------------------
@@ -123,13 +114,12 @@ def build_history(keys: pd.DataFrame, weeks: int = 12, seed: int = 4):
                     "f_signal": f_sig, "f_noise": f_noi,
                     "unit_cost": row["unit_cost"], "unit_price": row["unit_price"],
                     "qty": q, "historically_available": 1,
-                    # a declined group still carries ONE flagged row: without a
-                    # chosen row the group is dropped whole at intake, and P34
-                    # needs the declined groups as its unlabeled context. WHICH
-                    # row wears the flag is immaterial where there is no
-                    # outcome — this reuses would_take because it is to hand,
-                    # not because anything downstream reads the value.
-                    "historically_chosen": int(q == would_take[i]),
+                    # the business's previous policy: the size it actually
+                    # ordered. A declined group carries NO flag — the column
+                    # records what was taken, and the group stays in as the
+                    # unlabeled context P34 needs (nothing is dropped for a
+                    # missing flag).
+                    "historically_chosen": int(q == chosen[i] and not declined[i]),
                     "profit": float(profit[i]) if (q == chosen[i] and not declined[i]) else None,
                 })
             if declined[i]:
@@ -213,7 +203,8 @@ def p34_portfolio(url: str, key: str | None, model: str | None,
         print(f"  … {res['status']}")
         time.sleep(poll_s)
     if res["status"] != "done":
-        raise RuntimeError(f"P34 fit not done: {res['status']} {res.get('error', '')}")
+        raise RuntimeError(f"P34 fit not done: {res['status']} {res.get('error_code', '')} "
+                           f"{res.get('error', '')}\n{res.get('feedback') or ''}".rstrip())
     port = pd.DataFrame(res["menu"])
     if port.empty:            # a valid answer: the model takes no trades
         return pd.DataFrame(columns=["key", "qty", "profit"])

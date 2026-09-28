@@ -39,3 +39,17 @@ def tiny_market():
     # unlabeled context, so the smoke fit here can also complete end-to-end
     menus, sales = build_sheets(seed=11)
     return menus, sales, MARKET_TYPE
+
+
+@pytest.fixture()
+def client_grounded_market():
+    """The same market with the caller's OWN labels on every option row.
+
+    ``ground_all=True`` puts a profit on each quantity option of an observed
+    key — what a client_grounded fit publishes verbatim. The declined keys stay
+    unlabeled, because that observed/unobserved split is still required.
+    """
+    from example_client import MARKET_TYPE, build_sheets
+
+    menus, sales = build_sheets(seed=11, ground_all=True)
+    return menus, sales, MARKET_TYPE
