@@ -89,6 +89,30 @@ the plan's compute budget is exhausted for the current weekly or monthly
 window (see utilization in the
 [management console](https://api.hyperc.com/app/)).
 
+### When the API is restarting
+
+Deploys and recoveries restart the API for a few seconds. During that window
+requests are answered with HTTP **503**, `Retry-After: 60` and
+
+```json
+{"status": "unavailable", "error": "service_restarting", "retry_after_seconds": 60, "detail": "..."}
+```
+
+(a bare 502 or 504 can also show up briefly). None of these is a verdict on
+your request:
+
+- **Polling `/result`:** keep polling after `Retry-After` seconds. A restart
+  does not affect fits already accepted — they keep running, and `/result`
+  reports them again within a minute. `"status": "unavailable"` is not a fit
+  status; do not stop polling on it.
+- **`POST /fit` answered with this 503:** the fit was almost certainly not
+  received and nothing was charged. Check the console's Calculations list
+  and, if it is not there, send it again after `Retry-After` seconds.
+- **`POST /fit` answered with a 502/504, or the connection dropped while
+  waiting for the answer:** the fit may have been received. Check the
+  Calculations list before sending it again — a resubmitted fit runs and is
+  charged again.
+
 A real free-key request for a market outside the supported set returns HTTP
 **403** with `detail.code: "free_markets_only"` and the exact message
 `free tier only supports select markets, including t5market.com.` The request
