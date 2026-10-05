@@ -58,6 +58,7 @@ input without grounding, compute, or billing. Website workspaces also receive a
 | `done` | predictions ready — see below. |
 | `failed` | the fit did not finish — terminal, stop polling. `error_code` and `error` name the kind of failure; a fit that failed while grounding also carries the diagnosis written for you. See [When a fit fails](#when-a-fit-fails). |
 | 404 | unknown session id (wrong server, or the session was removed). |
+| 503 `service_restarting` (also a bare 502/504) | the API is restarting for a moment — **not a fit status**. Keep polling after `Retry-After` seconds (60); the fit keeps running. See [When the API is restarting](04-errors-and-checks.md#when-the-api-is-restarting). |
 
 A `done` response contains **only the T=0 menu, with profit predictions**:
 
