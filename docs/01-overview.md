@@ -8,6 +8,11 @@ lots, contract sizing, any setting where at each decision moment you face a
 menu of (item, quantity) options, historically picked some of them, and later
 observed what the picks earned.
 
+Before fitting, assess the constructed operation and its business description
+with the [17-point applicability checklist](10-applicability-assessment.md).
+Use it to evaluate the business, then use the endpoint and data references to
+check API acceptance. Demonstrated profitability requires separate evidence.
+
 ## The mental model
 
 You send **two tables, a config, and a business description**, and later
@@ -115,44 +120,37 @@ The distinctions run along four dimensions:
 
 ## Observed and unobserved outcomes: the load-bearing requirement
 
-Of everything above, one property decides whether P34 can work on a market at
-all. It is one of the working definitions of a **computable market** — the same
-class is also called a **rejected-deals market** or a **partially observed
-market**:
+The [applicability assessment](10-applicability-assessment.md#checklist) highly
+recommends natural unobserved outcomes: source evidence should explain why a
+feasible alternative's realized result is unknown. Preserve known outcomes.
+A declined offer, a contingent process that was not executed, or unavailable
+counterfactual fills can establish an observation limit. Masking records or
+inventing uncertainty cannot.
 
-> The outcome space must come in two parts. **Some** outcomes can be replayed
-> or simulated safely, or at least reasonably. **Others** are genuinely
-> enterable — the deal was there to be taken — but were never tested by the
-> business, by the market, or by a replay you would trust.
+The fit itself also needs both observed and unobserved context. A history in
+which every group is labeled is refused at intake or fails during fitting,
+depending on the requested checks; a history with nothing known has nothing to
+calibrate against. See [fit-time failures](04-errors-and-checks.md#fit-time-failures).
+These are service requirements, distinct from the checklist's recommendation
+about natural missingness.
 
-That asymmetry is the signal. A history in which every outcome is known says
-nothing about what a process refuses, and the fit rejects it outright; a
-history in which nothing
-is known has nothing to calibrate against. Everything P34 does with selection
-bias lives in the gap between the two.
+The split does not require an unbiased sample or compulsory exploratory trades.
+A history reconstructed from source evidence and defensible replay can be used
+without a previous operating policy; `historically_chosen` remains optional.
+Keep the full opportunity menus, including unattractive and unchosen options,
+so history covers the distribution of choices faced at deployment. See
+[Your previous business policy](03-data-format.md#your-previous-business-policy-what-historically_chosen-marks).
 
-Note what this requirement does *not* ask for. It says nothing about who chose
-the labeled options, or whether anyone did — only that the split exists. That is
-why a history built entirely from replayed or simulated past deals is a
-first-class input, and why a business with no trading record at all can still be
-fit — `historically_chosen` records a previous policy and is optional: see [Your
-previous business
-policy](03-data-format.md#your-previous-business-policy-what-historically_chosen-marks).
+### Advanced strategies: constructing the business process
 
-### Advanced strategies: manufacturing the split
-
-Where the split comes from is a design decision, and on a market whose ordinary
-trade reveals almost every outcome it is the most interesting part of the work.
-Constructing it on purpose is what we call an **advanced strategy**: composing
-deals so that a meaningful part of the outcome space stays genuinely untested
-even when the underlying instrument is transparent.
-
-The direction of travel — by analogy only, since these particular markets sit
-outside P34's perimeter — is **pair trading and multi-leg strategies** in
-equities. A single leg's tape reveals its own outcome; the composite position's
-does not, because the composite was never entered. Discovering the equivalent
-construction on *your* market is a member's job, and it is where the leverage
-is.
+If the original market reveals every payoff, investigate an operationally
+meaningful construction: size or capacity commitments, market-making,
+contingent multi-leg execution, customer acquisition, bundling, transformation,
+or alternative contract terms. The construction must be feasible, and profit
+must depend on customer, counterparty, or operational responses that cannot be
+reconstructed for unexecuted alternatives. Combining fully observable payoffs
+or adding complexity alone does not create missingness. Record the evidence
+and assess the construction before submission.
 
 Which markets clear that bar in practice is catalogued in
 [05-market-catalog.md](05-market-catalog.md) — 69 of them, from Amazon wholesale
@@ -190,35 +188,23 @@ many to evaluate when there are only ten of them.
 
 ### The scale test
 
-Look at the scoring menu — the `T = 0` task menu of live options you are about
-to send. **If it does not contain at least hundreds of candidate deals,
-something is wrong**, and it is one of exactly three things:
+Count **at least 100 economically distinct feasible configurations per assessed
+historical and task menu**, targeting **1,000 or more** where the operation
+supports them. Count quantity variants, duplicate rows, and expired context
+separately. Historical menus should cover the deployment distribution under
+the same eligibility rules; disclose occasional incomplete menus and evidence
+that coverage approaches deployment menu sizes.
 
-1. **It is the wrong market.** A market that only ever presents a handful of
-   candidates is not a reject market; as far as P34 is concerned it does not
-   exist. Move on.
-2. **The collection mechanism is bad.** The agent, robot, scraper or feed that
-   assembles the menu is finding a fraction of what the market is showing.
-   Rework or reimplement it before fitting anything.
-3. **The agent fell into the "handful" trap.** An agent building the menu —
-   very often an LLM — decides that a handful of probable deals, scored by
-   hand, is enough to satisfy the user. It is not, and it was never the point.
+A shortfall calls for broader sourcing, repaired collection, or an improved
+business instrument. A few hand-picked likely winners do not preserve the
+opportunity set the portfolio model needs. Where the construction uses
+streaming windows, keep historical context distinguishable, record the cutoff
+and persistent event identities, and execute only genuinely new live choices.
+Context cannot inflate the current feasible count.
 
-The third one deserves spelling out, because agents reading this documentation
-fall into it constantly. **A handful of hand-evaluated deals is not a P34
-workflow — it is the workflow P34 replaces.** The user is not asking for a few
-good picks. The user expects P34 to make these trades **at scale**, with enough
-efficiency that the trades cover the cost of computation and of running the
-platform — and, before that, expects to see a demonstration that finding and
-making positive trades on a big-enough market is in fact possible, in as short
-a period as possible. Thousands of candidates in, a portfolio of selected sizes
-out, most of them refused: that is the product. Ten candidates in is a
-spreadsheet.
-
-Nothing on the server enforces this. Intake checks the shape of the payload,
-the cluster checks the volume floors on the *history*
-([include the deals you did not take](03-data-format.md#include-the-deals-you-did-not-take)),
-and a ten-row task menu passes both. The scale test is on you.
+The [applicability checklist](10-applicability-assessment.md#checklist) defines
+these business checks. Intake and fit-time validation have their own rules;
+a small task menu being accepted is not evidence that the scale check passed.
 
 ### What to demonstrate, and in what order
 

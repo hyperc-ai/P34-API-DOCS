@@ -11,10 +11,15 @@ One further condition carries most of the weight, and gives this class its other
 **rejected-deals markets**, **partially observed markets**: outcomes must be *partially*
 observed. Some can be replayed or simulated safely; others are genuinely enterable but were
 never tested by the business, by the market, or by a trustworthy replay. On a market where
-an ordinary trade would reveal everything, that split can be engineered — see [observed and
-unobserved outcomes](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement).
-If your market clears that bar, P34 can be pointed at it — run the
-[market-fit check](https://hyperc.com/markets.html) first.
+an ordinary trade would reveal everything, assess whether a feasible business process
+introduces genuine operational observation limits; combining known payoffs alone does not.
+Use the [17-point P34 Applicability Assessment](10-applicability-assessment.md)
+for the constructed pipeline and its business description before submission. Record
+source and menu coverage, at least 100 genuine configurations per assessed menu
+(target 1,000+), natural sizing, decision-time integrity, horizons, terminal treatment,
+and conditional streaming or external conflict rules. A listing or a passing API
+request does not establish applicability or demonstrated profitability. The
+[market-fit check](https://hyperc.com/markets.html) is an additional starting point.
 
 > **Listing is evidence, not endorsement.** Every entry carries a state. Most of this
 > catalogue is `⚪ Market blueprint`: the structure fits and members are welcome to

@@ -1,5 +1,10 @@
 # 4. Errors, fit-response fields, and quick self-checks
 
+Complete the [P34 Applicability Assessment](10-applicability-assessment.md)
+before submission. Record PASS, FAIL, or UNVERIFIED with evidence and remedies;
+resolve applicable required gaps first. API acceptance and a `done` response
+are separate from business applicability and demonstrated profitability.
+
 ## Fit response fields
 
 `POST /fit` returns immediately after grounding and enqueueing:
@@ -129,7 +134,7 @@ ones are:
 
 | condition | you see | fix |
 | --- | --- | --- |
-| the history contains only observed outcomes — no unlabeled context for the model to contrast against. P34 needs both halves of a [partially observed market](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement) | refused at `/fit` with a 422 volume finding; with `checks: "off"` it reaches the cluster and fails as `model_fit_failed` | include the groups with no trustworthy outcome — `profit` blank on every row of the group, no flag needed — see [the data-format guide](03-data-format.md#include-the-deals-you-did-not-take) |
+| the history contains only observed outcomes — no unlabeled context for the model to contrast against. P34 needs both halves of a [partially observed market](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement) | refused at `/fit` with a 422 volume finding; with `checks: "off"` it reaches the cluster and fails as `model_fit_failed` | include genuine unobserved groups with blank `profit`; preserve known outcomes. If every payoff is observable, assess an operational construction under [checklist item 2](10-applicability-assessment.md#checklist); masking labels is not a fix |
 | too little observed history — the model needs at least ~100 observed groups sharing a qty option | `insufficient_historical_data` | send more history: more observed keys/menus per qty option |
 | the history spans too few decision moments (the floor is 10) | `insufficient_historical_data` | spread the history over more menus — at least ~10 decision moments, 50+ recommended |
 | every internal fit candidate was skipped — too few observed (outcome-carrying) deals per menu | `insufficient_historical_data` | send more observed deals per decision moment — aim for 20+ per menu |

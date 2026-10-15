@@ -39,6 +39,17 @@ grounding, and continue any independent business-led input preparation.
 See [enterprise client grounding](../../docs/02-endpoints.md#bringing-your-own-labels-client_grounded)
 for the technical contract once that integration has been agreed.
 
+## Applicability assessment
+
+Before submitting, read the assessment prepared under the
+[P34 Applicability Assessment](../../docs/10-applicability-assessment.md).
+It must record each item as PASS, FAIL, or UNVERIFIED with evidence, scope and
+a remedy for gaps. Fix applicable required failures and resolve unverified
+required checks before the dependent submission; disclose unmet
+recommendations without changing their level. A successful mock request,
+accepted fit or `done` status does not establish applicability or profitability.
+Keep this assessment with the request and result.
+
 ## Workflow
 
 ### 1. Check the request before spending anything on it

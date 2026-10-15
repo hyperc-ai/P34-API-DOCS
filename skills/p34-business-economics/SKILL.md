@@ -36,6 +36,19 @@ grounding, and continue any independent business-led input preparation.
 See [enterprise client grounding](../../docs/02-endpoints.md#bringing-your-own-labels-client_grounded)
 for the technical contract once that integration has been agreed.
 
+## Applicability assessment
+
+Use the [P34 Applicability Assessment](../../docs/10-applicability-assessment.md)
+to evaluate the operation described to P34, not just its formulas. Establish
+executable commitments, natural quantity units and allocation/scaling rules,
+complete net accounting, a predetermined clock start, horizon and early exits,
+and bounded liquidation/write-off with residual value and a failed-exit
+fallback. Apply the same rules to history and task data; separately reconcile
+later recoveries without retrospectively extending the horizon. Record
+PASS/FAIL/UNVERIFIED with evidence and remedies, preserving the checklist's
+required/recommended/conditional levels. Resolve applicable required gaps
+before submission.
+
 ## Workflow
 
 ### 1. Collect the actual terms

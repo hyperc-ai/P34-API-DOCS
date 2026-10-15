@@ -44,6 +44,18 @@ the account, exact business description and parsed schema match. Fresh-data
 validation and the model fit still run; see
 [grounding caching](docs/02-endpoints.md#reusing-grounding-code).
 
+## Assess the business before fitting
+
+Use the [P34 Applicability Assessment](docs/10-applicability-assessment.md)
+before submitting a constructed business pipeline. It covers executable
+instruments, natural observation limits, historical coverage, at least 100
+genuine configurations per assessed menu (target 1,000+), source completeness,
+decision-time integrity, natural sizing, full accounting, investment horizons,
+terminal policies, and any streaming context or external business constraints.
+Record PASS, FAIL, or UNVERIFIED with evidence; fix applicable required gaps
+before submission. Applicability, API acceptance, and demonstrated
+profitability are separate conclusions.
+
 ## Is this for you?
 
 - ✅ You face **menu-shaped decisions**: inventory purchasing, wholesale lots, loan approvals, load acceptance, contract sizing — many (item, quantity) options per decision moment.
@@ -79,12 +91,13 @@ computationally hard, so a correctly calibrated AI is required to work them at
 all. One property of those markets is decisive: **there are thousands of such
 deals.**
 
-That gives a test every menu has to pass before it is worth sending. **If the
-scoring menu does not hold at least hundreds of candidate deals, something is
-wrong** — it is one of three things:
+Assess each historical and task menu for **at least 100 economically distinct
+feasible configurations**, targeting **1,000 or more** where supported. Quantity
+variants, duplicate rows, and expired context do not add to that count. If a
+menu falls short, investigate the business construction and collection:
 
-- **the wrong market** — a market that only ever shows a handful of candidates
-  is not a reject market; as far as P34 is concerned it does not exist;
+- **the business formulation** — broaden sourcing or construct an economically
+  meaningful instrument with more genuine portfolio opportunities;
 - **a bad collection mechanism** — the agent, robot or scraper assembling the
   menu is finding a fraction of what the market shows, and should be reworked
   or reimplemented before anything is fitted;
@@ -240,7 +253,9 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    the theory: the two admissible sources of excess return in a market
    without price discovery, the seven mechanisms that let an inefficiency
    persist, and which reject reason each one explains.
-8. [examples/](examples/) — runnable code:
+10. [docs/10-applicability-assessment.md](docs/10-applicability-assessment.md) —
+    the 17-point business checklist and evidence required before submission.
+11. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
      (fit → poll → portfolio). Use the default business-led mode. The
      `client_grounded` example is an enterprise integration reference for use
@@ -253,7 +268,7 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    - [examples/baseline_comparison/](examples/baseline_comparison/) — a demo
      that pits P34 against a gradient-boosting profit regressor on a synthetic
      market with known ground truth.
-9. [skills/](skills/) — four agent skills that carry the judgement calls this
+12. [skills/](skills/) — four agent skills that carry the judgement calls this
    documentation cannot state as a rule; see [Agent skills](#agent-skills)
    below.
 

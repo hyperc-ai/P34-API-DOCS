@@ -1,5 +1,10 @@
 # Where inefficiency can be captured — the theory behind computable markets
 
+Before submitting a constructed pipeline, complete the
+[P34 Applicability Assessment](10-applicability-assessment.md). Market-discovery
+scores or an inefficiency thesis do not establish this operation's
+applicability, API acceptance, or demonstrated profitability.
+
 In a market with no ticker and no order book, excess return has exactly two admissible sources: you produce the same outcome at a lower cost than the marginal participant, or you are right where the marginal participant is systematically wrong. Every persistent inefficiency the literature names is one of those two, and the seven reasons a deal gets rejected in practice — the reject-reason taxonomy behind the [catalogue](05-market-catalog.md) — sort cleanly between them.
 
 This note is the theory behind the [candidate-markets waiting list](08-candidate-markets.md) and the "Where it pays" section of the [overview](01-overview.md#where-the-theory-meets-reality-reject-markets-at-scale).

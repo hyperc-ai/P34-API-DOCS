@@ -1,5 +1,10 @@
 # Candidate markets — the waiting list
 
+Before submitting a constructed pipeline, complete the
+[P34 Applicability Assessment](10-applicability-assessment.md). Market-discovery
+scores or an inefficiency thesis do not establish this operation's
+applicability, API acceptance, or demonstrated profitability.
+
 **Proposed, not catalogued.** The [catalogue](05-market-catalog.md) lists the 135 markets that carry an evidence state. This page lists the markets screened *after* it — 67 candidates that are new to the catalogue or materially more specific than an entry in it — scored against nine criteria and gated by the four computability criteria. None of them is in `markets.json`, none carries a state, and a listing here is a research note, not a claim that P34 ships or has been pointed at that market.
 
 Machine-readable copy: [`examples/data/candidate_markets.json`](../examples/data/candidate_markets.json) · [`examples/data/candidate_markets.csv`](../examples/data/candidate_markets.csv). Screened 27 September 2026; figures are as published by the cited sources on that date.

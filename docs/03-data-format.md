@@ -16,6 +16,12 @@ for enterprise clients preserving private knowledge and know-how and requires
 vast compute resources. The sample demonstrates payload shape, not how to
 build or validate such a pipeline. Use `business_led` for standard workflows.
 
+Before preparing a fit, complete the
+[P34 Applicability Assessment](10-applicability-assessment.md). It evaluates
+menu coverage and genuine configuration counts separately from table row
+counts, and requires natural quantities, complete sources, decision-time
+features, and a predetermined horizon and terminal policy.
+
 ## The Menus table
 
 One row per *(key, quantity option)* per decision moment.
@@ -39,7 +45,7 @@ option space, taken and untaken, is what makes the history usable.
 | *features…* | strongly recommended | any number of feature columns (naïve predictors, signals). **More useful features is better** — see [Features](#features-more-useful-features-is-better). |
 | `unit_cost` | **yes** | per-unit landed/acquisition cost — a special column the system interprets as the option's cost. Required and numeric on every row. Also participates in option exclusivity — see [One choice per key-date](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive). |
 | `unit_price` | **yes** | current/historical per-unit selling price — a special column the system interprets as price. If more historical prices are available, add them as *unrolled* feature columns going back in history: `price_T-1`, `price_T-2`, …; a naming pattern like `price1_T-1`, `price2_T-1` distinguishes different price measures when relevant. |
-| `*stock*` columns (e.g. `qty_stock`) | no | any column whose name matches the `*stock*` wildcard: the currently open (sellable) position for this key — the amount already in stock. A single market is assumed for all keys, so positions exit FIFO (first in, first out) when there were multiple past orders: profit depends on whether previous stock could be sold (full position close) before the new qty. If no sales of a batch happened, its profit is negative — a full cost write-off. |
+| `*stock*` columns (e.g. `qty_stock`) | no | any column whose name matches the `*stock*` wildcard: the currently open (sellable) position for this key — the amount already in stock. A single market is assumed for all keys, so positions exit FIFO (first in, first out) when there were multiple past orders: profit depends on whether previous stock could be sold (full position close) before the new qty. At the predetermined cutoff, value unsold stock under the stated liquidation or write-off policy, including costs and residual value; a full write-off is one possible policy. |
 | `qty_outstanding_T+1` (`…T+N`) | no | inventory that must enter the FIFO process but is not yet sellable; the `T+N` suffix says it arrives in N time units. `T+0` is impossible by definition — anything already arrived belongs in the `*stock*` column. |
 | `qty` | **yes** | the deal-size option this row represents. Integer count-type values (1 apple, 2 apples) **or** floating-point values ($151.50, 38.566 kg) — but not both and not a mixture within one dataset. Required and numeric on every row. Options are **mutually exclusive** within a key-date — see [One choice per key-date](#one-choice-per-key-date-qty-and-cost-are-mutually-exclusive). |
 | `historically_available` | no | 1/0 — was this option actually available as a trade option at decision time. `0` marks a **grounded option**: a row whose features and outcome you were able to pre-calculate, but that was not actually selectable in the deal — e.g. only certain quantity combinations were tradeable because of MOQ or pack-size increments. Grounding more outcomes than were selectable is an optional, useful enrichment. **The column is optional and narrow in scope**: omit it and the whole history reads as real offers, which is what every dataset predating the column meant. It exists to keep an invented quote from being mistaken for one that was made, so it matters only where an *outcome is being replayed* from it. On declined, rejected, and unlabeled rows it changes nothing — see [Availability is not required on unlabeled rows](#availability-is-not-required-on-unlabeled-rows). |
@@ -71,18 +77,29 @@ The rows of a menu are not independent predictions — they are **mutually
 exclusive choices**, and the exclusivity is configured by the *(key, date)*
 unique key:
 
-- `qty` is a **mutex** term: the system may select at most one quantity per
-  key-date. Two different `qty` values can never be chosen at the same time —
-  they are alternatives, not additive positions.
+- The system may select at most one `qty` alternative per key-date. Each
+  value is an executable size of the same instrument; two sizes cannot be
+  selected together as additive positions. This grouping does not turn
+  quantity into an arbitrary business exclusivity code.
 - `cost` behaves the same way whenever it differs within a key-date group: two
   rows with different `unit_cost` under the same key-date are two mutually
   exclusive sourcing options (e.g. two supplier quotes), and the system will
   pick at most one of them.
 
-In short: **the system chooses one option per key-date.** If you need the
+**The system chooses one option per key-date.** If you need the
 model to consider "200 units at $4.10" *and* "500 units at $3.80" as
 alternatives, put both rows in the same key-date group; if two positions could
 genuinely be taken together, they belong to different keys or different dates.
+
+This grouping selects among alternative sizes and costs of one instrument.
+Quantity itself must measure executable exposure, inventory, capacity, or deal
+size, with stated increments, limits, resource use, and allocation rules.
+Reducing quantity must constrain the corresponding executable volume under
+those rules; distinguish that known constraint from uncertain fills and profit.
+Do not encode arbitrary business mutexes or non-scalable categories as `qty`.
+Shared-resource and cross-offer conflicts require external resolution, or
+coherent alternative universes, as described in
+[checklist items 9, 10, 15 and 16](10-applicability-assessment.md#checklist).
 
 ## Features: more useful features is better
 
@@ -229,8 +246,9 @@ went on to do — is a first-class input, sent without a `historically_chosen`
 column. Nothing in the model requires a purchase order behind a labeled row.
 
 What such a history must still supply is the *split*: some line items with a
-safe, trustworthy outcome and others with none. Manufacturing that split
-deliberately is the interesting part of the job — see [Observed and unobserved
+safe, trustworthy outcome and others with genuine observation limits. Preserve
+known outcomes; do not hide labels or invent uncertainty. Constructing an
+operation with natural observation limits is described in [Observed and unobserved
 outcomes](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement).
 
 ## Include the deals you did not take
@@ -244,7 +262,7 @@ historical group make up the context:
 - **Unobserved** — groups with no trustworthy outcome. For an operating
   business these are the deals your process passed on; for a
   research-assembled history they are the line items you could not replay
-  safely, or deliberately did not. Either way: leave `profit` blank on every
+  safely because of a genuine observation limit. Leave `profit` blank on every
   row of the group, and flag nothing unless the business really took one of
   the options. They carry no outcome, and that is the point — they become the
   **unlabeled** context. Nothing else is asked of these rows: no availability
@@ -318,6 +336,14 @@ is about, where the split has to be constructed rather than found.
 `POST /fit` validates shape, not statistics — both conditions surface only
 when the calculation runs; see
 [Fit-time failures](04-errors-and-checks.md#fit-time-failures).
+
+Historical menus must represent the opportunity distribution at deployment,
+not only the business's executed trades. Apply the same eligibility rules to
+history and task data. The
+[applicability checklist](10-applicability-assessment.md#checklist) calls for
+at least 100 genuine feasible configurations in each assessed menu, targeting
+1,000+, with quantity variants and expired context counted separately.
+Selection bias does not require random or deliberately loss-making exploration.
 
 ## Keep the record as it is
 
@@ -567,8 +593,12 @@ Dataset size trades directly against compute: line-item count and feature
 count drive **both** accuracy and the time/effort/tokens a fit consumes. The
 recommended deployment path is iterative:
 
-1. **Start with a simpler, smaller dataset** — fewer keys, fewer feature
-   columns, the volume floors above comfortably cleared but not much more.
+1. **Start with a simpler instrument and feature-generation process** while
+   supplying all available information for the assessed operation. Preserve
+   full opportunity sets and report the source and history window assessed;
+   the [applicability checklist](10-applicability-assessment.md) sets the
+   genuine-choice and source-coverage requirements. Missing or withheld
+   evidence does not pass a completeness check.
 2. In the [business description](02-endpoints.md#business-description), start
    with **formula-based approximations** of the business cost structure per
    deal/item/asset ("net = price − 15% marketplace fee − $2.10 fulfillment −
@@ -578,11 +608,12 @@ recommended deployment path is iterative:
    for the added compute — and **plan the deployment in iterations** rather
    than aiming for the perfect first payload.
 
-**"Small" means shallow, not narrow.** Start with fewer feature columns and a
-shorter history — never with a narrower live menu. The task menu still has to
-carry the market's full flow of candidate deals, hundreds at the least, because
-a handful of hand-picked options is not a small dataset: it is a sign that the
-market, the collection mechanism or the plan is wrong. See [reject markets, at
+**"Small" means shallow, not narrow.** A declared shorter history window can
+reduce compute while retaining whole menus and their available information.
+Report exclusions and assess completeness explicitly. Each assessed historical
+and task menu needs at least 100 economically distinct feasible configurations,
+targeting 1,000 or more where supported, independently of quantity variants.
+Broaden sourcing or improve the instrument when genuine choices are too few. See [reject markets, at
 scale](01-overview.md#where-the-theory-meets-reality-reject-markets-at-scale).
 
 Along the way, read what the service sends back: beyond `parse_report` and

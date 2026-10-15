@@ -39,6 +39,20 @@ grounding, and continue any independent business-led input preparation.
 See [enterprise client grounding](../../docs/02-endpoints.md#bringing-your-own-labels-client_grounded)
 for the technical contract once that integration has been agreed.
 
+## Applicability assessment
+
+Assess the pipeline and `business_description` with the
+[P34 Applicability Assessment](../../docs/10-applicability-assessment.md).
+Record PASS, FAIL, or UNVERIFIED, evidence and remedies for all 17 items,
+respecting their required, recommended and conditional levels. Verify full
+source coverage and historical opportunity sets under the same eligibility
+rules as deployment; count genuine configurations separately from quantity
+variants and expired scoring context. Check decision-time integrity and
+natural sizing with a coherent executable-volume response. Resolve applicable
+required gaps before submitting and preserve original observations when
+constructing alternatives. No compulsory exploratory trades or artificial
+missing labels are needed.
+
 ## Workflow
 
 ### 1. Inventory the sources and leave them unmodified
@@ -218,7 +232,9 @@ and
 [Set-encoder embeddings](../../docs/03-data-format.md#set-encoder-embeddings-advanced).
 The recommended path is
 [Start small, iterate](../../docs/03-data-format.md#start-small-iterate):
-a shallow history with few features first — never a narrower live menu.
+a declared history window and simpler feature generation first, with full
+available source coverage and complete live menus. Report anything excluded
+and assess completeness rather than assuming a smaller request passes it.
 
 ## Next
 

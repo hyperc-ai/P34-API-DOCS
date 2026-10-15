@@ -375,6 +375,11 @@ saved text is what your grounding is compiled from. This keeps a long,
 carefully-maintained description out of every request payload — and lets a
 non-engineer own it in the console while the integration stays untouched.
 
+Assess this description and the constructed pipeline against the
+[P34 Applicability Assessment](10-applicability-assessment.md) before a fit.
+Record evidence for executable commitments, natural sizing and volume response,
+historical and task coverage, and the accounting and execution rules below.
+
 ### What to write in it
 
 Along with the actual description of the business (what is traded, on which
@@ -406,6 +411,10 @@ choose it. State:
   unit cost), the residual value retained, and any liquidation, disposal,
   holding or financing costs; state whether residual value is cash recovered
   or an accounting valuation;
+- the permitted early exits and a bounded closeout/settlement interval,
+  including a failed-liquidation fallback; apply the same predetermined rules
+  to history and task options without extending the holding period after
+  seeing outcomes;
 - how later sales, returns and recoveries are treated, and how you handle
   positions whose observation window has not yet reached the cutoff. An
   incomplete window is not evidence of zero sales through the full horizon.

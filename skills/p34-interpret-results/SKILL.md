@@ -29,6 +29,19 @@ tables, [p34-business-economics](../p34-business-economics/SKILL.md) the
 description, and [p34-submit-and-monitor](../p34-submit-and-monitor/SKILL.md)
 carried the request to a result.
 
+## Applicability assessment
+
+Use the saved [P34 Applicability Assessment](../../docs/10-applicability-assessment.md)
+when judging execution. Applicability, API acceptance and demonstrated
+profitability need separate evidence; an untested settlement or execution
+stage remains UNVERIFIED. If the construction uses streaming context, retain
+persistent identities and the recorded cutoff, and execute only new live
+candidates. If external mutexes, shared resources or alternative universes
+require conflict resolution, apply the declared rule, recording any random
+seed and draw policy. Present the resulting executable portfolio separately
+from the returned selection and prediction; compare universes on the same
+economic basis and do not silently substitute postprocessed results for P34's.
+
 ## Workflow
 
 ### 1. Read the provenance and the fields the response actually carries
@@ -129,9 +142,12 @@ A replay, a margin spreadsheet, an analyst's sizing — all of these are useful
 sanity checks, and worth recording next to the result with the disagreement
 stated plainly. None of them is a P34 output.
 
-Where yours disagrees, **the proposal still carries the quantity the fit
-returned.** Substituting your size and presenting the result as P34's is the
-one error nobody downstream can catch: the artifact looks exactly like a real
+Where yours disagrees, preserve the quantity the fit returned as P34's
+recommendation. If the applicability assessment requires external conflict
+resolution or filtering of streaming context, report that separate execution
+step and its effect on the portfolio explicitly. Substituting your size and
+presenting the result as P34's is the one error nobody downstream can catch:
+the artifact looks exactly like a real
 recommendation. The same goes for the numbers — your total is your total, and
 a reader must be able to tell at a glance which figures came from the service
 and which from the desk.

@@ -4,6 +4,16 @@ Detail behind [SKILL.md](../SKILL.md). The column contract itself is
 [docs/03-data-format.md](../../../docs/03-data-format.md); nothing here
 repeats it.
 
+## Assess the construction before formatting it
+
+Use the [P34 Applicability Assessment](../../../docs/10-applicability-assessment.md)
+for the full 17-item business check. Keep historical eligibility consistent
+with deployment and report incomplete menus; quantity variants and expired
+context do not count as distinct current opportunities. Preserve all available
+source information and separate later outcomes from decision-time features.
+Streaming windows, external mutexes and alternative universes need explicit
+construction rules and evidence when used. Keep the assessment with the run.
+
 ## Source artifacts and provenance
 
 The prepared tables are derived artifacts. The records they were derived from

@@ -23,6 +23,15 @@ every table rather than copying one.
    `done` result into executable orders and refusals, and state how far the
    predicted profit can be trusted.
 
+### Applicability assessment for agents
+
+All four skills use the [P34 Applicability Assessment](10-applicability-assessment.md)
+as the shared business checklist. Prepare an evidence-backed PASS/FAIL/UNVERIFIED
+record for every item, preserve its required/recommended/conditional level,
+and fix applicable required gaps before submission. Reassess when the business
+construction changes. Keep API acceptance and demonstrated profitability as
+separate conclusions.
+
 ### Grounding choice for agents
 
 Use the default `business_led` mode. Do not recommend, implement or submit
