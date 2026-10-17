@@ -255,7 +255,10 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    persist, and which reject reason each one explains.
 10. [docs/10-applicability-assessment.md](docs/10-applicability-assessment.md) —
     the 17-point business checklist and evidence required before submission.
-11. [examples/](examples/) — runnable code:
+11. [docs/11-api-v2.md](docs/11-api-v2.md) — **API v2**: the same request,
+    answered in updates. The obvious trades arrive fast, then deeper
+    statistical analysis adds more until the portfolio is `final`.
+12. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
      (fit → poll → portfolio). Use the default business-led mode. The
      `client_grounded` example is an enterprise integration reference for use
