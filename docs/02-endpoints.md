@@ -2,6 +2,10 @@
 
 Base URL: **`https://api.hyperc.com/v1`**
 
+> **API v2** (`https://api.hyperc.com/v2`) takes the same request and answers
+> in updates: the obvious trades first, fast, then deeper statistical analysis
+> that adds more until the portfolio is `final`. See [API v2](11-api-v2.md).
+
 ## Authentication
 
 Get an API key from the [management console](https://api.hyperc.com/app/)
