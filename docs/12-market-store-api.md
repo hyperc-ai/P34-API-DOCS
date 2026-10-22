@@ -264,7 +264,7 @@ attached, a robot has `research` and `cart` only.
 | `cart` | Keep a cart for you | on | put cards in the holder's cart; the holder pays the cart on its page |
 | `buy` | Buy without asking | **off** | pay cards of its cart from the holder's credits at once, within the monthly budget and the per-card ceiling |
 | `cards` | Create and edit your cards | **off** | create the holder's **private** cards, and change the text, image and categories of the holder's cards |
-| `publish` | Publish and price | **off** | make the holder's cards public or unlisted, set and change prices, unlist, list again or delete, publish new versions — and ask the holder's Business Builder to publish one of its businesses |
+| `publish` | Publish and price | **off** | make the holder's cards public or unlisted, set and change prices — accepting HyperC's publisher terms for the holder (the store's fee on each sale; `terms_version` is `GET /hub/v1/manifest` → `publisher_terms.version`) —, unlist, list again or delete, publish new versions, and ask the holder's Business Builder to publish one of its businesses |
 | `deploy` | Add markets to your Business Builder | on | ask the holder's Business Builder to add a market from the store as a new business — always **paused**, unless `start` is granted too |
 | `start` | Start what it adds | **off** | start the robot of a business it adds (DATA and RUN on) |
 | `payouts` | See your sales and payouts | on | read the holder's sales, earned credits and payouts |
@@ -446,7 +446,7 @@ data packs from a robot.
 {"name": "Used e-bike arbitrage, Berlin", "short": "Buy under-priced used e-bikes, resell refurbished",
  "long": "What the business does, where deals come from, how outcomes are learned …",
  "categories": ["retail"], "access": "private",
- "price_cents": 0, "price_mode": "dynamic", "terms_version": "2026-10",
+ "price_cents": 0, "price_mode": "dynamic", "terms_version": "hcb-publisher-2026-10",
  "files": {"README.md": "…", "skills/collect.md": "…"}, "notes": "first version", "image": "<base64>"}
 ```
 
