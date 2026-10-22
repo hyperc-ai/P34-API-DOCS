@@ -64,6 +64,15 @@ from a checkout.
   API key. The runtime notes below are about narrow *channels*, not about
   these skills — a shell-less agent still uses the same four.
 
+### Robots in the Market Store
+
+The four skills are for the P34 model API. An agent that works in the
+HyperC Market Store for a member — researching cards, keeping a cart the
+member pays, editing and publishing cards, adding markets to the member's
+Business Builder — uses a separate API with its own keys and the
+permissions the member chooses: [docs/12-market-store-api.md](12-market-store-api.md).
+Start from its manifest, `GET https://api.hyperc.com/hub/v1/manifest`.
+
 ---
 
 ## Notes for specific agent runtimes
