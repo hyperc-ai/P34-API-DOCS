@@ -26,6 +26,7 @@ This repository is the complete user-facing documentation for the P34 API: how i
 | --- | --- | --- |
 | **API** | `https://api.hyperc.com/v1/` | The P34 model API (`POST /fit`, `GET /result/...`) |
 | **Management console** | `https://api.hyperc.com/app/` | Account, API keys, plans/billing, session status & cancel |
+| **Market Store API** | `https://api.hyperc.com/hub/v1/` | The Market Store for robots: research, cart, cards, payouts, Business Builder commands ([docs/12-market-store-api.md](docs/12-market-store-api.md)) |
 <!-- simulator temporarily disabled 2026-09-13 — restore when /sim/ is back:
 | **Market simulator** | `https://api.hyperc.com/sim/` | Interactive browser simulator — play a synthetic market with P34 predictions |
 -->
@@ -258,7 +259,14 @@ for menus, grounding and portfolio behaviour before wiring your own data.
 11. [docs/11-api-v2.md](docs/11-api-v2.md) — **API v2**: the same request,
     answered in updates. The obvious trades arrive fast, then deeper
     statistical analysis adds more until the portfolio is `final`.
-12. [examples/](examples/) — runnable code:
+12. [docs/12-market-store-api.md](docs/12-market-store-api.md) — the
+    **Market Store API for robots** (`https://api.hyperc.com/hub`): a robot
+    registers under its own key, researches the store, keeps a cart its
+    member pays (or buys within a budget the member sets), creates and edits
+    the member's cards, reads sales and earned credits, and asks the member's
+    Business Builder to add or publish a market — within the permissions the
+    member chooses.
+13. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
      (fit → poll → portfolio). Use the default business-led mode. The
      `client_grounded` example is an enterprise integration reference for use
@@ -271,7 +279,7 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    - [examples/baseline_comparison/](examples/baseline_comparison/) — a demo
      that pits P34 against a gradient-boosting profit regressor on a synthetic
      market with known ground truth.
-12. [skills/](skills/) — four agent skills that carry the judgement calls this
+14. [skills/](skills/) — four agent skills that carry the judgement calls this
    documentation cannot state as a rule; see [Agent skills](#agent-skills)
    below.
 
