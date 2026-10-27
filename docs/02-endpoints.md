@@ -5,6 +5,12 @@ Base URL: **`https://api.hyperc.com/v1`**
 > **API v2** (`https://api.hyperc.com/v2`) takes the same request and answers
 > in updates: the obvious trades first, fast, then deeper statistical analysis
 > that adds more until the portfolio is `final`. See [API v2](11-api-v2.md).
+>
+> **API v3** (`https://api.hyperc.com/v3`) is API v2 with a context cache: the
+> first fit keeps your grounded history and fitted analysis as a context, and
+> later fits send only the new menu, which is scored against it — usually
+> faster and, when its analysis scores from the cache, at a fraction of the
+> cost. See [API v3](13-api-v3.md).
 
 ## Authentication
 
@@ -551,6 +557,8 @@ If saved code is unavailable, invalid, or fails validation/execution on the new
 input before publication, the service falls back to full agentic grounding.
 Schema, description or relevant runtime changes can require grounding again.
 A cache hit is an optimization, not a guarantee of latency or a free model run.
+To skip the history grounding and the model fit as well, keep a context with
+[API v3](13-api-v3.md) and send only the new menu.
 
 No additional request field is required. Keep the description stable when the
 business rules are unchanged; update it when the economics change. For example,
