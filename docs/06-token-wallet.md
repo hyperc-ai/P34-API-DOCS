@@ -193,6 +193,18 @@ in its ledger entry's `msg`, `/fit` reports what it charged in its `billing`
 block (`tokens_charged` + `tokens_charged_units`), and dividing units by
 `units_per_token` gives the token figure.
 
+**Cached fits ([API v3](13-api-v3.md)).** A fit that reuses a v3 context is
+billed only for scoring the new menu with the kept analysis, with a small
+minimum per analysis step. It runs no history grounding and no model fit, and
+grounding the new menu carries no separate charge, so when its steps score
+from the cache it costs a small fraction of a full fit. Its ledger entries'
+`msg` starts `runtime (cached context ctx_…): …`; a step that ran in full
+inside the cached fit reads `runtime (cached context ctx_…, healed model): …`
+and is priced like any fit, as is a fallback to a full fit. A step answered from a
+kept verdict has no entry: it costs nothing. The fit that builds a context
+is billed, and reads, like any v2 fit. See
+[API v3 cost](13-api-v3.md#cost).
+
 ## What changed for budget errors
 
 | situation | response |

@@ -156,6 +156,44 @@ description you did not intend, ran on a mode you did not ask for, or received
 far fewer task rows than you sent is worth stopping now:
 `DELETE /session/{id}` cancels a running fit.
 
+### 5a. A new menu for the same business: reuse a v3 context
+
+[API v3](../../docs/13-api-v3.md) (base `https://api.hyperc.com/v3`) keeps
+the grounded history and fitted analysis of a fit as a **context**. A later fit
+names it and sends only the new menu's T=0 rows. That is usually faster and,
+when its analysis steps score from the cache, costs a fraction of a full fit.
+The page holds the request rules, the error codes and the lifetimes; link to
+it, do not restate it.
+
+A v3 session is polled at `/v3/result/{session_id}` like a v2 session, not
+with the v1 statuses of step 6: `partial` while `more_expected`, then `final`
+or `failed` ([v2 statuses](../../docs/11-api-v2.md#statuses-polling-does-not-stop-at-the-first-portfolio)).
+Only that route carries the `context` block and the per-update billing.
+
+The judgement calls are yours:
+
+- **A reuse answers as of the build.** It scores the new menu against the
+  history and sales the context was built from; `context.age_seconds` says
+  how old that view is. When new outcomes, a backfill or a market change
+  matter for this menu, create a new context instead, ideally ahead of the
+  menu with `POST /v3/context`, not at the moment the menu is due.
+- **Keep the context's inputs still.** A changed business description, a
+  changed set of menu columns or a changed model makes the context unusable.
+  Change them when the business changed, not to rephrase.
+- **A refused reuse ran nothing.** On `context_not_found`, `context_expired`,
+  `context_stale`, `context_model_mismatch` or `context_mismatch`, send the
+  full body as a create; on `context_not_ready` with a `retry_after`, wait
+  that long and send the same reuse (without one, the build failed: create).
+  A reuse that was accepted but ends `failed` with `context_model_unavailable`
+  or `context_expired` scored nothing either: create. Never send a menu-only
+  body to v1 or v2.
+- **Record the context with the session.** Each attempt's record names the
+  context it built or used, its role (`build` or `reuse`) and its age, and
+  what the result reported. `context.fallback` means the whole fit ran in
+  full, was billed as one, and kept a new context: use the new `context.id`
+  from then on. `context.stage_fallbacks` means single steps ran in full (or
+  were skipped) while the context id stayed the same: keep using it.
+
 ### 6. Poll `/result` through the documented statuses
 
 `grounding` -> `queued` -> `processing` -> `done` | `failed`

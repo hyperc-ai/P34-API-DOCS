@@ -25,6 +25,8 @@ This repository is the complete user-facing documentation for the P34 API: how i
 | Service | URL | What it is |
 | --- | --- | --- |
 | **API** | `https://api.hyperc.com/v1/` | The P34 model API (`POST /fit`, `GET /result/...`) |
+| **API v2** | `https://api.hyperc.com/v2/` | The same request, answered in updates: the obvious trades fast, then deeper analysis ([docs/11-api-v2.md](docs/11-api-v2.md)) |
+| **API v3** | `https://api.hyperc.com/v3/` | API v2 with a context cache: send your history once, then score each new menu against it, usually faster and, when its analysis scores from the cache, at a fraction of the cost; every call needs your API key ([docs/13-api-v3.md](docs/13-api-v3.md)) |
 | **Management console** | `https://api.hyperc.com/app/` | Account, API keys, plans/billing, session status & cancel |
 | **Market Store API** | `https://api.hyperc.com/hub/v1/` | The Market Store for robots: research, cart, cards, payouts, Business Builder commands ([docs/12-market-store-api.md](docs/12-market-store-api.md)) |
 <!-- simulator temporarily disabled 2026-09-13 — restore when /sim/ is back:
@@ -44,6 +46,8 @@ Repeated business-led fits automatically reuse validated grounding code when
 the account, exact business description and parsed schema match. Fresh-data
 validation and the model fit still run; see
 [grounding caching](docs/02-endpoints.md#reusing-grounding-code).
+[API v3](docs/13-api-v3.md) goes further: it keeps the grounded history and
+the fitted analysis as a context, and later fits send only the new menu.
 
 ## Assess the business before fitting
 
@@ -266,7 +270,14 @@ for menus, grounding and portfolio behaviour before wiring your own data.
     the member's cards, reads sales and earned credits, and asks the member's
     Business Builder to add or publish a market — within the permissions the
     member chooses.
-13. [examples/](examples/) — runnable code:
+13. [docs/13-api-v3.md](docs/13-api-v3.md) — **API v3**: API v2 with a
+    context cache. The first fit keeps your grounded history and fitted
+    analysis as a context; later fits name it and send only the new menu,
+    which is scored against it, usually faster and, when its analysis scores
+    from the cache, at a fraction of the cost. What a reuse means, the
+    errors, the lifetime (3 days unused, 7 days at most), building ahead,
+    and the cost.
+14. [examples/](examples/) — runnable code:
    - [examples/client/](examples/client/) — a complete sample client
      (fit → poll → portfolio). Use the default business-led mode. The
      `client_grounded` example is an enterprise integration reference for use
@@ -279,7 +290,7 @@ for menus, grounding and portfolio behaviour before wiring your own data.
    - [examples/baseline_comparison/](examples/baseline_comparison/) — a demo
      that pits P34 against a gradient-boosting profit regressor on a synthetic
      market with known ground truth.
-14. [skills/](skills/) — four agent skills that carry the judgement calls this
+15. [skills/](skills/) — four agent skills that carry the judgement calls this
    documentation cannot state as a rule; see [Agent skills](#agent-skills)
    below.
 
