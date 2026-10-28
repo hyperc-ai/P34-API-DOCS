@@ -32,12 +32,15 @@ often than its history changes enough to matter.
 | `DELETE /session/{session_id}` | Stop further analysis, as in v2. `?finish_context=true` stops serving the portfolio but lets the context finish building. |
 | `POST /validate`, `GET /health` | As in v1, but with your key, like every v3 call. `GET /account/*` stays on [v1](06-token-wallet.md). |
 
-Every v3 call, `GET /` and `GET /health` included, needs an account API key
+Every v3 call except `GET /health` needs an account API key
 (`Authorization: Bearer <key>`, as in [v1](02-endpoints.md#authentication)).
-A missing, unknown or revoked key, or a `free-` workspace key, is answered
-`404 {"detail": "Not Found"}` (where v1 answers 401 or 403), mock fits
-included: free keys run mock fits on v2, not on v3. Keys, tokens and the
-wallet are the same as in v1 and v2. v3 has no interactive reference page.
+A missing, unknown or revoked key is answered `401` exactly as v1 and v2
+answer it (`{"detail": "missing Bearer API key"}` or
+`{"detail": "unknown or revoked API key"}`). A `free-` workspace key cannot
+create or reuse contexts: v3 answers it `403` with `code`
+`free_markets_only`; free workspaces fit on v1 and run mock fits on v2. Keys,
+tokens and the wallet are the same as in v1 and v2. v3 has no interactive
+reference page.
 
 ## Creating a context
 
