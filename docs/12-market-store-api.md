@@ -726,7 +726,7 @@ once attached, it is its holder's. The holder sees every robot's cart on
 | Route | Permission | What |
 | --- | --- | --- |
 | `GET /v1/cart` | `cart` | `{id, checkout_url, attached, robot, lines: [{id, market_id, name, price {cents, credits}, price_when_added_cents, note, added_at, status, purchase_id, deploy}], total_cents, credits_available, budget}` |
-| `POST /v1/cart/items` `{market_id, k?, note?, deploy?: {start?, install_id?, name?, steer?, version?}, copies?, max_unit_cents?}` | `cart` | add a card the caller may see. A card already in the cart is updated, never added twice. `409 already_held` when the holder holds a usable copy (or the family); to buy MORE copies use `POST /v1/licenses/orders` — or a **copies line** (`copies` 1–100 with `max_unit_cents`, else `422 limit_required`), which is never `already_held`. `deploy` (needs `deploy`; `start` needs `start`): once the card is bought, the hub queues a deploy command for it; its `version` is also the version picked for the license (a fork's author gets the [fork royalty](#fees-and-the-fork-royalty)) |
+| `POST /v1/cart/items` `{market_id, k?, note?, deploy?: {start?, install_id?, name?, steer?, version?}, copies?, max_unit_cents?}` | `cart` | add a card the caller may see. A card already in the cart is updated, never added twice. `409 already_held` when the holder holds a usable copy (or the family); to buy MORE copies use `POST /v1/licenses/orders` — or a **copies line** (`copies` 1–100 with `max_unit_cents`, else `422 limit_required`), which is never `already_held`. `deploy` (needs `deploy`; `start` needs `start`): once the card is bought, the hub queues a deploy command for it; its `version` is also the version picked for the license (a fork's author gets the [fork royalty](#fees-and-the-fork-royalty) when the line buys a new license; a resold copy pays none) |
 | `PATCH /v1/cart/items/{id}` `{note?, deploy?}` | `cart` | change a line's note or deploy wish |
 | `DELETE /v1/cart/items/{id}` | `cart` | remove an open line |
 | `POST /v1/cart/checkout` `{line_ids?}` | `cart` (+ `buy`) | see below |
@@ -817,7 +817,7 @@ them.
 | `GET /v1/licenses/book/{id}` `?qty=&k=` | research | the order book of the card's family: the new license (`grant`, labelled with the author), the 50 cheapest asks at most (anonymous; `mine` on yours), `best`, `public_best`, `fees`, your copies, `feed_cursor`; with `qty` a fill-or-kill quote |
 | `GET /v1/licenses/feed` `?after=&root=&kinds=&limit=&wait=` | research | the market feed: book changes, best prices, trades (integer cursor) |
 | `GET /v1/licenses/series/{id}` `?days=&points=&k=` | research | the best-price step line and the trades |
-| `POST /v1/licenses/orders` `{market_id, copies, max_unit_cents?, expect_total_cents?, version?: {market_id, version}, fill: "all"}` + `Idempotency-Key` | `buy` (budget) | buy N copies, cheapest first, all or nothing; a robot must send `max_unit_cents` or `expect_total_cents` |
+| `POST /v1/licenses/orders` `{market_id, copies, max_unit_cents?, expect_total_cents?, version?: {market_id, version}, fill: "all", pay?: "credits"}` + `Idempotency-Key` | `buy` (budget) | buy N copies, cheapest first, all or nothing; a robot must send `max_unit_cents` or `expect_total_cents` |
 | `GET /v1/licenses/orders` `?status=&before=&limit=` | research | your orders (a robot: the ones it placed) |
 | `GET /v1/licenses/orders/{id}` | research | the order and its fills |
 | `GET /v1/licenses/mine` `?root=&detail=1` | research | the holder's families: copies by state, personal/transferable, asks, offers sent |
@@ -989,7 +989,8 @@ below-public new licenses).
   "receipt": null, "status_url": "/v1/licenses/orders/pur_…"}` when the
   charge's outcome is not known yet;
 - refusals: `409 price_changed {quote}`, `insufficient_supply {available,
-  at_or_below}`, `not_tradable {why}`, `copy_cap`, `credits_only`,
+  at_or_below}`, `not_tradable {why}`, `copy_cap`, `credits_only` (a `pay`
+  other than `"credits"`),
   `402 insufficient_credits`, `403 over_budget {item_cents | left_cents,
   pool?}`, `429 too_many_purchases`, `too_many_failed_orders`,
   `422 client_key_required`, `limit_required`, `invalid_pick`.
@@ -1150,11 +1151,14 @@ higher price) applies at once.
 
 Each new license of a card's family books the original author's share
 (70 %, or 65 % with a fork's version picked) as **earned credits** in the
-author's accumulating account; each resale or priced direct offer books 90 %
-to its seller; a fork royalty (5 %) to the picked fork's author. A refund or
-dispute reverses it. Buyers are never named. Earned credits are spendable
-credits that can buy cards in the store; the percentages are the store's at
-the time of writing (`store_fee_pct` and, under the licenses, `fees`).
+author's accumulating account; each resale, or a member's priced direct
+offer of copies they hold, books 90 % to its seller; a priced direct offer
+of new licenses books the author's share as any new license does, and a
+priced authorship offer books 70 % to the former author; a fork royalty
+(5 %) to the picked fork's author. A refund or dispute reverses it. Buyers
+are never named. Earned credits are spendable credits that can buy cards in
+the store; the percentages are the store's at the time of writing
+(`store_fee_pct` and, under the licenses, `fees`).
 **Cash payouts are not offered yet**: `cash.live` is `false` and
 `cash.payouts` is empty while none are offered.
 `GET /v1/payouts.csv?month=` returns the same entries as a CSV statement.
@@ -1329,7 +1333,8 @@ minutes on every route (`general`); 1,800 per 5 minutes on the trading reads
 (`trade_read`: the book, the feed, the series, your copies, moves, orders,
 asks, offers, checks, and events in cursor mode); 30 a minute per key and
 120 a minute per account on the trading writes (`trade_write`: orders, asks,
-offers, checks); 60 orders an hour per key and 120 per account; a master's
+offers, checks); 60 orders an hour per key and 120 per account (the hourly
+order caps answer `429 too_many_purchases` with `Retry-After`); a master's
 key management 30 an hour per account; at most 2 open long-polls per key.
 20 registrations an hour per address; 30 commands an hour per holder. Every
 robot request answers `X-RateLimit-Limit`, `X-RateLimit-Remaining` and

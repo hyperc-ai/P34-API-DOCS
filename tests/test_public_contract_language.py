@@ -5,7 +5,9 @@ Market licenses, the order book and the two accounts (area_docs §7.1-§7.3,
 accumulating account and no longer states the monthly accrual as a current
 rule; the Market Store API page carries every trading path of the hub's
 endpoint list and the "no buyer is guaranteed" sentence; no public text sells
-a copy or a license as an investment.
+a copy or a license as an investment. Each money split and refusal code is the
+hub's and the console's (decisions D6, D12, D15, D16, Q19: the review fixes of
+HANDOFF-D3).
 """
 
 from pathlib import Path
@@ -190,6 +192,30 @@ class MarketLicensesLanguageTest(unittest.TestCase):
             text = _flat(path).lower()
             self.assertNotIn("the copy the buyer will use", text, path)
             self.assertNotIn("the copy you run", text, path)
+
+    def test_each_split_is_the_fee_of_its_sale_type(self):
+        # D12/D16: a priced offer of new licenses and a priced authorship
+        # offer pay the new-license fee, only a holder's copy the resale fee;
+        # D6/D15: a resold copy pays no fork royalty; Q19: a refund's plan
+        # part beyond this week's use lapses, it never reaches the balance
+        text = _flat(ROOT / "docs" / "12-market-store-api.md")
+        self.assertNotIn("each resale or priced direct offer books 90 %", text)
+        self.assertIn("each resale, or a member's priced direct offer of "
+                      "copies they hold, books 90 % to its seller", text)
+        self.assertIn("a priced authorship offer books 70 % to the former "
+                      "author", text)
+        self.assertIn("when the line buys a new license; a resold copy pays "
+                      "none", text)
+        wallet = _flat(ROOT / "docs" / "06-token-wallet.md")
+        self.assertIn("a plan part beyond that lapses: it never reaches the "
+                      "balance", wallet)
+
+    def test_order_refusals_name_their_codes(self):
+        text = _flat(ROOT / "docs" / "12-market-store-api.md")
+        self.assertIn('fill: "all", pay?: "credits"}', text)
+        self.assertIn('`credits_only` (a `pay` other than `"credits"`)', text)
+        self.assertIn("(the hourly order caps answer `429 too_many_purchases` "
+                      "with `Retry-After`)", text)
 
     def test_no_public_text_sells_copies_as_an_investment(self):
         near = re.compile(r"\bcop(?:y|ies)\b|\blicen[cs]e")

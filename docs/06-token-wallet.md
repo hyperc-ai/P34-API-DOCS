@@ -280,8 +280,9 @@ curl -s "https://api.hyperc.com/v1/account/ledger?limit=50" \
   `adjust` (bookkeeping, e.g. the wallet-launch carry-over), `accrual` (a
   monthly plan grant credited to the balance — how plans paid out until
   2026-10-05; earlier entries keep that kind).
-* A market refund returns the plan part to this week's plan credits (up to
-  what you used this week); the rest goes to the balance.
+* A market refund returns the plan part to this week's plan credits, up to
+  what you used this week (a plan part beyond that lapses: it never reaches
+  the balance); the rest of the refund goes to the balance.
 * `from` / `to` — account **emails**, or a system party: `plan:<code>`,
   `p34:model`, `p34:runtime`, `svc:<service>`, `stripe` (purchases),
   `market` (Market Store purchases), `market-sales`, `plan-rollover`,
