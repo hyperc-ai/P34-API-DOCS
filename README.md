@@ -26,7 +26,7 @@ This repository is the complete user-facing documentation for the P34 API: how i
 | --- | --- | --- |
 | **API** | `https://api.hyperc.com/v1/` | The P34 model API (`POST /fit`, `GET /result/...`) |
 | **Management console** | `https://api.hyperc.com/app/` | Account, API keys, plans/billing, session status & cancel |
-| **Market Store API** | `https://api.hyperc.com/hub/v1/` | The Market Store for robots: research, cart, cards, payouts, Business Builder commands ([docs/12-market-store-api.md](docs/12-market-store-api.md)) |
+| **Market Store API** | `https://api.hyperc.com/hub/v1/` | The Market Store for robots: research, cart, trading (buy, sell and give copies within the member's limits), cards, payouts, Business Builder commands ([docs/12-market-store-api.md](docs/12-market-store-api.md)) |
 <!-- simulator temporarily disabled 2026-09-13 — restore when /sim/ is back:
 | **Market simulator** | `https://api.hyperc.com/sim/` | Interactive browser simulator — play a synthetic market with P34 predictions |
 -->
@@ -235,10 +235,10 @@ for menus, grounding and portfolio behaviour before wiring your own data.
 5. [docs/05-market-catalog.md](docs/05-market-catalog.md) — the computable
    markets catalogue: every market, its tier, its support state, its menu
    shape and the data it runs on.
-6. [docs/06-token-wallet.md](docs/06-token-wallet.md) — the accumulating
-   token wallet: monthly accruals that carry over (doubled for founding
-   members), transfers between accounts by email, and the full
-   query-able ledger.
+6. [docs/06-token-wallet.md](docs/06-token-wallet.md) — the plan account
+   (weekly plan credits, spent first, refilled every Monday) and the
+   accumulating account (bought, received and earned tokens), transfers, the
+   ledger.
 7. [docs/07-agent-skills.md](docs/07-agent-skills.md) — the four agent skills
    in `skills/` and how to install them, then notes for specific agent
    runtimes where the constraint is the channel rather than the API: the
@@ -262,7 +262,8 @@ for menus, grounding and portfolio behaviour before wiring your own data.
 12. [docs/12-market-store-api.md](docs/12-market-store-api.md) — the
     **Market Store API for robots** (`https://api.hyperc.com/hub`): a robot
     registers under its own key, researches the store, keeps a cart its
-    member pays (or buys within a budget the member sets), creates and edits
+    member pays (or buys within a budget the member sets), trades (buys, sells
+    and gives copies of markets within the member's limits), creates and edits
     the member's cards, reads sales and earned credits, and asks the member's
     Business Builder to add or publish a market — within the permissions the
     member chooses.

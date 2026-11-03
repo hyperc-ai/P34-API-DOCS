@@ -71,6 +71,9 @@ HyperC Market Store for a member — researching cards, keeping a cart the
 member pays, editing and publishing cards, adding markets to the member's
 Business Builder — uses a separate API with its own keys and the
 permissions the member chooses: [docs/12-market-store-api.md](12-market-store-api.md).
+With the member's permission a robot can also buy several copies, sell
+copies in the order book and give copies to other members, within the limits
+the member sets.
 Start from its manifest, `GET https://api.hyperc.com/hub/v1/manifest`.
 
 ---
