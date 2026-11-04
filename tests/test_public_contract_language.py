@@ -17,8 +17,7 @@ authorship transfer are open from that day; only the plan-credit lapse keeps
 {LAPSE_FROM} = 2026-12-21. Owner decision 2026-11-04 ("start the new process
 today, and for older users the 21st"): an account whose paid plan begins on
 or after 2026-11-04 lapses from the Usage Week beginning 2026-11-02 (its
-`lapse_from` reads that week's start); the members who held a paid plan
-before 2026-11-04 (the §6.5 notice) keep rolling over until {LAPSE_FROM}.
+`lapse_from` reads that week's start); the members who already had a paid plan on 2026-11-04 (the §6.5 notice) keep rolling over until {LAPSE_FROM}.
 `lapse_from` is the account's own, and the pages state the rule in the
 owner's canonical sentences.
 """
@@ -106,11 +105,10 @@ def _unquoted(path: Path) -> str:
 # the docs' ISO date style ("4 November 2026" -> 2026-11-04, "21 December
 # 2026" -> 2026-12-21; the only adaptation allowed).
 LAPSE_LONG = ("Unused plan credits lapse at the weekly refill. Members who "
-              "held a paid plan before 2026-11-04 keep the earlier rule until "
+              "already had a paid plan on 2026-11-04 keep the earlier rule until "
               "2026-12-21: until then their unused plan credits still move "
               "into their accumulating account.")
-LAPSE_SHORT = ("unused ones lapse at the weekly refill (for members who held "
-               "a paid plan before 2026-11-04, from 2026-12-21)")
+LAPSE_SHORT = ("unused ones lapse at the weekly refill (for members who already had a paid plan on 2026-11-04, from 2026-12-21)")
 # the start of the Usage Week that holds 2026-11-04 (credit week 2965), from
 # which an account whose paid plan begins on or after 2026-11-04 lapses
 NEW_MEMBERS_LAPSE_FROM = "2026-11-02T00:00:00+00:00"
@@ -354,7 +352,7 @@ class MarketLicensesLanguageTest(unittest.TestCase):
                       "now the account's own.", wallet)
         self.assertIn("**Changes 2026-12-21.** From 2026-10-21 until "
                       "2026-12-21, the unused plan credits of members who "
-                      "held a paid plan before 2026-11-04 move into the token "
+                      "already had a paid plan on 2026-11-04 move into the token "
                       "balance at the end of their week (ledger kind `grant`, "
                       "from `plan-rollover`). From the week starting "
                       "2026-12-21 they lapse again. Tokens already on the "
@@ -364,7 +362,7 @@ class MarketLicensesLanguageTest(unittest.TestCase):
 
     def test_the_wallet_states_the_lapse_in_the_owners_words(self):
         # owner decision 2026-11-04: new paid members lapse now, the members
-        # who held a paid plan before 2026-11-04 from 2026-12-21; the plan
+        # who already had a paid plan on 2026-11-04 from 2026-12-21; the plan
         # account's paragraph and the lapse section say it in the long
         # sentence, word for word
         path = ROOT / "docs" / "06-token-wallet.md"
@@ -394,8 +392,7 @@ class MarketLicensesLanguageTest(unittest.TestCase):
         self.assertIn("`lapse_from` is the account's own: when the lapse "
                       "starts for this account — the start of its first "
                       "lapsing week as an ISO time "
-                      f"(`{EARLIER_MEMBERS_LAPSE_FROM}` for a member who held "
-                      "a paid plan before 2026-11-04, "
+                      f"(`{EARLIER_MEMBERS_LAPSE_FROM}` for a member who already had a paid plan on 2026-11-04, "
                       f"`{NEW_MEMBERS_LAPSE_FROM}` for an account whose paid "
                       "plan began on or after 2026-11-04), `\"always\"` when "
                       "every week lapses, or `null` while every week carries "
@@ -417,13 +414,12 @@ class MarketLicensesLanguageTest(unittest.TestCase):
         example = example[:example.index("\n```\n", 1)]
         self.assertEqual(example.count(f'"lapse_from": '
                                        f'"{EARLIER_MEMBERS_LAPSE_FROM}"'), 2)
-        self.assertIn("An example — a founding member who held a paid plan "
-                      "before 2026-11-04, partway through the Usage Week "
+        self.assertIn("An example — a founding member who already had a paid plan on 2026-11-04, partway through the Usage Week "
                       "beginning 2026-12-21", _flat(ROOT / "docs" /
                                                     "06-token-wallet.md"))
 
     def test_the_lapse_day_is_never_everyones(self):
-        # 2026-12-21 is the lapse of the members who held a paid plan before
+        # 2026-12-21 is the lapse of the members who already had a paid plan on
         # 2026-11-04 only: in the prose of the wallet page and the README,
         # every mention of it names those members nearby
         for path in (ROOT / "README.md", ROOT / "docs" / "06-token-wallet.md"):
@@ -433,7 +429,7 @@ class MarketLicensesLanguageTest(unittest.TestCase):
             self.assertTrue(found, path)
             for m in found:
                 window = text[max(0, m.start() - 450):m.end() + 300]
-                self.assertIn("paid plan before 2026-11-04", window,
+                self.assertIn("paid plan on 2026-11-04", window,
                               (path, window))
 
     def test_readme_states_the_lapse_in_the_short_words(self):

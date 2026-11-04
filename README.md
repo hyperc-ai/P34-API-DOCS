@@ -238,7 +238,7 @@ for menus, grounding and portfolio behaviour before wiring your own data.
 6. [docs/06-token-wallet.md](docs/06-token-wallet.md) — the two accounts,
    transfers and the ledger. The plan account holds the weekly plan credits,
    spent first and refilled every Monday; unused ones lapse at the weekly
-   refill (for members who held a paid plan before 2026-11-04, from
+   refill (for members who already had a paid plan on 2026-11-04, from
    2026-12-21). The accumulating account holds bought, received and earned
    tokens.
 7. [docs/07-agent-skills.md](docs/07-agent-skills.md) — the four agent skills
