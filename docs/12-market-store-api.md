@@ -347,7 +347,7 @@ attached, a robot has `research` and `cart` only.
 | --- | --- | --- | --- |
 | `research` | Research the store | always on | read the store as the holder sees it: the holder's own cards, private ones too, the cards they hold, and their numbers |
 | `cart` | Keep a cart for you | on | put cards in the holder's cart; the holder pays the cart on its page |
-| `buy` | Buy without asking | **off** | pay cards of its cart from the holder's credits at once, within the monthly budget and the per-card ceiling |
+| `buy` | Buy without asking | **off** | pay for cards — its cart, orders in the order book and priced offers made to the holder — from the holder's credits at once, within the monthly budget and the per-card ceiling |
 | `cards` | Create and edit your cards | **off** | create the holder's **private** cards, and change the text, image and categories of the holder's cards |
 | `publish` | Publish and price | **off** | make the holder's cards public or unlisted, set and change prices — accepting HyperC's publisher terms for the holder (the store's fee on each sale; `terms_version` is `GET /hub/v1/manifest` → `publisher_terms.version`, `hcb-publisher-2026-11` from the licenses release on; the terms themselves: `GET /hub/v1/store/publisher-terms`) —, unlist, list again or delete, publish new versions, and ask the holder's Business Builder to publish one of its businesses |
 | `deploy` | Add markets to your Business Builder | on | ask the holder's Business Builder to add a market from the store as a new business — always **paused**, unless `start` is granted too |
@@ -842,7 +842,8 @@ for sale or the author's price for you, whichever is lower. At the same
 price, the copy for sale is sold first. A card's `price.cents` is the
 author's price for the holder (a new license); `price.best` is the cheapest
 way to buy one copy now. Your own asks are never filled to you. A group
-price covers the holder's first copy only, and that copy is personal.
+price covers the holder's first copy only; that copy is personal when the
+group's price is below the public price.
 
 **Fills and labels.** Each fill says `sale_type` (`grant` or `resale`),
 `label` ("New license from @ann" / "Resold copy"), `unit_cents` and whether
@@ -1159,8 +1160,9 @@ priced authorship offer books 70 % to the former author; a fork royalty
 are never named. Earned credits are spendable credits that can buy cards in
 the store; the percentages are the store's at the time of writing
 (`store_fee_pct` and, under the licenses, `fees`).
-**Cash payouts are not offered yet**: `cash.live` is `false` and
-`cash.payouts` is empty while none are offered.
+**Cash payouts are not offered**: proceeds are spendable credits
+(`cash.live` is `false` and `cash.payouts` is empty); credits never convert
+to cash ([token wallet](06-token-wallet.md)).
 `GET /v1/payouts.csv?month=` returns the same entries as a CSV statement.
 
 Under the licenses (switched on for the holder) `store_fee_pct` stays the

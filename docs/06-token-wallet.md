@@ -51,10 +51,10 @@ there is no hidden state.
 
 ### The weekly lapse from 2026-12-21
 
-> **Changed 2026-12-21.** From 2026-10-21 until 2026-12-21, unused plan
-> credits moved into the token balance at the end of their week (ledger kind
+> **Changes 2026-12-21.** From 2026-10-21 until 2026-12-21, unused plan
+> credits move into the token balance at the end of their week (ledger kind
 > `grant`, from `plan-rollover`). From the week starting 2026-12-21 they lapse
-> again. Tokens already on the balance stay; nothing was restated.
+> again. Tokens already on the balance stay; nothing is restated.
 
 Usage Weeks that end on or before 2026-12-21 keep the earlier rule: their
 unused plan credits move into the accumulating account when the week ends.

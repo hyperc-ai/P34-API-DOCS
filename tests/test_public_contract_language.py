@@ -7,8 +7,10 @@ rule; the Market Store API page carries every trading path of the hub's
 endpoint list and the "no buyer is guaranteed" sentence; no public text sells
 a copy or a license as an investment. Each money split and refusal code is the
 hub's and the console's (decisions D6, D12, D15, D16, Q19: the review fixes of
-HANDOFF-D3). The robots' rules are the protocol's mode-1 RULES word for word
-(the AP2/D3-fix).
+HANDOFF-D3). The W6 fixes: no prose suggests a cash payout to come (Terms
+§§5.5-5.7, 6.8); the robots' rules are the protocol's mode-1 RULES word for
+word; the `buy` permission and the group price read as the hub's licenses
+words; the 2026-12-21 callout is written before the date it names.
 """
 
 from pathlib import Path
@@ -75,6 +77,13 @@ def _flat(path: Path) -> str:
     """The page's text with every run of whitespace as one space, so a
     phrase matches across the page's line breaks."""
     return " ".join(path.read_text().split())
+
+
+def _prose(path: Path) -> str:
+    """The page's text outside its fenced code blocks, flattened as by
+    `_flat`: an example quotes an answer as the hub serves it, the prose is
+    the page's own words."""
+    return " ".join(re.sub(r"(?ms)^```.*?^```", " ", path.read_text()).split())
 
 
 # The rules of GET /v1/agents/protocol from the licenses release on, as the
@@ -266,10 +275,52 @@ class MarketLicensesLanguageTest(unittest.TestCase):
         self.assertIn("(the hourly order caps answer `429 too_many_purchases` "
                       "with `Retry-After`)", text)
 
+    def test_no_prose_promises_a_cash_payout_to_come(self):
+        # Terms §5.5 ("spendable Tokens, not a cash payout"), §5.6 (no cash
+        # value), §6.8; the website says "Cash payouts are not offered."
+        # The JSON example of GET /v1/payouts keeps the note the hub serves.
+        for path in PUBLIC_TEXT:
+            prose = _prose(path).lower()
+            self.assertNotIn("payouts are not offered yet", prose, path)
+            self.assertNotIn("while none are offered", prose, path)
+        payouts = _prose(ROOT / "docs" / "12-market-store-api.md")
+        self.assertIn("**Cash payouts are not offered**: proceeds are "
+                      "spendable credits (`cash.live` is `false` and "
+                      "`cash.payouts` is empty); credits never convert to "
+                      "cash", payouts)
+
     def test_rules_for_robots_are_the_protocols_word_for_word(self):
         rules = _quoted_rules(ROOT / "docs" / "12-market-store-api.md")
         self.assertEqual(rules, PROTOCOL_RULES)
         self.assertTrue(all(not re.search(r"\blisting", r) for r in rules))
+
+    def test_buy_and_group_price_read_as_the_licenses_words(self):
+        # agents.PERMISSIONS["buy"] under the licenses; a group price at or
+        # above the public one buys a transferable first copy (D11, cf449d0)
+        text = _flat(ROOT / "docs" / "12-market-store-api.md")
+        self.assertIn("| `buy` | Buy without asking | **off** | pay for cards "
+                      "— its cart, orders in the order book and priced offers "
+                      "made to the holder — from the holder's credits at once, "
+                      "within the monthly budget and the per-card ceiling |",
+                      text)
+        self.assertNotIn("pay cards of its cart", text)
+        self.assertIn("A group price covers the holder's first copy only; that "
+                      "copy is personal when the group's price is below the "
+                      "public price.", text)
+        self.assertNotIn("first copy only, and that copy is personal", text)
+
+    def test_the_lapse_callout_is_written_before_its_date(self):
+        # the page ships on 2026-11-21, a month before the lapse (the
+        # callout is a block quote: its "> " markers are dropped)
+        wallet = " ".join(re.sub(r"(?m)^> ?", "", (
+            ROOT / "docs" / "06-token-wallet.md").read_text()).split())
+        self.assertIn("**Changes 2026-12-21.** From 2026-10-21 until "
+                      "2026-12-21, unused plan credits move into the token "
+                      "balance at the end of their week (ledger kind `grant`, "
+                      "from `plan-rollover`). From the week starting "
+                      "2026-12-21 they lapse again. Tokens already on the "
+                      "balance stay; nothing is restated.", wallet)
+        self.assertNotIn("**Changed 2026-12-21.**", wallet)
 
     def test_no_public_text_sells_copies_as_an_investment(self):
         near = re.compile(r"\bcop(?:y|ies)\b|\blicen[cs]e")
