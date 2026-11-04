@@ -14,7 +14,13 @@ words; the 2026-12-21 callout is written before the date it names. Owner
 decision 2026-11-04: the publisher terms hcb-publisher-2026-11 govern from
 {L} = 2026-11-04 ({PUBLISHER_FROM}, Terms §5.7) and resale, direct offers and
 authorship transfer are open from that day; only the plan-credit lapse keeps
-{LAPSE_FROM} = 2026-12-21.
+{LAPSE_FROM} = 2026-12-21. Owner decision 2026-11-04 ("start the new process
+today, and for older users the 21st"): an account whose paid plan begins on
+or after 2026-11-04 lapses from the Usage Week beginning 2026-11-02 (its
+`lapse_from` reads that week's start); the members who held a paid plan
+before 2026-11-04 (the §6.5 notice) keep rolling over until {LAPSE_FROM}.
+`lapse_from` is the account's own, and the pages state the rule in the
+owner's canonical sentences.
 """
 
 from pathlib import Path
@@ -88,6 +94,27 @@ def _prose(path: Path) -> str:
     `_flat`: an example quotes an answer as the hub serves it, the prose is
     the page's own words."""
     return " ".join(re.sub(r"(?ms)^```.*?^```", " ", path.read_text()).split())
+
+
+def _unquoted(path: Path) -> str:
+    """The page flattened as by `_flat`, with the "> " markers of its block
+    quotes dropped, so a callout reads as one run of text."""
+    return " ".join(re.sub(r"(?m)^> ?", "", path.read_text()).split())
+
+
+# The owner's canonical sentences of 2026-11-04 for the plan-credit lapse, in
+# the docs' ISO date style ("4 November 2026" -> 2026-11-04, "21 December
+# 2026" -> 2026-12-21; the only adaptation allowed).
+LAPSE_LONG = ("Unused plan credits lapse at the weekly refill. Members who "
+              "held a paid plan before 2026-11-04 keep the earlier rule until "
+              "2026-12-21: until then their unused plan credits still move "
+              "into their accumulating account.")
+LAPSE_SHORT = ("unused ones lapse at the weekly refill (for members who held "
+               "a paid plan before 2026-11-04, from 2026-12-21)")
+# the start of the Usage Week that holds 2026-11-04 (credit week 2965), from
+# which an account whose paid plan begins on or after 2026-11-04 lapses
+NEW_MEMBERS_LAPSE_FROM = "2026-11-02T00:00:00+00:00"
+EARLIER_MEMBERS_LAPSE_FROM = "2026-12-21T00:00:00+00:00"
 
 
 # The rules of GET /v1/agents/protocol from the licenses release on, as the
@@ -314,17 +341,116 @@ class MarketLicensesLanguageTest(unittest.TestCase):
         self.assertNotIn("first copy only, and that copy is personal", text)
 
     def test_the_lapse_callout_is_written_before_its_date(self):
-        # the page ships on 2026-11-04, 47 days before the lapse (the
-        # callout is a block quote: its "> " markers are dropped)
-        wallet = " ".join(re.sub(r"(?m)^> ?", "", (
-            ROOT / "docs" / "06-token-wallet.md").read_text()).split())
+        # the page ships on 2026-11-04, 47 days before the earlier members'
+        # lapse and on the day of the new members' one (the callouts are a
+        # block quote: its "> " markers are dropped)
+        wallet = _unquoted(ROOT / "docs" / "06-token-wallet.md")
+        self.assertIn("**Changed 2026-11-04.** For an account whose paid plan "
+                      "begins on or after 2026-11-04, unused plan credits "
+                      "lapse at the end of their Usage Week, from the week "
+                      "that began on 2026-11-02: the first refill at which "
+                      "they lapse is the one of 2026-11-09 00:00 UTC. "
+                      "`lapse_from` is "
+                      "now the account's own.", wallet)
         self.assertIn("**Changes 2026-12-21.** From 2026-10-21 until "
-                      "2026-12-21, unused plan credits move into the token "
+                      "2026-12-21, the unused plan credits of members who "
+                      "held a paid plan before 2026-11-04 move into the token "
                       "balance at the end of their week (ledger kind `grant`, "
                       "from `plan-rollover`). From the week starting "
                       "2026-12-21 they lapse again. Tokens already on the "
                       "balance stay; nothing is restated.", wallet)
         self.assertNotIn("**Changed 2026-12-21.**", wallet)
+        self.assertNotIn("**Changes 2026-11-04.**", wallet)
+
+    def test_the_wallet_states_the_lapse_in_the_owners_words(self):
+        # owner decision 2026-11-04: new paid members lapse now, the members
+        # who held a paid plan before 2026-11-04 from 2026-12-21; the plan
+        # account's paragraph and the lapse section say it in the long
+        # sentence, word for word
+        path = ROOT / "docs" / "06-token-wallet.md"
+        text = _flat(path)
+        self.assertGreaterEqual(text.count(LAPSE_LONG), 2)
+        self.assertIn("### The weekly lapse Unused plan credits lapse at the "
+                      "weekly refill.", text)
+        self.assertIn("Nothing that has already moved into the accumulating "
+                      "account is taken back.", text)
+        self.assertIn("(§§1.25, 6.1, with the notice of §6.5)", text)
+        # the rule of the day before the decision: one date for everyone
+        for stale in ("Credits left in it at the refill lapse",
+                      "Until the Usage Week beginning 2026-12-21, unused plan "
+                      "credits still carry over",
+                      "The weekly lapse from 2026-12-21",
+                      "(every week before 2026-12-21, on every plan",
+                      "carry-overs before 2026-12-21",
+                      "carried over before 2026-12-21",
+                      "the first week whose unused plan credits lapse:"):
+            self.assertNotIn(stale, text)
+
+    def test_lapse_from_is_documented_per_account(self):
+        # plan_credits.lapse_from and accounts.plan.lapse_from are the
+        # account's own: the start of week 2965 for a paid plan begun on or
+        # after 2026-11-04, the start of week 2972 for an earlier member
+        text = _prose(ROOT / "docs" / "06-token-wallet.md")
+        self.assertIn("`lapse_from` is the account's own: when the lapse "
+                      "starts for this account — the start of its first "
+                      "lapsing week as an ISO time "
+                      f"(`{EARLIER_MEMBERS_LAPSE_FROM}` for a member who held "
+                      "a paid plan before 2026-11-04, "
+                      f"`{NEW_MEMBERS_LAPSE_FROM}` for an account whose paid "
+                      "plan began on or after 2026-11-04), `\"always\"` when "
+                      "every week lapses, or `null` while every week carries "
+                      "over.", text)
+        self.assertIn("Its `lapses` and `lapse_from` are those of "
+                      "`plan_credits` above: this account's own rule, which "
+                      "can differ from another account's in the same week.",
+                      text)
+        self.assertIn("for an account whose paid plan began on or after "
+                      "2026-11-04, no week)", text)
+        self.assertIn('like every week of its plan — reads `"accumulates": '
+                      'false`, `"lapses": true` and `"lapse_from": '
+                      f'"{NEW_MEMBERS_LAPSE_FROM}"`.', text)
+        # the example is an earlier member's first lapsing week, and its two
+        # lapse_from fields agree
+        wallet = (ROOT / "docs" / "06-token-wallet.md").read_text()
+        example = wallet[wallet.index("## `GET /account/balance`"):]
+        example = example[example.index("```json"):]
+        example = example[:example.index("\n```\n", 1)]
+        self.assertEqual(example.count(f'"lapse_from": '
+                                       f'"{EARLIER_MEMBERS_LAPSE_FROM}"'), 2)
+        self.assertIn("An example — a founding member who held a paid plan "
+                      "before 2026-11-04, partway through the Usage Week "
+                      "beginning 2026-12-21", _flat(ROOT / "docs" /
+                                                    "06-token-wallet.md"))
+
+    def test_the_lapse_day_is_never_everyones(self):
+        # 2026-12-21 is the lapse of the members who held a paid plan before
+        # 2026-11-04 only: in the prose of the wallet page and the README,
+        # every mention of it names those members nearby
+        for path in (ROOT / "README.md", ROOT / "docs" / "06-token-wallet.md"):
+            text = " ".join(re.sub(r"(?m)^> ?", "", re.sub(
+                r"(?ms)^```.*?^```", " ", path.read_text())).split())
+            found = list(re.finditer(r"2026-12-21|21 December 2026", text))
+            self.assertTrue(found, path)
+            for m in found:
+                window = text[max(0, m.start() - 450):m.end() + 300]
+                self.assertIn("paid plan before 2026-11-04", window,
+                              (path, window))
+
+    def test_readme_states_the_lapse_in_the_short_words(self):
+        readme = _flat(ROOT / "README.md")
+        self.assertIn("The plan account holds the weekly plan credits, spent "
+                      "first and refilled every Monday; " + LAPSE_SHORT + ".",
+                      readme)
+
+    def test_no_link_to_the_retired_lapse_anchor(self):
+        # the lapse section is "### The weekly lapse" (#the-weekly-lapse)
+        # since it holds both dates
+        for path in PUBLIC_TEXT:
+            self.assertNotIn("#the-weekly-lapse-from-2026-12-21",
+                             path.read_text(), path)
+        wallet = (ROOT / "docs" / "06-token-wallet.md").read_text()
+        self.assertIn("\n### The weekly lapse\n", wallet)
+        self.assertIn("(#the-weekly-lapse)", wallet)
 
     def test_publisher_terms_govern_from_the_notice_day(self):
         # {PUBLISHER_FROM} = {L} = 2026-11-04 by owner decision (no longer
