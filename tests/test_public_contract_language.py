@@ -7,7 +7,8 @@ rule; the Market Store API page carries every trading path of the hub's
 endpoint list and the "no buyer is guaranteed" sentence; no public text sells
 a copy or a license as an investment. Each money split and refusal code is the
 hub's and the console's (decisions D6, D12, D15, D16, Q19: the review fixes of
-HANDOFF-D3).
+HANDOFF-D3). The robots' rules are the protocol's mode-1 RULES word for word
+(the AP2/D3-fix).
 """
 
 from pathlib import Path
@@ -74,6 +75,54 @@ def _flat(path: Path) -> str:
     """The page's text with every run of whitespace as one space, so a
     phrase matches across the page's line breaks."""
     return " ".join(path.read_text().split())
+
+
+# The rules of GET /v1/agents/protocol from the licenses release on, as the
+# hub's market_api_ref serves them in mode 1 (_RULES + _TRADING_WORDS["RULES"],
+# after the AP2/D3-fix: an ask is never a "listing", area_docs §0.7). The page
+# quotes them word for word; it only sets names in code type.
+PROTOCOL_RULES = [
+    "bring your own key: one key = one robot; the hub never issues one unasked "
+    "and never shows one twice",
+    "register once, recall thereafter: look for your kept note and POST "
+    "/v1/agents/recall before inventing a new key",
+    "describe yourself honestly: your member sees your agent, operator and "
+    "purpose on the attach page before attaching",
+    "never send the key anywhere but the Authorization header of this hub; the "
+    "key id (first 20) is safe to quote",
+    "propose, do not pay: your member pays your cart on its page — unless they "
+    "gave you “Buy without asking”, and then only within their budget",
+    "never write a card's earnings, proof, deploys or holders: they come from "
+    "Business Builder reports, HyperC's assessor and what happened (the API "
+    "refuses them: 422 read_only)",
+    "a workspace address is a password: never put it in a note, a log, a card "
+    "or a message",
+    "analyse before you propose: bring your member a short, quantified "
+    "proposal, never the raw store",
+    "buy, sell and give only within your limits: your budget; your member's "
+    "collections, minimum price and monthly cap — every ask and transfer is "
+    "listed in an e-mail digest to your member",
+    "money routes need an Idempotency-Key: repeat it only to retry the same "
+    "request; after a definitive failure use a new one",
+    "follow the market and your copies with the integer cursors "
+    "(/v1/licenses/feed?after=, /v1/licenses/moves?after=, "
+    "/v1/agents/events?cursor=), never with a timestamp",
+    "a direct offer waits for its recipient; its receipt — or "
+    "/v1/licenses/moves — is the proof that copies moved",
+    "a master key manages keys only within its own permissions, collections, "
+    "limits and budget; it never makes another master and never moves "
+    "authorship",
+]
+
+
+def _quoted_rules(path: Path) -> list[str]:
+    """The bullets under the page's "## Rules for robots", code type
+    removed, each flattened to one line."""
+    text = path.read_text()
+    section = text[text.index("## Rules for robots"):]
+    section = section[:section.index("\n\nThe last five rules")]
+    items = re.split(r"(?m)^- ", section)[1:]
+    return [" ".join(item.replace("`", "").split()) for item in items]
 
 
 # The Market Store API paths of the licenses release, as the hub's endpoint
@@ -216,6 +265,11 @@ class MarketLicensesLanguageTest(unittest.TestCase):
         self.assertIn('`credits_only` (a `pay` other than `"credits"`)', text)
         self.assertIn("(the hourly order caps answer `429 too_many_purchases` "
                       "with `Retry-After`)", text)
+
+    def test_rules_for_robots_are_the_protocols_word_for_word(self):
+        rules = _quoted_rules(ROOT / "docs" / "12-market-store-api.md")
+        self.assertEqual(rules, PROTOCOL_RULES)
+        self.assertTrue(all(not re.search(r"\blisting", r) for r in rules))
 
     def test_no_public_text_sells_copies_as_an_investment(self):
         near = re.compile(r"\bcop(?:y|ies)\b|\blicen[cs]e")

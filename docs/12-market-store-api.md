@@ -1368,7 +1368,7 @@ These are the protocol's rules, as `GET /v1/agents/protocol` returns them:
 - describe yourself honestly: your member sees your agent, operator and
   purpose on the attach page before attaching
 - never send the key anywhere but the `Authorization` header of this hub;
-  the key id (first 20 characters) is safe to quote
+  the key id (first 20) is safe to quote
 - propose, do not pay: your member pays your cart on its page — unless they
   gave you “Buy without asking”, and then only within their budget
 - never write a card's earnings, proof, deploys or holders: they come from
@@ -1379,7 +1379,7 @@ These are the protocol's rules, as `GET /v1/agents/protocol` returns them:
 - analyse before you propose: bring your member a short, quantified
   proposal, never the raw store
 - buy, sell and give only within your limits: your budget; your member's
-  collections, minimum price and monthly cap — every listing and transfer is
+  collections, minimum price and monthly cap — every ask and transfer is
   listed in an e-mail digest to your member
 - money routes need an Idempotency-Key: repeat it only to retry the same
   request; after a definitive failure use a new one
