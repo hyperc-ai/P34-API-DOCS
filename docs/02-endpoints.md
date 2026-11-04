@@ -20,16 +20,20 @@ Authorization: Bearer <key>
 
 Keys come in `test-…` and `profit-…` flavours tied to your plan
 (`profit-` keys are **not yet self-serve** — the console issues `test-` keys
-only for now); usage is
-metered against your **token wallet**: your plan's token amount is credited
-every month (**doubled for founding members**),
-**unused tokens accumulate**, and API calls debit the balance
-(a weekly window remains as a burst bound only) — see
-[the token wallet](06-token-wallet.md) for accrual, the founding grant,
-transfers and the ledger. Registration is free, but calling the API requires tokens — an
-account with no active subscription and an empty wallet gets `429` with
-`"no active subscription — subscribe to a plan to use the API"`. Subscribe
-from the console's plans page. `GET /` and `GET /health` are open liveness
+only for now). Every calculation is paid from your plan account (this
+week's plan credits) first, then your accumulating account (the token
+balance) — see [the token wallet](06-token-wallet.md). The plan account is a
+membership's weekly allowance: a quarter of the plan's monthly grant every
+Usage Week (Monday 00:00 UTC), **doubled for founding members**. The
+accumulating account holds the tokens any account can buy in the console,
+which never expire, and everything else you receive (a weekly window remains
+as a burst bound only). Registration is free, but calling the API requires
+something to pay with: an account without a membership pays as it goes — buy
+tokens in the console — and with nothing to pay with gets `429` with
+`"token balance empty — this account has no subscription, so it pays as it
+goes: buy pay-as-you-go tokens …"`. A membership, from the console's plans
+page, adds the weekly plan credits and the agent workspace. `GET /` and
+`GET /health` are open liveness
 endpoints. Exception: [input-test requests](#mock-mode-input-testing)
 (`"mock": true`) work on every tier, including a free key testing a market
 that is not available for an actual free fit. They parse and validate the
@@ -48,9 +52,9 @@ input without grounding, compute, or billing. Website workspaces also receive a
 | `POST /predict` | Instant selection from a small in-process reference model — a payload sanity-checker while the real calculation runs. **Not** P34's answer; `/result` is. |
 | `DELETE /session/{id}` | Cancel a running fit you own (a grounding-phase fit is aborted; a queued/processing calculation is canceled within about a minute) and discard the session. Response: `{"ok": true, "canceled": {"grounding": bool, "calculation": bool}}`. |
 | `GET /queue` | Intake spool state (admin accounts). |
-| `GET /account/balance` | Token wallet balance, monthly grant and founding status (accruals materialize on read). [Details.](06-token-wallet.md) |
-| `GET /account/ledger` | Full query-able token ledger — every pay-in/pay-out with time, from, to, amount, msg; cursor-paginated. [Details.](06-token-wallet.md) |
-| `POST /account/transfer` | Send tokens to another account by email. [Details.](06-token-wallet.md) |
+| `GET /account/balance` | Plan account, accumulating account, monthly grant and founding status (`accounts`, `plan_credits`, `balance`, `available`, the pay-as-you-go purchase bounds). [Details.](06-token-wallet.md) |
+| `GET /account/ledger` | Full query-able token ledger — every pay-in/pay-out, including what the week's plan credits paid for and Market Store purchases, sales and refunds, with time, from, to, amount, msg and the account it belongs to (`account_part`); cursor-paginated. [Details.](06-token-wallet.md) |
+| `POST /account/transfer` | Send tokens from your accumulating account to another account by email (plan credits cannot be sent). [Details.](06-token-wallet.md) |
 
 ## Result statuses
 
@@ -265,8 +269,11 @@ or billing. It can therefore catch structural input errors, but it does not
 prove that grounding or a real fit will succeed.
 
 - An API key is still required (`401` otherwise). Input tests work on every
-  tier, without an active subscription and with an exhausted budget. This
+  tier, with or without a membership and with nothing left to pay with. This
   includes a free key testing a market outside the free-tier supported set.
+  A free key, and an account with no membership and nothing to pay with, run
+  them within the free tier's hourly and daily limits and row cap (see
+  [request limits](#request-limits)).
 - `/result` plays the real lifecycle (`queued` → `processing` → `done`) on a
   short timer, and the `done` payload has the full real shape shown above —
   `menu`, `n_selected`, `predicted_profit_sum`, `summary`, and the
@@ -775,10 +782,16 @@ tables (e.g. `/predict`'s `selection`) use the same encoding.
 
 ## Request limits
 
-Calling the API requires tokens in the wallet (see Authentication above and
-[the token wallet](06-token-wallet.md)). Monthly token accruals scale with
-the plan and are doubled for founding members; the current amounts are on
-the plans page in the
-[management console](https://api.hyperc.com/app/). Accounts without an
-active plan also have a request-size cap (currently 300 MB per request);
-with an empty wallet on top, their requests are refused with `429`.
+Calling the API requires something to pay with — this week's plan credits in
+your plan account or tokens in your accumulating account (see Authentication
+above and [the token wallet](06-token-wallet.md)). Weekly plan credits scale
+with the plan and are doubled for founding members; the current amounts are
+on the plans page in the [management console](https://api.hyperc.com/app/),
+where pay-as-you-go tokens are bought too, and your own are returned by
+`GET /account/balance`. An account with no membership and nothing to pay with
+is held to the same limits as a free key, counted for the whole account over
+every key it holds: a request-size cap (currently 25 MB per request, refused
+with `413`), the hourly and daily limits on `POST /validate` and
+`mock: true` input tests (`429` with `Retry-After`) and their row caps
+(`413`); its actual fits are refused with `429`. Registering alone does not
+lift these limits — buying tokens or subscribing lifts all of them at once.
