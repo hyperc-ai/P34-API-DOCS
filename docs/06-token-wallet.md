@@ -4,17 +4,16 @@ Two places pay for a calculation, in this order:
 
 1. **The plan account** — this week's plan credits, a membership's
    allowance. Your plan account is refilled every Monday at 00:00 UTC to your
-   plan's weekly amount and is spent first. Credits left in it at the refill
-   lapse. The weekly amount is a quarter of your plan's monthly grant, doubled
-   while the account holds the
+   plan's weekly amount and is spent first. The weekly amount is a quarter of
+   your plan's monthly grant, doubled while the account holds the
    [founding membership](#founding-membership-2-plan-credits); the refill tops
    the plan account up **to** it, never above, so nothing builds up there.
    What your plan grants is stated on the plans page and returned by
    `GET /account/balance` (`accounts.plan` and `plan_credits` for this week,
    `monthly_grant` for the month); it is not restated here, because it
-   changes. Until the Usage Week beginning 2026-12-21, unused plan credits
-   still carry over into the accumulating account at the end of their week;
-   from that week they lapse ([below](#the-weekly-lapse-from-2026-12-21)).
+   changes. Unused plan credits lapse at the weekly refill. Members who already had a paid plan on 2026-11-04 keep the earlier rule until 2026-12-21: until
+   then their unused plan credits still move into their accumulating account.
+   See [the weekly lapse](#the-weekly-lapse) below.
 2. **The accumulating account** — your token balance. Your accumulating
    account keeps everything else — top-ups, credits sent to you, your welcome
    credit, earlier carry-overs, sale proceeds and refunds — and does not
@@ -49,20 +48,39 @@ you can read from the API and browse in the
 & accumulating account* → *Full ledger*). The balance **is** the ledger sum;
 there is no hidden state.
 
-### The weekly lapse from 2026-12-21
+### The weekly lapse
 
-> **Changes 2026-12-21.** From 2026-10-21 until 2026-12-21, unused plan
-> credits move into the token balance at the end of their week (ledger kind
-> `grant`, from `plan-rollover`). From the week starting 2026-12-21 they lapse
-> again. Tokens already on the balance stay; nothing is restated.
+Unused plan credits lapse at the weekly refill. Members who already had a paid plan on 2026-11-04 keep the earlier rule until 2026-12-21: until then their
+unused plan credits still move into their accumulating account.
 
-Usage Weeks that end on or before 2026-12-21 keep the earlier rule: their
-unused plan credits move into the accumulating account when the week ends.
-The first week whose unused plan credits lapse is the one that **starts** on
-2026-12-21. The API Terms of Use state the rule (§§1.25, 6.1, with the notice
-of §6.5). `GET /account/balance` says which rule applies to the current week
-(`plan_credits.accumulates`, `plan_credits.lapses`) and from when
-(`plan_credits.lapse_from`), so a client never needs to hard-code the date.
+> **Changed 2026-11-04.** For an account whose paid plan begins on or after
+> 2026-11-04, unused plan credits lapse at the end of their Usage Week, from
+> the week that began on 2026-11-02: the first refill at which they lapse is
+> the one of 2026-11-09 00:00 UTC. `lapse_from` is now the account's own.
+>
+> **Changes 2026-12-21.** From 2026-10-21 until 2026-12-21, the unused plan
+> credits of members who already had a paid plan on 2026-11-04 move into the
+> token balance at the end of their week (ledger kind `grant`, from
+> `plan-rollover`). From the week starting 2026-12-21 they lapse again.
+> Tokens already on the balance stay; nothing is restated.
+
+Which rule applies is a property of the account:
+
+* **An account whose paid plan begins on or after 2026-11-04** — every
+  Usage Week's unused plan credits lapse at its end, from the week that
+  began on 2026-11-02 (the Usage Week that holds 2026-11-04).
+* **A member who already had a paid plan on 2026-11-04** (the members HyperC
+  notified on 2026-11-04) — their Usage Weeks that end on or before
+  2026-12-21 keep the earlier rule: their unused plan credits move into the
+  accumulating account when the week ends. The first of their weeks whose
+  unused plan credits lapse is the one that **starts** on 2026-12-21.
+
+Nothing that has already moved into the accumulating account is taken back.
+The API Terms of Use state the rule (§§1.25, 6.1, with the notice of §6.5).
+`GET /account/balance` says which rule applies to your account in the current
+week (`plan_credits.accumulates`, `plan_credits.lapses`) and from when
+(`plan_credits.lapse_from`, the account's own), so a client never needs to
+hard-code either date.
 
 > **Changed 2026-10-05.** From 2026-08-21 until then, a plan's monthly grant
 > was credited to the balance once a month and unused tokens carried over.
@@ -110,8 +128,9 @@ curl -s https://api.hyperc.com/v1/account/balance \
   -H "Authorization: Bearer $P34_KEY"
 ```
 
-An example — a founding member partway through the Usage Week beginning
-2026-12-21, the first week whose unused plan credits lapse:
+An example — a founding member who already had a paid plan on 2026-11-04,
+partway through the Usage Week beginning 2026-12-21, the first of their weeks
+whose unused plan credits lapse:
 
 ```json
 {
@@ -159,6 +178,9 @@ An example — a founding member partway through the Usage Week beginning
 }
 ```
 
+For an account whose paid plan began on or after 2026-11-04, this week —
+like every week of its plan — reads `"accumulates": false`, `"lapses": true`
+and `"lapse_from": "2026-11-02T00:00:00+00:00"`.
 The response also carries `pay_as_you_go`, described below.
 
 * `plan_credits` — the plan account this Usage Week: `weekly` (a quarter of
@@ -166,15 +188,20 @@ The response also carries `pay_as_you_go`, described below.
   `replenishes_at` — next Monday 00:00 UTC, when the plan account is refilled
   to `weekly`. `week` numbers the Usage Week; `mode` is `weekly`.
   `accumulates` is `true` while this week's unused plan credits will move
-  into the accumulating account at its end (every week before 2026-12-21,
-  on every plan but the Invite tier, whose plan credits never carry over);
-  `lapses` is `true` when they lapse at the refill instead. `lapse_from` is
-  when the lapse starts: the start of the first lapsing week as an ISO time,
-  `"always"` when every week lapses, or `null` while every week carries over.
+  into the accumulating account at its end (for a member who already had a paid plan on 2026-11-04, every week before 2026-12-21, on every plan but the
+  Invite tier, whose plan credits never carry over; for an account whose paid
+  plan began on or after 2026-11-04, no week); `lapses` is `true` when they
+  lapse at the refill instead. `lapse_from` is the account's own: when the
+  lapse starts for this account — the start of its first lapsing week as an
+  ISO time (`2026-12-21T00:00:00+00:00` for a member who already had a paid plan on 2026-11-04, `2026-11-02T00:00:00+00:00` for an account whose paid
+  plan began on or after 2026-11-04), `"always"` when every week lapses, or
+  `null` while every week carries over. Two accounts can read different
+  values in the same week; read your own rather than assuming one date.
 * `balance` — the accumulating account (the token balance): purchases,
   transfers in, grants, the tokens credited by monthly accruals before
-  2026-10-05 and by weekly carry-overs before 2026-12-21, Market Store sale
-  proceeds and refunds. It is spent after the week's plan credits, and a
+  2026-10-05 and by weekly carry-overs under the earlier rule
+  ([the weekly lapse](#the-weekly-lapse)), Market Store sale proceeds and
+  refunds. It is spent after the week's plan credits, and a
   post-paid service charge can take it below zero (the `service` ledger
   entries below).
 * `available` — `plan_credits.left` plus `balance`: what the next calculation
@@ -183,7 +210,9 @@ The response also carries `pay_as_you_go`, described below.
 * `accounts` — the same two accounts by name. `accounts.plan` is the plan
   account: `left`, `cap` (the weekly amount), `used`, `refills_at`, `week`,
   `lapses`, `lapse_from`, and `market_usable` — whether its plan credits may
-  pay for Market Store purchases (every plan but the Invite tier's).
+  pay for Market Store purchases (every plan but the Invite tier's). Its
+  `lapses` and `lapse_from` are those of `plan_credits` above: this account's
+  own rule, which can differ from another account's in the same week.
   `accounts.accumulating` is the accumulating account: `balance`, and
   `reversal_debt` — the part of a negative balance left by a reversed Market
   Store sale (below). `accounts.accumulating.balance` equals `balance`; `plan`
@@ -275,7 +304,9 @@ curl -s "https://api.hyperc.com/v1/account/ledger?limit=50" \
   `transfer` (member to member), `grant` (credits granted to you; `from`
   names the source: `market-sales` — the proceeds of a Market Store sale of
   yours, or, with `direction: out`, the reversal of one; `plan-rollover` — a
-  week's unused plan credits carried over before 2026-12-21;
+  week's unused plan credits carried over under the earlier rule (for a
+  member who already had a paid plan on 2026-11-04, the weeks before
+  2026-12-21);
   `market-welcome` — your welcome credit; `admin` — a service credit),
   `adjust` (bookkeeping, e.g. the wallet-launch carry-over), `accrual` (a
   monthly plan grant credited to the balance — how plans paid out until

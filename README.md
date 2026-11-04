@@ -235,10 +235,12 @@ for menus, grounding and portfolio behaviour before wiring your own data.
 5. [docs/05-market-catalog.md](docs/05-market-catalog.md) — the computable
    markets catalogue: every market, its tier, its support state, its menu
    shape and the data it runs on.
-6. [docs/06-token-wallet.md](docs/06-token-wallet.md) — the plan account
-   (weekly plan credits, spent first, refilled every Monday) and the
-   accumulating account (bought, received and earned tokens), transfers, the
-   ledger.
+6. [docs/06-token-wallet.md](docs/06-token-wallet.md) — the two accounts,
+   transfers and the ledger. The plan account holds the weekly plan credits,
+   spent first and refilled every Monday; unused ones lapse at the weekly
+   refill (for members who already had a paid plan on 2026-11-04, from
+   2026-12-21). The accumulating account holds bought, received and earned
+   tokens.
 7. [docs/07-agent-skills.md](docs/07-agent-skills.md) — the four agent skills
    in `skills/` and how to install them, then notes for specific agent
    runtimes where the constraint is the channel rather than the API: the
