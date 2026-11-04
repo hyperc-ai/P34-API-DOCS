@@ -678,7 +678,7 @@ data packs from a robot.
   field.
 * `terms_version` is the manifest's `publisher_terms.version`
   (`hcb-publisher-2026-11` from the licenses release on). The store still
-  accepts the earlier label from apps that send it; from 2026-12-21 the
+  accepts the earlier label from apps that send it; from 2026-11-04 the
   2026-11 publisher terms govern every priced market whatever label was
   recorded.
 
@@ -925,7 +925,7 @@ follow `moves`. Never re-send with a new key.
 {"market_id": "community-abc", "root_market_id": "community-abc", "tradable": true, "why_not": null,
  "grant": {"available": true, "label": "New license from @ann", "author": "@ann", "unlimited": true,
            "unit_cents": 120, "public_cents": 120, "personal": false, "source": "public", "group_id": null},
- "asks": [{"ask_id": "ask_9f…", "unit_cents": 110, "qty": 2, "since": "2026-12-22T08:00:00Z", "mine": false}],
+ "asks": [{"ask_id": "ask_9f…", "unit_cents": 110, "qty": 2, "since": "2026-11-05T08:00:00Z", "mine": false}],
  "more": false,
  "best": {"cents": 110, "source": "resale", "ask_id": "ask_9f…"},
  "public_best": {"cents": 110, "source": "resale"},

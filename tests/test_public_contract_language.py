@@ -10,7 +10,11 @@ hub's and the console's (decisions D6, D12, D15, D16, Q19: the review fixes of
 HANDOFF-D3). The W6 fixes: no prose suggests a cash payout to come (Terms
 §§5.5-5.7, 6.8); the robots' rules are the protocol's mode-1 RULES word for
 word; the `buy` permission and the group price read as the hub's licenses
-words; the 2026-12-21 callout is written before the date it names.
+words; the 2026-12-21 callout is written before the date it names. Owner
+decision 2026-11-04: the publisher terms hcb-publisher-2026-11 govern from
+{L} = 2026-11-04 ({PUBLISHER_FROM}, Terms §5.7) and resale, direct offers and
+authorship transfer are open from that day; only the plan-credit lapse keeps
+{LAPSE_FROM} = 2026-12-21.
 """
 
 from pathlib import Path
@@ -321,6 +325,25 @@ class MarketLicensesLanguageTest(unittest.TestCase):
                       "2026-12-21 they lapse again. Tokens already on the "
                       "balance stay; nothing is restated.", wallet)
         self.assertNotIn("**Changed 2026-12-21.**", wallet)
+
+    def test_publisher_terms_govern_from_the_notice_day(self):
+        # {PUBLISHER_FROM} = {L} = 2026-11-04 by owner decision (no longer
+        # {LAPSE_FROM}): the store page names the day the 2026-11 publisher
+        # terms govern every priced market, and 2026-12-21 (the lapse) is
+        # never a date of the publisher terms or of trading anywhere
+        store = _flat(ROOT / "docs" / "12-market-store-api.md")
+        self.assertIn("from 2026-11-04 the 2026-11 publisher terms govern "
+                      "every priced market whatever label was recorded",
+                      store)
+        self.assertNotIn("2026-12-21", store)
+        trading = re.compile(r"publisher|resale|resell|direct offer|"
+                             r"authorship|order book|\btrad(?:e|es|ing)\b")
+        for path in PUBLIC_TEXT:
+            text = _flat(path)
+            for m in re.finditer(r"2026-12-21|21 December|December 21", text):
+                window = text[max(0, m.start() - 200):m.end() + 200]
+                self.assertIsNone(trading.search(window.lower()),
+                                  (path, window))
 
     def test_no_public_text_sells_copies_as_an_investment(self):
         near = re.compile(r"\bcop(?:y|ies)\b|\blicen[cs]e")
