@@ -310,7 +310,7 @@ class MarketLicensesLanguageTest(unittest.TestCase):
         self.assertNotIn("first copy only, and that copy is personal", text)
 
     def test_the_lapse_callout_is_written_before_its_date(self):
-        # the page ships on 2026-11-21, a month before the lapse (the
+        # the page ships on 2026-11-04, 47 days before the lapse (the
         # callout is a block quote: its "> " markers are dropped)
         wallet = " ".join(re.sub(r"(?m)^> ?", "", (
             ROOT / "docs" / "06-token-wallet.md").read_text()).split())
