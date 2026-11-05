@@ -876,9 +876,8 @@ untouched with its buyer.
 HyperC keeps 30 % of a new license and 10 % of a resale, and nothing when a
 copy sells for less than $5; the rest goes to the seller's accumulating
 account. Giving a copy away is free. Below $5 a copy (or an authorship
-handed over for less than $5) there is no fee and no minimum fee: the seller
-gets the whole price, less the fork royalty below when it applies
-(`fee_free_below_cents`: 500). A member's priced direct offer of copies they
+handed over for less than $5) there is no fee, no minimum fee and no fork
+royalty: the seller gets the whole price (`fee_free_below_cents`: 500). A member's priced direct offer of copies they
 hold pays the resale fee; a priced offer of new licenses from the author,
 and a priced authorship offer, the new-license fee. A resale's fee is
 rounded up to the cent (never below 10 %), a new license's to the nearest
@@ -888,8 +887,9 @@ When you buy a new license and pick a version from a fork, 5 % of the price
 goes to that fork's author, out of the original author's 70 %. This applies
 to every new license sold with a fork's version picked — in an order
 (`version: {market_id, version}`), a cart line's `deploy.version`, or a
-priced offer of new licenses — and never to a resale. No pick, or a version
-of the original, leaves the author's 70 % whole. `net_cents_each` and an
+priced offer of new licenses — and never to a resale, nor to a copy priced
+below $5. No pick, or a version of the original, leaves the author's 70 %
+whole. `net_cents_each` and an
 offer's `net_cents` say exactly what the seller receives. The percentages
 are the store's at the time of writing: read `fees`.
 
