@@ -207,8 +207,9 @@ FIXED_SENTENCES = {
     "S4": "The price shown is the best you can get now: the cheapest copy for "
           "sale or the author's price for you, whichever is lower. At the same "
           "price, the copy for sale is sold first.",
-    "S5": "HyperC keeps 30 % of a new license and 10 % of a resale, at least 1 "
-          "cent on each priced sale; the rest goes to the seller's "
+    # owner decision 2026-11-05: no fee on a copy priced below $5
+    "S5": "HyperC keeps 30 % of a new license and 10 % of a resale, and nothing "
+          "when a copy sells for less than $5; the rest goes to the seller's "
           "accumulating account. Giving a copy away is free.",
     "S6": "When you buy a new license and pick a version from a fork, 5 % of "
           "the price goes to that fork's author, out of the original author's "

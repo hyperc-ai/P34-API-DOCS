@@ -99,7 +99,8 @@ agree with each other. When `features.market_api` is absent from
               "licenses": 1, "licenses_mode": "1", "orders": 1, "asks": 1, "offers": 1, "authorship": 1,
               "market_feed": 1, "family_versions": 1, "family_listing": 1, "version_notes": "announced",
               "version_notes_min": 20},
- "fees": {"grant_pct": 30, "resale_pct": 10, "resale_min_fee_cents": 1, "grant_min_fee_cents": 1, "fork_royalty_pct": 5},
+ "fees": {"grant_pct": 30, "resale_pct": 10, "resale_min_fee_cents": 1, "grant_min_fee_cents": 1, "fork_royalty_pct": 5,
+          "fee_free_below_cents": 500},
  "rate_limits": {"general": {"requests": 600, "seconds": 300}, "trade_read": {"requests": 1800, "seconds": 300},
                  "trade_write": {"requests": 30, "seconds": 60, "account_requests": 120},
                  "orders_per_hour": {"key": 60, "account": 120}, "long_poll_max_seconds": 25},
@@ -125,8 +126,8 @@ power separately: `license_copies` (more than one copy of a market),
 `authorship_transfer`, `operating_check` (a last copy needs the
 [operating check](#the-operating-check-before-a-last-copy-leaves)) and
 `market_feed`, with the fees beside them: `grant_fee_pct`, `resale_fee_pct`,
-`resale_min_fee_cents`, `grant_min_fee_cents` and `fork_royalty_pct` (also in
-`GET /v1/store/pricing`). Before that `features.licenses` is `0` and nothing
+`resale_min_fee_cents`, `grant_min_fee_cents`, `fee_free_below_cents` and
+`fork_royalty_pct` (also in `GET /v1/store/pricing`). Before that `features.licenses` is `0` and nothing
 else is announced; a robot of a member in an early group reads its own
 powers in `GET /v1/agents/me` → `licenses.powers`. A route whose power is off
 answers `503` (`licenses_off`, `license_copies_off`, `resale_off`,
@@ -808,8 +809,8 @@ you run the market. A robot trades for its holder with three permissions:
 Each power is announced in `/health.features`: `license_copies`,
 `order_book`, `direct_offers`, `authorship_transfer`, `market_feed`; the
 fees are there too (`grant_fee_pct`, `resale_fee_pct`,
-`resale_min_fee_cents`, `grant_min_fee_cents`, `fork_royalty_pct`), in the
-manifest's `fees` and in `GET /v1/store/pricing`. Read them; never hard-code
+`resale_min_fee_cents`, `grant_min_fee_cents`, `fee_free_below_cents`,
+`fork_royalty_pct`), in the manifest's `fees` and in `GET /v1/store/pricing`. Read them; never hard-code
 them.
 
 | Route | Permission | What |
@@ -855,9 +856,9 @@ market's public price — free from its author, at a group's price, by
 claiming a free market, from before it had a price, or as its former author
 — are yours to use, not to sell or give, unless the author marked them
 transferable; asking more of them than you have answers
-`409 not_enough_copies {transferable, personal}`. Resale needs a community
-family whose original is public, listed and priced (`409 resale_closed
-{why}`). You can sell or give your last usable copy only once no Business
+`409 not_enough_copies {transferable, personal}`. Resale needs a family
+whose original is public, listed and priced — HyperC's own markets included
+(`409 resale_closed {why}`). You can sell or give your last usable copy only once no Business
 Builder of yours runs the market: delete those businesses in Business
 Builder first. The LAST usable copy answers `409 last_copy_locked` while
 the store keeps last copies with their holders, else
@@ -872,9 +873,12 @@ untouched with its buyer.
 
 ### Fees and the fork royalty
 
-HyperC keeps 30 % of a new license and 10 % of a resale, at least 1 cent on
-each priced sale; the rest goes to the seller's accumulating account.
-Giving a copy away is free. A member's priced direct offer of copies they
+HyperC keeps 30 % of a new license and 10 % of a resale, and nothing when a
+copy sells for less than $5; the rest goes to the seller's accumulating
+account. Giving a copy away is free. Below $5 a copy (or an authorship
+handed over for less than $5) there is no fee and no minimum fee: the seller
+gets the whole price, less the fork royalty below when it applies
+(`fee_free_below_cents`: 500). A member's priced direct offer of copies they
 hold pays the resale fee; a priced offer of new licenses from the author,
 and a priced authorship offer, the new-license fee. A resale's fee is
 rounded up to the cent (never below 10 %), a new license's to the nearest
@@ -935,7 +939,7 @@ follow `moves`. Never re-send with a new key.
                      {"sale_type": "grant", "ask_id": null, "unit_cents": 120, "qty": 1,
                       "personal": false, "label": "New license from @ann"}]},
  "fees": {"grant_pct": 30, "resale_pct": 10, "resale_min_fee_cents": 1, "grant_min_fee_cents": 1,
-          "fork_royalty_pct": 5},
+          "fork_royalty_pct": 5, "fee_free_below_cents": 500},
  "viewer": {"copies": {"held": 1, "usable": 1, "listed": 0, "reserved": 0, "offered": 0, "refunding": 0,
                        "personal": 0, "transferable": 1, "infinite": false, "more": true},
             "infinite": false, "asks": [], "scope": null},
@@ -1175,7 +1179,8 @@ entry's `fee_cents` is the 10 %. `earned.by_type {grant, resale,
 fork_royalty}` splits what was earned (`royalties` keeps meaning the
 tracked-only royalty points of free markets), `credited.pending_cents` also
 counts fork royalties not yet settled, and `fees {grant_pct, resale_pct,
-resale_min_fee_cents, grant_min_fee_cents, fork_royalty_pct}` is added; the
+resale_min_fee_cents, grant_min_fee_cents, fork_royalty_pct,
+fee_free_below_cents}` is added; the
 CSV appends the columns `role, sale_type, order_id, fill_id, royalty_cents`.
 A copy bought through a card the seller cannot see is named by the card of
 its ask or by the family's original.
