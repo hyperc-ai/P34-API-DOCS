@@ -94,12 +94,11 @@ A `done` response contains **only the T=0 menu, with profit predictions**:
 One row per key of your task menu: `qty` is the model-selected size (`0` = do
 not trade) and `profit` the predicted total profit at that size. Keys are your
 original ids. Take the `qty > 0` rows together as the recommended portfolio.
-On `r008`, `rc012` and `rc012-ray` (and `default`, which aliases `rc012`) the
-menu carries only the keys of the chosen market scenario's solution rather
-than every key of your task menu — any key absent from the response means "do not trade",
-exactly like a `qty: 0` row.
+On some model versions the menu carries only the keys of the chosen market
+scenario's solution rather than every key of your task menu — any key absent
+from the response means "do not trade", exactly like a `qty: 0` row.
 
-On `r008`, `rc012` and `rc012-ray` fits the response also carries the
+On `default` and `rc015` fits the response also carries the
 **confidence sweep**
 (see [Confidence correction](#confidence-correction)): for every candidate
 correction on a fixed grid (`-0.3, -0.2, -0.1, -0.05, 0, +0.05, +0.1, +0.2,
@@ -301,16 +300,18 @@ optional top-level `model` field (or a `"model"` key inside `market_type`; the
 top-level field wins):
 
 ```json
-{ "menus": [...], "sales": [...], "market_type": {...}, "model": "r008" }
+{ "menus": [...], "sales": [...], "market_type": {...}, "model": "rc015" }
 ```
 
 | version | meaning |
 | --- | --- |
-| `default` | alias for the current recommended model (used when `model` is omitted) — currently `rc012` |
-| `r003-alpha-ray` | released tag with a pooled small-markets universe selector and a distributed fitting backend (faster on large menus) |
-| `r008` | released tag with a meta-calibrated universe selector, a `predict_proba` correctness fix in the selector path, and a selector retrained on the full 29-market r008 telemetry sweep |
-| `rc012` | release candidate built on the `r008` line: multiverse candidates are chosen for **variety** across ten quality metrics instead of by a pareto front, and selector thresholding is **target-calibrated** — a zero-take classifier gates predictions and a fixed calibrated threshold replaces the per-prediction threshold regression; ships a selector retrained on an updated confidence-feature set |
-| `rc012-ray` | release candidate: `rc012`'s selection and target-calibrated thresholding on a **ray-distributed fitting backend** — the phase-1 fit and candidate fitting fan out over the compute cluster, which is faster on large menus; predictions use the same selector as `rc012` |
+| `default` | the current recommended model (used when `model` is omitted) |
+| `rc015` | the rc015 model line, with its own universe selector |
+
+Retired versions are rejected with 422 like any unknown name. That includes
+`r008`, and since 2026-11-06 the whole rc012 line (`rc012`, `rc012-ray`,
+`rc012.1`, `rc012.2`, `rc012.3` and its variants). Omit `model` (or send
+`default`) to get the current recommended model.
 
 `GET /` lists the versions the server currently offers; an unknown version is
 rejected with 422. The chosen version is echoed in the `/fit` response and in
@@ -325,17 +326,17 @@ top-level field wins):
 
 ```json
 { "menus": [...], "sales": [...], "market_type": {...},
-  "model": "rc012", "confidence_correction": -0.1 }
+  "model": "rc015", "confidence_correction": -0.1 }
 ```
 
-On `r008`, `rc012` and `rc012-ray`, the model chooses its own selector confidence threshold per
+On `default` and `rc015`, the model chooses its own selector confidence threshold per
 prediction with a built-in **meta-calibrator**; you no longer set an absolute
 level. `confidence_correction` is a small signed adjustment added on top of
 the calibrated threshold — **positive values mean fewer, higher-confidence
 selections; negative values admit more scenarios at the cost of confidence**.
 Typical values are `+0.1` / `-0.1`. Out-of-range or non-numeric values are
 rejected with 422. When omitted, the service default is **`0.0`** (no
-adjustment) on `default`, `r008`, `rc012` and `rc012-ray`, whose selectors are
+adjustment) on `default` and `rc015`, whose selectors are
 retrained on their own telemetry sweeps and whose calibrated thresholds are
 used as-is.
 
