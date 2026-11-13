@@ -180,10 +180,13 @@ P34 replays every quantity option of a key against that key's Sales rows: an
 option of `q` units sells at most the units the Sales rows carry after it
 arrives, and the units it does not sell are written off under the market's
 write-off rule. A Sales log cut to the first unit of each deal therefore turns
-every larger option into extra unsold units, the smallest quantity earns the
-most in every deal, and the history cannot show when a larger order pays: the
-deeper models refuse such a history with `quantity_not_identified`, and
-`POST /validate` warns about it (`menus.quantity_not_identified`).
+every larger option into extra unsold units: unless a larger order buys each
+unit cheaper, the smallest quantity earns the most in every deal, and the
+history cannot show when a larger order pays. The deeper models are then
+likely to refuse such a history with `quantity_not_identified` (likely, not
+certain: what they learn also depends on which offers they would buy), and
+`POST /validate` warns about it (`menus.quantity_not_identified`) before you
+send the fit.
 
 ### What happens without it
 
