@@ -176,6 +176,15 @@ that item**, not a subset corresponding to a smaller quantity. The history is
 assumed known and must support the result supplied for the maximum observed
 quantity.
 
+P34 replays every quantity option of a key against that key's Sales rows: an
+option of `q` units sells at most the units the Sales rows carry after it
+arrives, and the units it does not sell are written off under the market's
+write-off rule. A Sales log cut to the first unit of each deal therefore turns
+every larger option into extra unsold units, the smallest quantity earns the
+most in every deal, and the history cannot show when a larger order pays: the
+deeper models refuse such a history with `quantity_not_identified`, and
+`POST /validate` warns about it (`menus.quantity_not_identified`).
+
 ### What happens without it
 
 The model itself needs one reference option per group. Where you sent no flag,

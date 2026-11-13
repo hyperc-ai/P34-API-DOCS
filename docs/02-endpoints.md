@@ -156,7 +156,9 @@ fit's compute is metered but not charged.
 | `error_code` | what happened | what to do |
 | --- | --- | --- |
 | `grounding_input_needs_review` | grounding stopped on your data or description | do what `feedback` says |
-| `insufficient_historical_data` | too few usable completed decisions with realized outcomes to fit the model reliably | add more historical decision periods with their realized outcomes |
+| `insufficient_historical_data` | too few usable completed decisions with realized outcomes to fit the model reliably | add more historical decision periods with their realized outcomes; when `error` says every period's best order size was at an edge, check how your outcomes count the units sold and written off instead |
+| `quantity_not_identified` | the model refused your history: in every past decision period, buying less earned as much as or more than buying more, so it cannot learn when a larger order pays | check how your outcomes count the units sold — a deal that could sell more than one unit needs every unit it sold in Sales (several rows per key, or a qty above one); more history counted the same way does not help. See [Multiple observed quantities for one historical offer](03-data-format.md#multiple-observed-quantities-for-one-historical-offer) |
+| `model_orders_nothing` | the fit worked, but the model would not order anything | read `error`: the market may offer no good opportunity now, or the data cannot support enough confidence |
 | `historical_data_too_large` | the history exceeds the current processing limit | sample or trim older history, keeping whole decision groups |
 | `grounding_service_failed` | grounding failed on our side | resubmit; contact support with the session id if it repeats |
 | `model_fit_failed` | the model fit failed on our side | resubmit; contact support with the session id if it repeats |
