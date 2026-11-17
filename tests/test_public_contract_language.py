@@ -81,6 +81,16 @@ class PublicContractLanguageTest(unittest.TestCase):
         self.assertIn("must never append `/fit` or `/result` to a", text)
         self.assertNotIn("A chat client with no shell", text)
 
+    def test_a_quantity_refusal_is_predicted_not_promised(self):
+        # Before a fit, a history whose smallest order always earns the most
+        # only predicts quantity_not_identified: the deeper models' optimum
+        # also moves with which offers they buy, so they may still fit it.
+        # /validate says "likely"; the data-format guide says the same.
+        text = _flat(ROOT / "docs" / "03-data-format.md")
+        self.assertIn("are then likely to refuse such a history with "
+                      "`quantity_not_identified`", text)
+        self.assertNotIn("models refuse such a history", text)
+
 
 def _flat(path: Path) -> str:
     """The page's text with every run of whitespace as one space, so a
