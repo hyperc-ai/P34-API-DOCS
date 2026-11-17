@@ -19,7 +19,10 @@ today, and for older users the 21st"): an account whose paid plan begins on
 or after 2026-11-04 lapses from the Usage Week beginning 2026-11-02 (its
 `lapse_from` reads that week's start); the members who already had a paid plan on 2026-11-04 (the §6.5 notice) keep rolling over until {LAPSE_FROM}.
 `lapse_from` is the account's own, and the pages state the rule in the
-owner's canonical sentences.
+owner's canonical sentences. Owner decision 2026-11-17 ("New P34 models can
+operate on fully labeled histories"): no public text requires unlabeled
+history, a fully observed history is accepted, and applicability checklist
+items 2 and 3 read as the owner's text.
 """
 
 from pathlib import Path
@@ -486,6 +489,106 @@ class MarketLicensesLanguageTest(unittest.TestCase):
                                  text):
                 window = text[max(0, m.start() - 200):m.end() + 200]
                 self.assertIsNone(near.search(window), (path, window))
+
+
+# Owner decision 2026-11-17: current P34 models fit a fully observed history
+# (every historical group carries a known profit) as well as a partially
+# observed one. Only the legacy versions rc015, rc016 and r003-alpha-ray still
+# need groups without an outcome; the errors table names them.
+FULLY_OBSERVED_EXAMPLES = [ROOT / "examples" / "client" / "example_client.py",
+                           ROOT / "examples" / "pytest" / "conftest.py",
+                           ROOT / "examples" / "baseline_comparison" /
+                           "demo_regressor.py"]
+
+# Statements of the retired requirement, lower-cased, emphasis removed.
+RETIRED_UNLABELED_REQUIREMENT = (
+    "refuses a history in which every group is observed",
+    "refuse a history in which every group is observed",
+    "every group is labeled is refused",
+    "both kinds are required",
+    "refuse an all-observed history",
+    "needs both observed and unobserved context",
+    "needs both halves",
+    "split is still required",
+    "unlabeled context current models require",
+    "unlabeled context p34 needs",
+    "outcomes must be partially observed",
+    "must be present in quantity",
+    "comparable to or larger than the observed ones",
+    "90-odd percent observed",
+    "trains a take-all policy",
+    "has to be constructed rather than found",
+    "natural unobserved outcomes",
+    "naturally biased observed outcomes",
+    "policy-selection signal",
+)
+
+# Checklist items 2 and 3 in the owner's words (2026-11-17), flattened.
+CHECKLIST_ITEM_2 = (
+    "2. **Highly recommended — Natural observation of outcomes.** Establish "
+    "from source records which feasible alternatives have known realized "
+    "outcomes and, where some do not, why. Preserve every known outcome, for "
+    "alternatives taken and not taken alike. Where outcomes are unknown, the "
+    "missingness must arise from the operation or constructed instrument: an "
+    "offer not taken whose result cannot be valued, an unexecuted contingent "
+    "process, unavailable counterfactual fills, or another genuine observation "
+    "limit. Masking records or inventing uncertainty never establishes "
+    "applicability. A fully observed history — every feasible alternative's "
+    "outcome known — is equally valid: current P34 models fit it as fully "
+    "observed, so no observation limit has to be constructed.")
+CHECKLIST_ITEM_3 = (
+    "3. **Must hold — Historical menus covering the deployment distribution.** "
+    "Where outcomes are only partly observed, the unobserved ones produce "
+    "biased observation. This is normal, and P34 is designed for these "
+    "situations; a fully observed history carries no such bias. Either way, "
+    "P34 must receive the full options menu historically and at task time. "
+    "Historical menus can have unknown outcomes, but their selection of "
+    "options must cover the deployment distribution: each menu should "
+    "represent what the task menu would have been at that past decision time. "
+    "Occasional incomplete menus are acceptable only when history still "
+    "contains menus of varying completeness approaching deployment menu "
+    "sizes. Report those departures. It is highly recommended that every "
+    "historical menu cover the deployment distribution exactly.")
+
+
+class FullyObservedHistoryLanguageTest(unittest.TestCase):
+
+    def test_no_text_requires_unlabeled_history(self):
+        for path in [*PUBLIC_TEXT, *FULLY_OBSERVED_EXAMPLES]:
+            text = _unquoted(path).replace("*", "").lower()
+            for phrase in RETIRED_UNLABELED_REQUIREMENT:
+                self.assertNotIn(phrase, text, (path, phrase))
+
+    def test_checklist_items_2_and_3_are_the_owners_text(self):
+        text = _flat(ROOT / "docs" / "10-applicability-assessment.md")
+        self.assertIn(CHECKLIST_ITEM_2, text)
+        self.assertIn(CHECKLIST_ITEM_3, text)
+        self.assertNotIn("If the originally proposed market has fully observed "
+                         "outcomes", text)
+
+    def test_a_fully_observed_history_is_accepted(self):
+        data_format = _flat(ROOT / "docs" / "03-data-format.md")
+        self.assertIn("### How much unlabeled context is enough Any amount, "
+                      "including none.", data_format)
+        self.assertIn("current model versions fit either", data_format)
+        errors = _flat(ROOT / "docs" / "04-errors-and-checks.md")
+        self.assertIn("An `unlabeled_rows` of 0 is fine", errors)
+        # the one remaining refusal is a legacy model's, and says so
+        self.assertIn("the history contains only observed outcomes and the "
+                      "fit runs a legacy model version — `rc015`, `rc016` or "
+                      "`r003-alpha-ray` — which needs groups without an "
+                      "outcome.", errors)
+        self.assertIn("Never blank or mask a known outcome", errors)
+
+    def test_inbound_anchors_keep_their_headings(self):
+        # other pages, the skills and hyperc.com link these anchors
+        overview = (ROOT / "docs" / "01-overview.md").read_text()
+        self.assertIn("\n## Observed and unobserved outcomes: the load-bearing "
+                      "requirement\n", overview)
+        data_format = (ROOT / "docs" / "03-data-format.md").read_text()
+        self.assertIn("\n## Include the deals you did not take\n", data_format)
+        self.assertIn("\n### How much unlabeled context is enough\n",
+                      data_format)
 
 
 if __name__ == "__main__":
