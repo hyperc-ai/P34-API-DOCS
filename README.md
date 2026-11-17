@@ -49,7 +49,7 @@ validation and the model fit still run; see
 
 Use the [P34 Applicability Assessment](docs/10-applicability-assessment.md)
 before submitting a constructed business pipeline. It covers executable
-instruments, natural observation limits, historical coverage, at least 100
+instruments, natural observation of outcomes, historical coverage, at least 100
 genuine configurations per assessed menu (target 1,000+), source completeness,
 decision-time integrity, natural sizing, full accounting, investment horizons,
 terminal policies, and any streaming context or external business constraints.
@@ -61,7 +61,7 @@ profitability are separate conclusions.
 
 - ✅ You face **menu-shaped decisions**: inventory purchasing, wholesale lots, loan approvals, load acceptance, contract sizing — many (item, quantity) options per decision moment.
 - ✅ The menu is **wide**: hundreds to thousands of candidate deals per decision moment, far more than anyone could evaluate by hand. A handful of deals is not a P34 problem — see [Where it pays](#where-it-pays-reject-markets-at-scale).
-- ✅ You have **history**, including the options with no outcome attached — or you're willing to start logging it. No trading record at all? A history assembled from market research and replayed past deals is a first-class input — `historically_chosen` records your previous policy and is optional; see [your previous business policy](docs/03-data-format.md#your-previous-business-policy-what-historically_chosen-marks). Use the default `business_led` grounding. [enterprise client-side grounding](docs/02-endpoints.md#bringing-your-own-labels-client_grounded) is reserved for enterprise clients preserving private knowledge and know-how; consult HyperC before considering it because correct client grounding requires vast compute resources.
+- ✅ You have **history**, including the options you did not take — or you're willing to start logging it. No trading record at all? A history assembled from market research and replayed past deals is a first-class input — `historically_chosen` records your previous policy and is optional; see [your previous business policy](docs/03-data-format.md#your-previous-business-policy-what-historically_chosen-marks). Use the default `business_led` grounding. [enterprise client-side grounding](docs/02-endpoints.md#bringing-your-own-labels-client_grounded) is reserved for enterprise clients preserving private knowledge and know-how; consult HyperC before considering it because correct client grounding requires vast compute resources.
 - ✅ You can measure an economic outcome: profit, contribution margin, recovery, yield.
 - ✅ You want an executable answer — sizes and predicted economics — not a dashboard.
 - ✅ You're wiring an **AI agent** (Claude, ChatGPT, open models, custom code) to real commercial decisions and need the one step it can't do alone.
@@ -70,7 +70,7 @@ profitability are separate conclusions.
 
 ## Why not just train a regressor on your history?
 
-Your history is **biased**: outcomes exist only for a subset of the options — the ones your business actually took, or the ones a research-built history could safely value — and that subset was never drawn at random. A model trained naively on it looks great on the observed holdout — then over-buys false positives on the full future menu it was never forced to refuse.
+Your history is usually **biased**: outcomes exist only for a subset of the options — the ones your business actually took, or the ones a research-built history could safely value — and that subset was never drawn at random. A model trained naively on it looks great on the observed holdout — then over-buys false positives on the full future menu it was never forced to refuse. P34 corrects for that bias; a history in which every option's outcome is known carries none, and P34 fits it as fully observed.
 
 | | Naive profit regressor | P34 |
 | --- | --- | --- |
@@ -137,11 +137,11 @@ You send **two tables and a config**, and later receive **one predicted menu**:
   per *(key, quantity option)*. Historical menus are the model's **context**:
   P34 is pre-trained, so fitting on your history doesn't teach it markets from
   scratch — it calibrates the model to *your* market before it answers.
-  "Every option" is literal: the options carrying **no** trustworthy outcome
-  belong in the context too — the service **refuses a history in which every
-  group is observed**. That two-part structure (some outcomes safely known,
-  others enterable but never tested) is what makes a market computable in the
-  first place — see [observed and unobserved
+  "Every option" is literal: the options you did not take belong in the
+  context too, labeled where you know their outcome and with no `profit` where
+  nobody can. A history can be partially observed (some outcomes safely known,
+  others enterable but never tested) or fully observed; P34 fits both — see
+  [observed and unobserved
   outcomes](docs/01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement).
 - **Sales** — your realized sales log. Used to *ground* the history: the service
   replays your inventory economics (holding costs, write-offs, fees) to
@@ -408,7 +408,7 @@ Markets proposed but not yet catalogued sit on the
 - **Not investment advice.** Output is statistical decision support; you own the decisions, the execution, the capital and the results.
 - **Not an uncontrolled bot.** Recommended deployment runs menu grounding → shadow test → capped pilot → scale, with caps, audit logs and kill switches.
 - **Not a calculator for a handful of deals.** If the menu is a few options you could score by hand, the market is wrong, the collection is broken, or the point was missed — P34 exists to work menus of hundreds to thousands of deals, at scale. See [Where it pays](#where-it-pays-reject-markets-at-scale).
-- **Not magic.** It requires policy-selection signal (you had more options than you took), tolerates minutes of latency, and refuses work its validation can't stand behind.
+- **Not magic.** It requires whole menus (every option you faced, not only the ones you took), tolerates minutes of latency, and refuses work its validation can't stand behind.
 
 *Built to pursue profit — not generate pretty answers.*
 

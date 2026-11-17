@@ -1,9 +1,9 @@
 """Demo: P34 vs an industry-standard boosting profit regressor.
 
-The point of this demo is the failure mode P34 is designed to avoid. Your
-history is BIASED: you only observed profits for the options your business
-actually took, and it took them selectively. A regressor trained on that
-history looks great on business-observed holdouts — and then over-trades
+The point of this demo is the failure mode P34 is designed to avoid. A business
+history is usually BIASED: you only observed profits for the options your
+business actually took, and it took them selectively. A regressor trained on
+that history looks great on business-observed holdouts — and then over-trades
 false positives on the full future menu.
 
 What the script does:
@@ -116,9 +116,9 @@ def build_history(keys: pd.DataFrame, weeks: int = 12, seed: int = 4):
                     "qty": q, "historically_available": 1,
                     # the business's previous policy: the size it actually
                     # ordered. A declined group carries NO flag — the column
-                    # records what was taken, and the group stays in as the
-                    # unlabeled context P34 needs (nothing is dropped for a
-                    # missing flag).
+                    # records what was taken, and the group stays in the menu
+                    # as unlabeled context, its outcome unknown (nothing is
+                    # dropped for a missing flag).
                     "historically_chosen": int(q == chosen[i] and not declined[i]),
                     "profit": float(profit[i]) if (q == chosen[i] and not declined[i]) else None,
                 })

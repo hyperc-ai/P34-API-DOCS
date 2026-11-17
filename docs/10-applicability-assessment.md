@@ -29,32 +29,30 @@ establish applicability, and applicability does not demonstrate profitability.
    operation. A constructed instrument must be operationally feasible and
    economically meaningful.
 
-2. **Highly recommended — Natural unobserved outcomes.** Establish from source
-   records why some feasible alternatives have unknown realized outcomes.
-   Missingness must arise from the operation or constructed instrument: an
-   offer not taken, an unexecuted contingent process, unavailable
-   counterfactual fills, or another genuine observation limit. Preserve known
-   outcomes; masking records or inventing uncertainty does not establish
-   applicability. If the originally proposed market has fully observed
-   outcomes, check whether an economically meaningful business process can be
-   constructed through size or capacity commitments, market-making,
-   contingent multi-leg execution, customer acquisition, bundling,
-   transformation, or alternative contract terms, such that profit depends
-   on customer, counterparty, or operational responses that cannot be
-   reconstructed for unexecuted alternatives. Added complexity or combinations
-   of fully observable payoffs alone do not establish missingness.
+2. **Highly recommended — Natural observation of outcomes.** Establish from source
+   records which feasible alternatives have known realized outcomes and, where
+   some do not, why. Preserve every known outcome, for alternatives taken and
+   not taken alike. Where outcomes are unknown, the missingness must arise from
+   the operation or constructed instrument: an offer not taken whose result
+   cannot be valued, an unexecuted contingent process, unavailable
+   counterfactual fills, or another genuine observation limit. Masking records
+   or inventing uncertainty never establishes applicability. A fully observed
+   history — every feasible alternative's outcome known — is equally valid:
+   current P34 models fit it as fully observed, so no observation limit has to
+   be constructed.
 
-3. **Must hold — Naturally biased observed outcomes and historical menus
-   covering the deployment distribution.** Unobserved outcomes produce biased
-   observation. This is normal, and P34 is designed for these situations. To
-   account for that bias, P34 must receive the full options menu historically
-   and at task time. Historical menus can have unknown outcomes, but their
-   selection of options must cover the deployment distribution: each menu
-   should represent what the task menu would have been at that past decision
-   time. Occasional incomplete menus are acceptable only when history still
-   contains menus of varying completeness approaching deployment menu sizes.
-   Report those departures. It is highly recommended that every historical
-   menu cover the deployment distribution exactly.
+3. **Must hold — Historical menus covering the deployment distribution.**
+   Where outcomes are only partly observed, the unobserved ones produce biased
+   observation. This is normal, and P34 is designed for these situations; a
+   fully observed history carries no such bias. Either way, P34 must receive
+   the full options menu historically and at task time. Historical menus can
+   have unknown outcomes, but their selection of options must cover the
+   deployment distribution: each menu should represent what the task menu
+   would have been at that past decision time. Occasional incomplete menus are
+   acceptable only when history still contains menus of varying completeness
+   approaching deployment menu sizes. Report those departures. It is highly
+   recommended that every historical menu cover the deployment distribution
+   exactly.
 
 4. **Note — Extrapolation without compulsory exploration.** Applicability does
    not require an unbiased sample, paid random trades, deliberately
@@ -168,7 +166,7 @@ establish applicability, and applicability does not demonstrate profitability.
     requirement as **PASS**, **FAIL**, or **UNVERIFIED**, with supporting
     evidence and a concrete remedy for gaps. Declare applicability only when
     all applicable requirements pass; an untested later stage remains
-    unverified. Report source completeness, evidence of selection and
+    unverified. Report source completeness, any evidence of selection and
     observation bias, genuine choice counts, observed and unknown outcomes,
     sizing behavior, the extent and causes of unobserved-size uncertainty,
     investment horizon, and terminal policy. Keep **applicability**, **API

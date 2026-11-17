@@ -29,7 +29,7 @@ Nine criteria, each 0–3, at equal weight (the workbook version lets you re-wei
 | Adaptation cadence | latency race, or static | days/hours with combinatorial recomputation |
 | Ops-dependent selection | no operator differentiation | crews, lanes, storage, licences or exit channels change which deals are good |
 
-**Structural fit** = weighted average of the nine, scaled 0–100. **Gate multiplier** applies the four catalogue criteria (enumerable menu, attributable outcome, encodable constraints, repeated feedback with declined options recorded): Y = 1.0, P = 0.9, N = 0.6, multiplied. **Perimeter multiplier**: none 1.0 · licence/registration 0.95 · regulated commerce (gated launch) 0.7 · platform-rule/IP flag 0.6 · financial/securities perimeter 0.4 · prohibited or contract-barred 0.1. **Actionable score** = structural × gate × perimeter; the table is sorted on it.
+**Structural fit** = weighted average of the nine, scaled 0–100. **Partial observability** is scored, not required: a market that scores 0 on it is fully observed, and P34 fits a fully observed history as it is. **Gate multiplier** applies the four catalogue criteria (enumerable menu, attributable outcome, encodable constraints, repeated feedback with declined options recorded): Y = 1.0, P = 0.9, N = 0.6, multiplied. **Perimeter multiplier**: none 1.0 · licence/registration 0.95 · regulated commerce (gated launch) 0.7 · platform-rule/IP flag 0.6 · financial/securities perimeter 0.4 · prohibited or contract-barred 0.1. **Actionable score** = structural × gate × perimeter; the table is sorted on it.
 
 ## The 67 candidates
 

@@ -66,9 +66,9 @@ answer means. Take them from the response, not from what you believe you sent:
   [your previous business policy](../../docs/03-data-format.md#your-previous-business-policy-what-historically_chosen-marks);
   an unexpected `absent` usually means a `TRUE`/`FALSE` export.
 - **`labeled_rows` / `unlabeled_rows` / `task_menu_rows`** — the size and shape
-  of what was fitted, and whether every option you sent arrived. A thin
-  unlabeled share is the condition that trains a take-all policy, so it is a
-  caveat on *these* recommendations — see
+  of what was fitted, and whether every option you sent arrived. No share of
+  unlabeled rows is required: `unlabeled_rows` of 0 means every historical
+  outcome was known and the history was fitted as fully observed — see
   [how much unlabeled context is enough](../../docs/03-data-format.md#how-much-unlabeled-context-is-enough).
 
 ### 2. The `qty > 0` rows together are the portfolio
@@ -129,8 +129,8 @@ not a forecast anyone owes you. Give it its context in a line or two:
   corrections. Two points are enough to show whether the selection is stable
   or hangs on the setting, and it is the cheapest way to choose the next fit's
   correction ([Confidence correction](../../docs/02-endpoints.md#confidence-correction));
-- the limits already found in step 1 — history span, unlabeled share, dropped
-  rows, and how much of your task menu was actually scored.
+- the limits already found in step 1 — history span, dropped rows, and how
+  much of your task menu was actually scored.
 
 A request for brevity shortens this to a sentence. It does not remove it: a
 number presented with no uncertainty is a different claim from the one the

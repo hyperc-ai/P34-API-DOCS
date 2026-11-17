@@ -52,12 +52,14 @@ The response fills in the task menu: for each key, the selected quantity
 
 ## Why not just a regressor?
 
-Your history is **biased**: outcomes exist only for a subset of the options —
-the ones your business actually took, or, on a history assembled by research
-and replay, the ones you could safely value — and that subset was not drawn at
-random. A model trained naively on it looks great on the observed holdout and
-then over-trades false positives on the full future menu, because it has never
-been shown the options nobody priced.
+Your history is usually **biased**: outcomes exist only for a subset of the
+options — the ones your business actually took, or, on a history assembled by
+research and replay, the ones you could safely value — and that subset was not
+drawn at random. A model trained naively on it looks great on the observed
+holdout and then over-trades false positives on the full future menu, because
+it has never been shown the options nobody priced. P34 corrects for that bias;
+a history in which every option's outcome is known carries none, and P34 fits
+it as fully observed.
 
 P34's principles, at the level relevant to a user:
 
@@ -105,8 +107,8 @@ The distinctions run along four dimensions:
    is generally available, and any edge is easy to detect and exploit without
    a complex machine-learning / deep-learning system, so it is arbitraged away
    almost immediately.
-3. **The data is honestly bad.** On P34-favored markets the data is **biased
-   and only partially observed**, and the collectable features are typically
+3. **The data is honestly bad.** On P34-favored markets the data is usually
+   **biased and only partially observed**, and the collectable features are typically
    **indirect signals** about the market — a sales rank, a stock-out flag, a
    category trend — rather than true volumes, order-book depths, the entire
    tape of deals traded by every player, plus the limit orders demonstrating
@@ -120,39 +122,48 @@ The distinctions run along four dimensions:
 
 ## Observed and unobserved outcomes: the load-bearing requirement
 
+The requirement that carries the fit is an honest record of the whole menu:
+every option that was available at each decision moment, taken or not, with
+its outcome labeled where it is known and left blank where it is genuinely
+unknown. A blank `profit` is never `0` and never missing data to fill in.
+
+A history can be **partially observed**, with some outcomes unknown, or
+**fully observed**, with every outcome known; current P34 models fit both.
+Where outcomes are only partly observed, the known ones are a biased sample,
+and correcting for that bias is what P34 is designed for. A fully observed
+history carries no such bias, and no observation limit has to be constructed
+for it. Either way the fit needs known outcomes: a history with nothing known
+has nothing to calibrate against. See
+[fit-time failures](04-errors-and-checks.md#fit-time-failures).
+
 The [applicability assessment](10-applicability-assessment.md#checklist) highly
-recommends natural unobserved outcomes: source evidence should explain why a
-feasible alternative's realized result is unknown. Preserve known outcomes.
-A declined offer, a contingent process that was not executed, or unavailable
-counterfactual fills can establish an observation limit. Masking records or
-inventing uncertainty cannot.
+recommends natural observation of outcomes: source evidence should establish
+which feasible alternatives have known realized outcomes and, where some do
+not, why. Preserve every known outcome, for alternatives taken and not taken
+alike. A declined offer whose result cannot be valued, a contingent process
+that was not executed, or unavailable counterfactual fills can establish an
+observation limit. Masking records or inventing uncertainty cannot.
 
-The fit itself also needs both observed and unobserved context. A history in
-which every group is labeled is refused at intake or fails during fitting,
-depending on the requested checks; a history with nothing known has nothing to
-calibrate against. See [fit-time failures](04-errors-and-checks.md#fit-time-failures).
-These are service requirements, distinct from the checklist's recommendation
-about natural missingness.
-
-The split does not require an unbiased sample or compulsory exploratory trades.
-A history reconstructed from source evidence and defensible replay can be used
-without a previous operating policy; `historically_chosen` remains optional.
-Keep the full opportunity menus, including unattractive and unchosen options,
-so history covers the distribution of choices faced at deployment. See
-[Your previous business policy](03-data-format.md#your-previous-business-policy-what-historically_chosen-marks).
+Neither kind of history requires an unbiased sample or compulsory exploratory
+trades. A history reconstructed from source evidence and defensible replay can
+be used without a previous operating policy; `historically_chosen` remains
+optional. Keep the full opportunity menus, including unattractive and unchosen
+options, so history covers the distribution of choices faced at deployment.
+See [Your previous business policy](03-data-format.md#your-previous-business-policy-what-historically_chosen-marks).
 
 ### Advanced strategies: constructing the business process
 
-If the original market reveals every payoff, investigate an operationally
-meaningful construction: size or capacity commitments, market-making,
-contingent multi-leg execution, customer acquisition, bundling, transformation,
-or alternative contract terms. The construction must be feasible, and profit
-must depend on customer, counterparty, or operational responses that cannot be
-reconstructed for unexecuted alternatives. Combining fully observable payoffs
-or adding complexity alone does not create missingness. Record the evidence
-and assess the construction before submission.
+A market that reveals every payoff needs no construction: its history is fully
+observed, and current P34 models fit it as it is. Construct a business process —
+size or capacity commitments, market-making, contingent multi-leg execution,
+customer acquisition, bundling, transformation, or alternative contract terms —
+only where it is operationally feasible and economically meaningful in its own
+right, for example to create more genuine portfolio opportunities
+([checklist items 1 and 5](10-applicability-assessment.md#checklist)). Never
+construct one to hide outcomes. Record the evidence and assess the
+construction before submission.
 
-Which markets clear that bar in practice is catalogued in
+Which markets are computable in practice is catalogued in
 [05-market-catalog.md](05-market-catalog.md) — 69 of them, from Amazon wholesale
 and micro-lending down to expiring domain drops and local lead arbitrage, each
 with its support state. Read that before the industry cases; it is the overview.
@@ -211,8 +222,8 @@ a small task menu being accepted is not evidence that the scale check passed.
 The point of the first weeks on a market is a demonstration, and its priority
 is fixed:
 
-- **(a) The data can be obtained quickly** — enough history, with the
-  observed/unobserved split, to build the calibration dataset. If collecting
+- **(a) The data can be obtained quickly** — enough history, whole menus with
+  every known outcome labeled, to build the calibration dataset. If collecting
   it is slow or manual, that is the first thing to fix, not something to work
   around.
 - **(b) The deals can be executed and the results come back fast** — proving
