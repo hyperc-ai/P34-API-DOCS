@@ -51,19 +51,19 @@ def build_sheets(n_keys: int = 300, qtys: int = 3, seed: int = 7,
     ``ground_all=True`` is the shape a ``client_grounded`` fit sends: a profit on
     EVERY quantity option of an observed key, not only the one the desk took,
     because the caller valued the alternatives themselves. The declined keys stay
-    unlabeled either way — that split is what the model learns from, and it is the
-    caller's job to preserve it in this mode (see docs/02-endpoints.md,
-    "Bringing your own labels").
+    unlabeled either way, because nobody valued them in this sample; in this mode
+    it is the caller's job to label exactly the outcomes it knows (see
+    docs/02-endpoints.md, "Bringing your own labels").
 
     Sized to the model's data floors (see docs/03-data-format.md): roughly a
     fifth of the keys are deals the desk DECLINED — their menu groups stay in
     with NO historically_chosen flag (the desk took nothing, and the column
-    records only what it actually took) and profit blank, becoming the
-    unlabeled context current models require. A desk with no such record at
-    all would leave the column out entirely. A fifth is a
-    demo floor, not a target: see "How much unlabeled context is enough" — a
-    history where almost everything was taken trains a take-all policy. The
-    observed side
+    records only what it actually took) and profit blank, because their outcome
+    is unknown: they are the unlabeled context. A desk with no such record at
+    all would leave the column out entirely. The fifth is a property of this
+    sample, not a requirement: no share of unlabeled context is required, and a
+    history in which every outcome is known is fitted as fully observed (see
+    "How much unlabeled context is enough"). The observed side
     needs at least ~100 groups sharing a qty option; the history must span
     enough decision moments (12 menus here, not 2); and each menu needs a
     healthy count of observed deals (hence 300 keys ≈ 20 observed per menu).

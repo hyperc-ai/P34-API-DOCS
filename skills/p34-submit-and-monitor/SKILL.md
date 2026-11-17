@@ -73,10 +73,9 @@ submitted column, as described in
 [what to write](../../docs/02-endpoints.md#what-to-write-in-it). This is an
 economics-quality check, not an additional 422 rule.
 
-Two more conditions are accepted by `/fit` and fail later, so they are worth a
-few lines of pandas now rather than a queue wait: enough observed groups
-sharing a `qty` option, and declined groups actually present. Both are
-described with their fixes in
+One more condition is accepted by `/fit` and fails later, so it is worth a few
+lines of pandas now rather than a queue wait: enough observed groups sharing a
+`qty` option. It is described with its fix in
 [docs/04-errors-and-checks.md](../../docs/04-errors-and-checks.md).
 
 These checks are yours to run, not something to ship: the request body carries

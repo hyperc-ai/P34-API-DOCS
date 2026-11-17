@@ -32,8 +32,10 @@ are evidence, and evidence is immutable:
 **Retain.** Every option that was on the table at a decision moment gets its
 own row, at the granularity it was recorded, with the economics that applied
 to it. That includes the options the business declined, the ones nobody has an
-outcome for, and the ones that lost money. A history in which almost every
-option was taken teaches "take everything" — see
+outcome for, and the ones that lost money. A history cut down to the options
+that were taken does not describe the menus the model will choose from. Label
+every outcome you know, on declined options as well as taken ones; no share of
+unlabeled rows is required — see
 [How much unlabeled context is enough](../../../docs/03-data-format.md#how-much-unlabeled-context-is-enough).
 
 **Blank.** An outcome you do not know is a blank `profit`. `0` is a claim that

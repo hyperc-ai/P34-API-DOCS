@@ -35,8 +35,9 @@ def tiny_market():
     from example_client import MARKET_TYPE, build_sheets
 
     # build_sheets defaults are the smallest CLUSTER-viable size: current
-    # models need ~100 observed groups per qty option plus declined groups as
-    # unlabeled context, so the smoke fit here can also complete end-to-end
+    # models need ~100 observed groups per qty option (the sample's declined
+    # groups ride along as unlabeled context), so the smoke fit here can also
+    # complete end-to-end
     menus, sales = build_sheets(seed=11)
     return menus, sales, MARKET_TYPE
 
@@ -47,7 +48,8 @@ def client_grounded_market():
 
     ``ground_all=True`` puts a profit on each quantity option of an observed
     key — what a client_grounded fit publishes verbatim. The declined keys stay
-    unlabeled, because that observed/unobserved split is still required.
+    unlabeled because the sample never values them; a history labeled on every
+    row would be accepted too, and fitted as fully observed.
     """
     from example_client import MARKET_TYPE, build_sheets
 

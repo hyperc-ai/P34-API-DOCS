@@ -257,10 +257,11 @@ outcomes obtained by replaying or simulating each deal against what the market
 went on to do — is a first-class input, sent without a `historically_chosen`
 column. Nothing in the model requires a purchase order behind a labeled row.
 
-What such a history must still supply is the *split*: some line items with a
-safe, trustworthy outcome and others with genuine observation limits. Preserve
-known outcomes; do not hide labels or invent uncertainty. Constructing an
-operation with natural observation limits is described in [Observed and unobserved
+Such a history can be fully observed, with every line item replayed or
+simulated to a safe, trustworthy outcome, or partially observed, with some
+line items left blank because of a genuine observation limit; P34 fits either.
+Preserve known outcomes; do not hide labels or invent uncertainty. See
+[Observed and unobserved
 outcomes](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement).
 
 ## Include the deals you did not take
@@ -270,20 +271,20 @@ historical group make up the context:
 
 - **Observed** — groups with a known `profit` (on the flagged row where you
   sent `historically_chosen`, on any row where you did not). Their economics
-  are replayed from Sales and they become the **labeled** context.
-- **Unobserved** — groups with no trustworthy outcome. For an operating
-  business these are the deals your process passed on; for a
-  research-assembled history they are the line items you could not replay
-  safely because of a genuine observation limit. Leave `profit` blank on every
-  row of the group, and flag nothing unless the business really took one of
-  the options. They carry no outcome, and that is the point — they become the
-  **unlabeled** context. Nothing else is asked of these rows: no availability
-  flags, no reconstructed decision, no estimated profit, no placeholder flag.
+  are replayed from Sales and they become the **labeled** context. A deal your
+  process passed on belongs here too when its outcome is known: label it.
+- **Unobserved** — groups whose outcome is genuinely unknown. For an operating
+  business these are typically deals your process passed on that nobody can
+  value; for a research-assembled history they are the line items you could
+  not replay safely because of a genuine observation limit. Leave `profit`
+  blank on every row of the group, and flag nothing unless the business really
+  took one of the options. They carry no outcome and become the **unlabeled**
+  context. Nothing else is asked of these rows: no availability flags, no
+  reconstructed decision, no estimated profit, no placeholder flag.
 
-Both kinds are required, and there are volume floors:
+A history can hold both kinds (partially observed) or observed groups only
+(fully observed); current model versions fit either. There are volume floors:
 
-- current model versions refuse a history in which *every* group is observed
-  — `/fit` refuses it at intake, and it cannot be fitted;
 - at least ~100 observed groups must share a qty option, or the fit fails
   with `insufficient_historical_data`;
 - the history must span enough **decision moments**: a toy history of one or
@@ -312,41 +313,29 @@ easily, toy payloads usually don't.
 
 ### How much unlabeled context is enough
 
-Note what the floors above are, and what they are not. They are **absolute
-counts on the observed side** — enough labeled deals for the regressor to have
-something to fit. They are **not a ratio**, and there is no requirement anywhere
-that the labeled rows outnumber the available options, or reach any particular
-share of them. A history of thousands of options with a few hundred outcomes
-among them is entirely normal and entirely fine.
+Any amount, including none. The floors above are **absolute counts on the
+observed side** — enough labeled deals for the regressor to have something to
+fit. They are **not a ratio**: no share of labeled groups and no share of
+unlabeled groups is required. A history of thousands of options with a few
+hundred outcomes among them is entirely normal; so is a history in which every
+outcome is known, which current models fit as fully observed — see [observed
+and unobserved
+outcomes](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement).
 
-The requirement that does bind runs the other way, and only the last of the
-floors above touches it — by rejecting the zero case. **The declined, rejected,
-and untested options must be present in quantity, not merely present.**
+How much of a history is unlabeled follows from what you know, not from a
+target. Label every outcome you know, on the options your business took and
+on the ones it passed on alike, and leave blank only the outcomes nobody can
+know. Never blank a known outcome or invent uncertainty to make unlabeled
+context — see [Keep the record as it is](#keep-the-record-as-it-is).
 
-Here is why the zero check is not enough. If your history shows almost every
-option being taken, then what it describes is a market in which taking
-everything was the right move — and on that data, "take everything" *is* the
-profit-maximising policy. The model will learn it, faithfully. But a take-all
-optimum is an artefact of a history that never recorded a refusal; it is false
-of essentially every real market, where capital, capacity, shelf life, and
-counterparty risk make some deals worth declining. P34's product is the
-refusals, and a history without enough of them gives it nothing to refuse with.
+What every menu does need is every option that was available at that decision
+moment — the declined, rejected, and untested ones included, whatever their
+outcome. P34's product is the refusals, and it learns them from the whole
+menu; a history cut down to the deals that were taken does not describe the
+menus the model will choose from.
 
-There is no server-side threshold for this — intake checks only that the
-unlabeled context is non-empty, and the cluster only that it is non-zero. It is
-on you. Practically: aim for the unlabeled groups to be a **substantial share of
-the history, comparable to or larger than the observed ones**, and treat a
-history that is 90-odd percent observed as a data-collection problem rather than
-a payload ready to send. It will pass every check and then recommend that you
-buy everything.
-
-If your market genuinely reveals almost every outcome, you are not out of
-options — you are in the case that [observed and unobserved
-outcomes](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement)
-is about, where the split has to be constructed rather than found.
-
-`POST /fit` validates shape, not statistics — both conditions surface only
-when the calculation runs; see
+`POST /fit` validates shape, not statistics — a history below the floors
+above can pass intake and fail only when the calculation runs; see
 [Fit-time failures](04-errors-and-checks.md#fit-time-failures).
 
 Historical menus must represent the opportunity distribution at deployment,

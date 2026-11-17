@@ -22,13 +22,9 @@ are separate from business applicability and demonstrated profitability.
   not (the value itself is replayed from Sales). Groups with no known profit
   are the **unlabeled** context. If `labeled_rows` is 0, no historical group
   had a known outcome — check that the rows you know the outcome for carry
-  `profit` values. If `unlabeled_rows` is 0, every group you
-  sent is observed — send the groups with no trustworthy outcome too
-  ([data format](03-data-format.md#include-the-deals-you-did-not-take));
-  current models refuse an all-observed history at fit time. **Read the ratio,
-  not just the zero check:** an `unlabeled_rows` that is a thin slice of the
-  total clears every gate and then trains a take-all policy — see [how much
-  unlabeled context is
+  `profit` values. An `unlabeled_rows` of 0 is fine: every group you sent is
+  observed, and current models fit the history as fully observed. No share of
+  unlabeled context is required — see [how much unlabeled context is
   enough](03-data-format.md#how-much-unlabeled-context-is-enough).
   Under [`client_grounded`](02-endpoints.md#bringing-your-own-labels-client_grounded)
   this counts **rows, not groups**, and the value *is* trusted: every
@@ -134,7 +130,7 @@ ones are:
 
 | condition | you see | fix |
 | --- | --- | --- |
-| the history contains only observed outcomes — no unlabeled context for the model to contrast against. P34 needs both halves of a [partially observed market](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement) | refused at `/fit` with a 422 volume finding; with `checks: "off"` it reaches the cluster and fails as `model_fit_failed` | include genuine unobserved groups with blank `profit`; preserve known outcomes. If every payoff is observable, assess an operational construction under [checklist item 2](10-applicability-assessment.md#checklist); masking labels is not a fix |
+| the history contains only observed outcomes and the fit runs a legacy model version — `rc015`, `rc016` or `r003-alpha-ray` — which needs groups without an outcome. Current models, the default included, fit such a history as [fully observed](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement) | refused at `/fit` with a 422 volume finding; with `checks: "off"` it reaches the cluster and fails as `model_fit_failed` | fit with a current model — omit `model` for the default — or include groups whose outcome is genuinely unknown, with blank `profit`. Never blank or mask a known outcome to get past it |
 | too little observed history — the model needs at least ~100 observed groups sharing a qty option | `insufficient_historical_data` | send more history: more observed keys/menus per qty option |
 | the history spans too few decision moments (the floor is 10) | `insufficient_historical_data` | spread the history over more menus — at least ~10 decision moments, 50+ recommended |
 | every internal fit candidate was skipped — too few observed (outcome-carrying) deals per menu | `insufficient_historical_data` | send more observed deals per decision moment — aim for 20+ per menu |
@@ -198,8 +194,8 @@ cost you time rather than tokens. A fit that fails while grounding is charged
 for the grounding work it metered when the failure is a verdict on your input
 (`billing.failure_kind: "input"`), and not at all when it is ours (`"infra"`).
 Both still cost you a full wait, so catching the volume conditions client-side
-before submitting (count your observed groups per qty; make sure declined
-groups are present) is worth the few lines of pandas.
+before submitting (count your observed groups per qty) is worth the few lines
+of pandas.
 
 ## Quick self-checks before you file a support request
 

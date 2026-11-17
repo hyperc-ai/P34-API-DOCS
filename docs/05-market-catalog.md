@@ -7,12 +7,12 @@ has identified as computable or as a candidate for computability; the
 
 A market is **computable** when feasible actions can be enumerated as a menu, outcomes can
 be attributed back to decisions, constraints can be encoded, and repeated feedback exists.
-One further condition carries most of the weight, and gives this class its other names —
-**rejected-deals markets**, **partially observed markets**: outcomes must be *partially*
-observed. Some can be replayed or simulated safely; others are genuinely enterable but were
-never tested by the business, by the market, or by a trustworthy replay. On a market where
-an ordinary trade would reveal everything, assess whether a feasible business process
-introduces genuine operational observation limits; combining known payoffs alone does not.
+Its outcomes can be fully or only partially observed. On many of these markets — the
+**rejected-deals markets** — some outcomes can be replayed or simulated safely, while others
+are genuinely enterable but were never tested by the business, by the market, or by a
+trustworthy replay; P34 corrects for the bias that partial observation leaves. On a market
+where an ordinary trade would reveal everything, the history is fully observed, and current
+P34 models fit it as it is: no observation limit has to be constructed.
 Use the [17-point P34 Applicability Assessment](10-applicability-assessment.md)
 for the constructed pipeline and its business description before submission. Record
 source and menu coverage, at least 100 genuine configurations per assessed menu

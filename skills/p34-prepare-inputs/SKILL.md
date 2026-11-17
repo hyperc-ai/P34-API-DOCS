@@ -79,8 +79,10 @@ known.
   send the maximum observed quantity with its known result and the item's
   entire known cashflow history in Sales.
 - Keep the rows the business **did not** take. Declined and untested options
-  are the context the fit needs — see
+  are context the fit needs, whether or not their outcome is known — see
   [Include the deals you did not take](../../docs/03-data-format.md#include-the-deals-you-did-not-take).
+  Label every outcome you know from honest evidence, on declined options as
+  well as taken ones.
 - An outcome you do not know is **blank**, never `0`. `0` is the claim "this
   was tried and returned nothing", and the model believes it. A downstream
   tool that dislikes blank cells is a problem on that tool's side of the line,
@@ -203,7 +205,8 @@ identical to a missed instruction.
 
 - sources unchanged since step 1 (compare the recorded checksums);
 - historical rows appear once each, with recorded values;
-- unknown outcomes blank, no `0` placeholders;
+- known outcomes labeled, on declined options as well as taken ones; unknown
+  outcomes blank, no `0` placeholders;
 - T=0 rows: `menu = 0`, every feasible quantity/cost pair present, `profit`
   blank;
 - at most one `historically_chosen = 1` per `(menu, key)`, and no flag

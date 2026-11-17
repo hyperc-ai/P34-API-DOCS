@@ -653,10 +653,11 @@ what the model learns. Two consequences worth designing for:
   option was actually observed, which is a different and much more damaging
   claim than "we do not know".
 - **The [observed / unobserved split](01-overview.md#observed-and-unobserved-outcomes-the-load-bearing-requirement)
-  is now yours to get right.** Labeling every row you send leaves the model no
-  declined options to contrast against: `/fit` refuses such a history at
-  intake, and with `checks: "off"` the cluster cannot fit it. Send the options
-  you could not value, with `profit` blank.
+  is now yours to get right.** Label every outcome you know, on the options
+  your business took and on the ones it passed on, and leave `profit` blank
+  only where the outcome is genuinely unknown. A history you could value in
+  full carries a label on every row, and current models fit it as fully
+  observed. Never blank a known outcome to create unlabeled context.
 
 `historically_chosen` keeps its usual job here, and stays optional: sent, it
 marks the option your business actually took, and the quantity on that row is
